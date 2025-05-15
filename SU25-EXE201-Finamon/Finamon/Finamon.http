@@ -1,0 +1,6 @@
+@Finamon_HostAddress = http://localhost:5197
+
+GET {{Finamon_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

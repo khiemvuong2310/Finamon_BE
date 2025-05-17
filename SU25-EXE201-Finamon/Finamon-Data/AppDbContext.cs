@@ -12,6 +12,7 @@ namespace Finamon_Data
         // DbSet properties for all entities
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Budget> Budgets { get; set; }
@@ -28,19 +29,28 @@ namespace Finamon_Data
         {
             base.OnModelCreating(modelBuilder);
             
+            // Configure Many-to-Many: User <-> Role via UserRole
+            modelBuilder.Entity<UserRole>()
+                .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles) // ⚠️ Bổ sung liên kết ngược
+                .HasForeignKey(ur => ur.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // Xóa user thì xóa luôn các liên kết
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId)
+                .OnDelete(DeleteBehavior.Restrict); // Không xóa role nếu đang được dùng
+
             // Configure One-to-Many: User -> Expenses
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Expenses)
                 .WithOne(e => e.User)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-                
-            // Configure One-to-Many: Role -> Users
-            modelBuilder.Entity<Role>()
-                .HasMany(r => r.Users)
-                .WithOne(u => u.Role)
-                .HasForeignKey(u => u.RoleId)
-                .OnDelete(DeleteBehavior.Restrict);
                 
             // Configure One-to-Many: Category -> Expenses
             modelBuilder.Entity<Category>()

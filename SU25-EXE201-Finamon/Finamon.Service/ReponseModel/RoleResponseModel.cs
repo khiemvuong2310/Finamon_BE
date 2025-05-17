@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Finamon_Data.Entities
+namespace Finamon.Service.ReponseModel
 {
-    public class Role :BaseEntity
+    public class RoleResponseModel
     {
+        public int Id { get; set; }
         public string Name { get; set; }
-        public virtual ICollection<UserRole>? UserRoles { get; set; } = new List<UserRole>();
     }
 }

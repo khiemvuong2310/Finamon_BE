@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Finamon_Data;
 using Finamon_Data.Entities;
 using Finamon.Service.Interfaces;
 using Finamon.Service.RequestModel;
@@ -20,11 +21,11 @@ namespace Finamon.Service.Services
 {
     public class UserService : IUserService
     {
-        private readonly DbContext _context;
+        private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
 
-        public UserService(DbContext context, IMapper mapper, IConfiguration configuration)
+        public UserService(AppDbContext context, IMapper mapper, IConfiguration configuration)
         {
             _context = context;
             _mapper = mapper;
@@ -191,7 +192,7 @@ namespace Finamon.Service.Services
             userDetail.TotalExpenseAmount = user.Expenses?.Sum(e => e.Amount) ?? 0;
             userDetail.TotalReports = user.Reports?.Count ?? 0;
             userDetail.TotalChatSessions = user.ChatSessions?.Count ?? 0;
-            userDetail.HasActiveMembership = user.UserMemberships?.Any(m => m.ExpiryDate > DateTime.Now) ?? false;
+            //userDetail.HasActiveMembership = user.UserMemberships?.Any(m => m.ExpiryDate > DateTime.Now) ?? false;
 
             return userDetail;
         }

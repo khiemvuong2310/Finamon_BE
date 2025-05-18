@@ -9,7 +9,6 @@ namespace Finamon_Data.Entities
     public class Membership : BaseEntity
     {
         public string Name { get; set; }
-
         public ICollection<UserMembership> UserMemberships { get; set; }
     }
 }

@@ -99,6 +99,14 @@ namespace Finamon_Data
             modelBuilder.Entity<Blog>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<ChatSession>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<Chat>().HasQueryFilter(m => !m.IsDelete);
+
+
+            //SeedData
+            modelBuilder.Entity<Role>().HasData(
+                new Role { Id = 1, Name = "Admin" },
+                new Role { Id = 2, Name = "Staff" },
+                new Role { Id = 3, Name = "Customer" }
+                );
         }
     }
 }

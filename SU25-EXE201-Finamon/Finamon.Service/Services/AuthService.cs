@@ -21,7 +21,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Finamon.Service.Services
 {
-    internal class AuthService
+    public class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
@@ -37,7 +37,7 @@ namespace Finamon.Service.Services
             IConfiguration configuration,
             IUserService userService,
             IUnitOfWork unitOfWork,
-            IHttpContextAccessor httpContextAccessor,
+            IHttpContextAccessor httpContextAccessor
             )
         {
             _configuration = configuration;

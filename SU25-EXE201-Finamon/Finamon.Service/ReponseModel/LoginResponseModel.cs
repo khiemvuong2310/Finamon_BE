@@ -10,7 +10,7 @@ namespace Finamon.Service.ReponseModel
     {
         public string Token { get; set; }
         public string RefreshToken { get; set; }
-        public UserResponseModel User { get; set; }
+        public UserResponse User { get; set; }
         public bool EmailVerified { get; set; }
     }
 }

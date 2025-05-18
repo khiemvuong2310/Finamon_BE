@@ -10,7 +10,8 @@ namespace Finamon.Service.Mapping
         public UserMappingProfile()
         {
             CreateMap<User, UserResponse>()
-                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name));
+                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => 
+                    string.Join(", ", src.UserRoles.Where(ur => ur.Status).Select(ur => ur.Role.Name))));
 
             CreateMap<User, UserDetailResponse>()
                 .IncludeBase<User, UserResponse>()

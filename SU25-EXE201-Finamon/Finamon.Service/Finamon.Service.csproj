@@ -20,12 +20,4 @@
 		<PackageReference Include="RestSharp" Version="112.1.0" />
 	</ItemGroup>
 	
-	<ItemGroup>
-	  <Folder Include="Interfaces\" />
-	  <Folder Include="Mapping\" />
-	  <Folder Include="Services\" />
-	  <Folder Include="RequestModel\" />
-	  <Folder Include="ReponseModel\" />
-	</ItemGroup>
-	
 </Project>

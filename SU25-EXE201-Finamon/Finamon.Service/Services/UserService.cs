@@ -1,0 +1,372 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
+using Finamon_Data;
+using Finamon_Data.Entities;
+using Finamon.Service.Interfaces;
+using Finamon.Service.RequestModel;
+using Finamon.Service.RequestModel.QueryRequest;
+using Finamon.Service.ReponseModel;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Security.Cryptography;
+
+namespace Finamon.Service.Services
+{
+    public class UserService : IUserService
+    {
+        private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
+
+        public UserService(AppDbContext context, IMapper mapper, IConfiguration configuration)
+        {
+            _context = context;
+            _mapper = mapper;
+            _configuration = configuration;
+        }
+
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashedBytes);
+            }
+        }
+
+        public async Task<UserResponse> CreateUserAsync(UserRequest request)
+        {
+            var existingUser = await _context.Set<User>()
+                .FirstOrDefaultAsync(u => u.Email == request.Email || u.UserName == request.UserName);
+
+            if (existingUser != null)
+            {
+                throw new Exception("User with this email or username already exists");
+            }
+
+            var user = _mapper.Map<User>(request);
+            user.Password = HashPassword(request.Password);
+            user.CreatedDate = DateTime.Now;
+            user.UpdatedDate = DateTime.Now;
+            user.Status = true;
+            user.EmailVerified = false;
+
+            await _context.Set<User>().AddAsync(user);
+            await _context.SaveChangesAsync();
+
+            // Tạo UserRole mặc định là Customer (RoleId = 3)
+            var userRole = new UserRole
+            {
+                UserId = user.Id,
+                RoleId = 3, // Customer role
+                Status = true,
+                CreatedDate = DateTime.Now
+            };
+
+            await _context.Set<UserRole>().AddAsync(userRole);
+            await _context.SaveChangesAsync();
+
+            return await GetUserByIdAsync(user.Id);
+        }
+
+        public async Task<UserResponse> UpdateUserAsync(int id, UserUpdateRequest request)
+        {
+            var user = await _context.Set<User>()
+                .Include(u => u.UserRoles)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            _mapper.Map(request, user);
+            user.UpdatedDate = DateTime.Now;
+
+            // Cập nhật Role nếu có
+            if (request.RoleId.HasValue)
+            {
+                var existingUserRole = user.UserRoles.FirstOrDefault();
+                if (existingUserRole != null)
+                {
+                    existingUserRole.RoleId = request.RoleId.Value;
+                    existingUserRole.Status = true;
+                }
+                else
+                {
+                    var newUserRole = new UserRole
+                    {
+                        UserId = user.Id,
+                        RoleId = request.RoleId.Value,
+                        Status = true,
+                        CreatedDate = DateTime.Now
+                    };
+                    await _context.Set<UserRole>().AddAsync(newUserRole);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return await GetUserByIdAsync(user.Id);
+        }
+
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            var user = await _context.Set<User>()
+                .Include(u => u.UserRoles)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.IsDelete = true;
+            user.UpdatedDate = DateTime.Now;
+
+            // Cập nhật trạng thái của UserRole
+            foreach (var userRole in user.UserRoles)
+            {
+                userRole.Status = false;
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<UserResponse> GetUserByIdAsync(int id)
+        {
+            var user = await _context.Set<User>()
+                .Include(u => u.UserRoles.Where(ur => ur.Status))
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Id == id && !u.IsDelete);
+
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            var userResponse = _mapper.Map<UserResponse>(user);
+            var activeRole = user.UserRoles.FirstOrDefault(ur => ur.Status)?.Role;
+            if (activeRole != null)
+            {
+                userResponse.RoleId = activeRole.Id;
+                userResponse.RoleName = activeRole.Name;
+            }
+
+            return userResponse;
+        }
+
+        public async Task<UserDetailResponse> GetUserDetailByIdAsync(int id)
+        {
+            var user = await _context.Set<User>()
+                .Include(u => u.UserRoles.Where(ur => ur.Status))
+                    .ThenInclude(ur => ur.Role)
+                .Include(u => u.Expenses)
+                .Include(u => u.Reports)
+                .Include(u => u.ChatSessions)
+                .Include(u => u.UserMemberships)
+                .FirstOrDefaultAsync(u => u.Id == id && !u.IsDelete);
+
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            var userDetail = _mapper.Map<UserDetailResponse>(user);
+            var activeRole = user.UserRoles.FirstOrDefault(ur => ur.Status)?.Role;
+            if (activeRole != null)
+            {
+                userDetail.RoleId = activeRole.Id;
+                userDetail.RoleName = activeRole.Name;
+            }
+
+            // Tính toán các thống kê
+            userDetail.TotalExpenses = user.Expenses?.Count ?? 0;
+            userDetail.TotalExpenseAmount = user.Expenses?.Sum(e => e.Amount) ?? 0;
+            userDetail.TotalReports = user.Reports?.Count ?? 0;
+            userDetail.TotalChatSessions = user.ChatSessions?.Count ?? 0;
+            //userDetail.HasActiveMembership = user.UserMemberships?.Any(m => m.ExpiryDate > DateTime.Now) ?? false;
+
+            return userDetail;
+        }
+
+        public async Task<List<UserResponse>> GetAllUsersAsync()
+        {
+            var users = await _context.Set<User>()
+                .Include(u => u.UserRoles.Where(ur => ur.Status))
+                    .ThenInclude(ur => ur.Role)
+                .Where(u => !u.IsDelete)
+                .ToListAsync();
+
+            var userResponses = new List<UserResponse>();
+            foreach (var user in users)
+            {
+                var userResponse = _mapper.Map<UserResponse>(user);
+                var activeRole = user.UserRoles.FirstOrDefault(ur => ur.Status)?.Role;
+                if (activeRole != null)
+                {
+                    userResponse.RoleId = activeRole.Id;
+                    userResponse.RoleName = activeRole.Name;
+                }
+                userResponses.Add(userResponse);
+            }
+
+            return userResponses;
+        }
+
+        public async Task<UserResponse> GetUserByEmailAsync(string email)
+        {
+            var user = await _context.Set<User>()
+                .Include(u => u.UserRoles.Where(ur => ur.Status))
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Email == email && !u.IsDelete);
+
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            var userResponse = _mapper.Map<UserResponse>(user);
+            var activeRole = user.UserRoles.FirstOrDefault(ur => ur.Status)?.Role;
+            if (activeRole != null)
+            {
+                userResponse.RoleId = activeRole.Id;
+                userResponse.RoleName = activeRole.Name;
+            }
+
+            return userResponse;
+        }
+
+        public async Task<UserResponse> GetUserByUsernameAsync(string username)
+        {
+            var user = await _context.Set<User>()
+                .Include(u => u.UserRoles.Where(ur => ur.Status))
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.UserName == username && !u.IsDelete);
+
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            var userResponse = _mapper.Map<UserResponse>(user);
+            var activeRole = user.UserRoles.FirstOrDefault(ur => ur.Status)?.Role;
+            if (activeRole != null)
+            {
+                userResponse.RoleId = activeRole.Id;
+                userResponse.RoleName = activeRole.Name;
+            }
+
+            return userResponse;
+        }
+
+        public async Task<(List<UserResponse> Users, int TotalCount)> GetUsersByFilterAsync(UserQueryRequest query)
+        {
+            var queryable = _context.Set<User>()
+                .Include(u => u.UserRoles.Where(ur => ur.Status))
+                    .ThenInclude(ur => ur.Role)
+                .AsQueryable();
+
+            // Áp dụng các bộ lọc
+            if (!string.IsNullOrEmpty(query.Username))
+            {
+                queryable = queryable.Where(u => u.UserName.Contains(query.Username));
+            }
+
+            if (!string.IsNullOrEmpty(query.Email))
+            {
+                queryable = queryable.Where(u => u.Email.Contains(query.Email));
+            }
+
+            if (!string.IsNullOrEmpty(query.Phone))
+            {
+                queryable = queryable.Where(u => u.Phone != null && u.Phone.Contains(query.Phone));
+            }
+
+            if (!string.IsNullOrEmpty(query.Location))
+            {
+                queryable = queryable.Where(u => u.Location != null && u.Location.Contains(query.Location));
+            }
+
+            if (query.Status.HasValue)
+            {
+                queryable = queryable.Where(u => u.Status == query.Status.Value);
+            }
+
+            if (query.RoleId.HasValue)
+            {
+                queryable = queryable.Where(u => u.UserRoles.Any(ur => ur.RoleId == query.RoleId.Value && ur.Status));
+            }
+
+            if (query.EmailVerified.HasValue)
+            {
+                queryable = queryable.Where(u => u.EmailVerified == query.EmailVerified.Value);
+            }
+
+            // Xử lý soft delete
+            if (query.IsDeleted.HasValue)
+            {
+                queryable = queryable.Where(u => u.IsDelete == query.IsDeleted.Value);
+            }
+            else
+            {
+                queryable = queryable.Where(u => !u.IsDelete);
+            }
+
+            // Sắp xếp
+            if (!string.IsNullOrEmpty(query.Sort))
+            {
+                switch (query.Sort.ToLower())
+                {
+                    case "username":
+                        queryable = queryable.OrderBy(u => u.UserName);
+                        break;
+                    case "email":
+                        queryable = queryable.OrderByDescending(u => u.Email);
+                        break;
+                    case "createddate":
+                        queryable = queryable.OrderByDescending(u => u.CreatedDate);
+                        break;
+                    default:
+                        queryable = queryable.OrderByDescending(u => u.CreatedDate);
+                        break;
+                }
+            }
+            else
+            {
+                queryable = queryable.OrderByDescending(u => u.CreatedDate);
+            }
+
+            // Lấy tổng số bản ghi
+            var totalCount = await queryable.CountAsync();
+
+            // Phân trang
+            var users = await queryable
+                .Skip((query.PageNumber - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToListAsync();
+
+            var userResponses = new List<UserResponse>();
+            foreach (var user in users)
+            {
+                var userResponse = _mapper.Map<UserResponse>(user);
+                var activeRole = user.UserRoles.FirstOrDefault(ur => ur.Status)?.Role;
+                if (activeRole != null)
+                {
+                    userResponse.RoleId = activeRole.Id;
+                    userResponse.RoleName = activeRole.Name;
+                }
+                userResponses.Add(userResponse);
+            }
+
+            return (userResponses, totalCount);
+        }
+    }
+} 

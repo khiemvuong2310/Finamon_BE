@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace Finamon_Data.Entities
 {
-    public class Role
+    public class Role :BaseEntity
     {
-        public int Id { get; set; }
         public string Name { get; set; }
-
-        public ICollection<User> Users { get; set; }
+        public virtual ICollection<UserRole>? UserRoles { get; set; } = new List<UserRole>();
     }
 }

@@ -11,7 +11,9 @@ namespace Finamon.Service.Mapping
         {
             CreateMap<User, UserResponse>()
                 .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => 
-                    string.Join(", ", src.UserRoles.Where(ur => ur.Status).Select(ur => ur.Role.Name))));
+                    string.Join(", ", src.UserRoles.Where(ur => ur.Status).Select(ur => ur.Role.Name))))
+                .ForMember(dest => dest.UserRoles, opt => opt.MapFrom(src => 
+                    src.UserRoles.Where(ur => ur.Status).Select(ur => new UserRoleResponseNameModel { RoleName = ur.Role.Name })));
 
             CreateMap<User, UserDetailResponse>()
                 .IncludeBase<User, UserResponse>()

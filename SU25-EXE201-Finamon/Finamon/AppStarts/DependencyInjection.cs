@@ -41,10 +41,12 @@ namespace Finamon.AppStarts
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IExpenseService, ExpenseService>();
 
             // Thêm AutoMapper vào dịch vụ
             services.AddAutoMapper(typeof(UserMappingProfile));
             services.AddAutoMapper(typeof(UserRoleMapping));
+            services.AddAutoMapper(typeof(ExpenseMappingProfile));
         }
     }
 }

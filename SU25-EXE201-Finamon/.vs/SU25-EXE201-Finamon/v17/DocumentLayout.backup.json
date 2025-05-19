@@ -113,7 +113,7 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedHeight": 1019,
+          "DockedHeight": 1693,
           "SelectedChildIndex": 11,
           "Children": [
             {
@@ -216,7 +216,7 @@
               "RelativeDocumentMoniker": "Finamon\\Program.cs",
               "ToolTip": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Program.cs",
               "RelativeToolTip": "Finamon\\Program.cs",
-              "ViewState": "AgIAABQAAAAAAAAAAAAowCYAAAA/AAAAAAAAAA==",
+              "ViewState": "AgIAABQAAAAAAAAAAAAowGcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-18T12:41:36.996Z",
               "EditorCaption": ""
@@ -452,7 +452,7 @@
           ]
         },
         {
-          "DockedHeight": 972,
+          "DockedHeight": 298,
           "SelectedChildIndex": -1,
           "Children": [
             {

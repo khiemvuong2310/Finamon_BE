@@ -100,7 +100,7 @@ namespace Finamon
 
             app.UseHttpsRedirection();
 
-            app.UseCors("AllowNextApp");
+            app.UseCors("AllowReactApp");
 
             app.UseAuthentication();
 

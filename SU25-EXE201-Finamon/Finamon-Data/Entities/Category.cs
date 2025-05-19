@@ -10,6 +10,10 @@ namespace Finamon_Data.Entities
     {
         public string Name { get; set; }
 
+        public DateTime CreatedDate { get; set; }
+
+        public DateTime? UpdatedDate { get; set; }
+
         public ICollection<Expense> Expenses { get; set; }
     }
 }

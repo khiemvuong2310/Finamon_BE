@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Finamon_Data.Entities
 {
-    public class ChatSession :BaseEntity
+    public class ChatSession : BaseEntity
     {
         public DateTime StartedAt { get; set; }
 
@@ -14,5 +14,6 @@ namespace Finamon_Data.Entities
         public User User { get; set; }
 
         public ICollection<Chat> Chats { get; set; }
+        public DateTime? UpdatedDate { get; set; }
     }
 }

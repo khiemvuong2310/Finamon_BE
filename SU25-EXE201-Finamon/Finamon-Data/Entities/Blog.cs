@@ -10,6 +10,7 @@ namespace Finamon_Data.Entities
     {
         public string Title { get; set; }
         public string Content { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
     }
 }

@@ -27,14 +27,6 @@ namespace Finamon.AppStarts
 
             services.AddSingleton<ITwilioRestClient>(new TwilioRestClient("ACCOUNT_SID", "AUTH_TOKEN"));
 
-            ////Add DbContext
-            //services.AddDbContext<AppDbContext>(options =>
-            //{
-            //    var connectionString = configuration.GetConnectionString("DefaultConnection");
-            //    var serverVersion = new MySqlServerVersion(new Version(8, 0, 2));
-            //    options.UseMySql(connectionString, serverVersion);
-            //});
-
             //Add Scoped
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -42,11 +34,13 @@ namespace Finamon.AppStarts
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IExpenseService, ExpenseService>();
+            services.AddScoped<IBudgetService, BudgetService>();
 
             // Thêm AutoMapper vào dịch vụ
             services.AddAutoMapper(typeof(UserMappingProfile));
             services.AddAutoMapper(typeof(UserRoleMapping));
             services.AddAutoMapper(typeof(ExpenseMappingProfile));
+            services.AddAutoMapper(typeof(BudgetMappingProfile));
         }
     }
 }

@@ -349,7 +349,7 @@ namespace Finamon.Service.Services
                     Location = adminCreateAccountModel.Location,
                     UserName = adminCreateAccountModel.Username,
                     Email = adminCreateAccountModel.Email,
-                    Password = PasswordTools.HashPassword("0123456"),
+                    Password = PasswordTools.HashPassword("12345678"),
                     Phone = adminCreateAccountModel.Phone,
                     Status = true,
                     EmailVerified = true,

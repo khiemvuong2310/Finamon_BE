@@ -107,6 +107,7 @@ namespace Finamon_Data
                 new Role { Id = 2, Name = "Staff" },
                 new Role { Id = 3, Name = "Customer" }
                 );
+
         }
     }
 }

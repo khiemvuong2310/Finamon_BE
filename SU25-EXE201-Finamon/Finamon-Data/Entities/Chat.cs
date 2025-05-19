@@ -9,9 +9,11 @@ namespace Finamon_Data.Entities
     public class Chat :BaseEntity
     {
         public string Message { get; set; }
-        public DateTime CreatedAt { get; set; }
 
         public int ChatSessionId { get; set; }
         public ChatSession ChatSession { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime? UpdatedDate { get; set; }
     }
 }

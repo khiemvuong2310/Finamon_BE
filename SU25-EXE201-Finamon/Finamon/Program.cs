@@ -34,9 +34,9 @@ namespace Finamon
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowNextApp", policy =>
+                options.AddPolicy("AllowReactApp", policy =>
                 {
-                    policy.WithOrigins("http://localhost:3000")
+                    policy.WithOrigins("http://localhost:5173","https://finamon.pages.dev/")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();
@@ -54,6 +54,7 @@ namespace Finamon
                     Version = "v1"
                 });
 
+                //c.CustomSchemaIds(type => type.FullName); // 🔥 Thêm dòng này
 
                 var securitySchema = new OpenApiSecurityScheme
                 {
@@ -100,7 +101,7 @@ namespace Finamon
 
             app.UseHttpsRedirection();
 
-            app.UseCors("AllowNextApp");
+            app.UseCors("AllowReactApp");
 
             app.UseAuthentication();
 

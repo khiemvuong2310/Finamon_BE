@@ -36,7 +36,7 @@ namespace Finamon
             {
                 options.AddPolicy("AllowReactApp", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173")
+                    policy.WithOrigins("http://localhost:5173", "https://finamon.pages.dev/")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();

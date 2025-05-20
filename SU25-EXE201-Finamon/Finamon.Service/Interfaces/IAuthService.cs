@@ -8,7 +8,7 @@ namespace Finamon.Service.Interfaces
         Task<BaseResponse<TokenModel>> AdminGenAcc(AdminCreateAccountModel adminCreateAccountModel);
         Task<BaseResponseForLogin<LoginResponseModel>> AuthenticateAsync(string email, string password);
         Task<BaseResponse> ForgotPassword(ForgotPasswordRequest request);
-        string GenerateJwtToken(string username, string roleName, int userId);
+        string GenerateJwtToken(string email, string roleName, int userId);
         string GeneratePassword();
         Task<BaseResponse<TokenModel>> RefreshTokenAsync(string refreshToken);
         Task<BaseResponse<TokenModel>> RegisterAsync(RegisterRequestModel registerModel);

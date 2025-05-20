@@ -107,10 +107,10 @@ namespace Finamon.Service.Services
                 }
 
                 var userDetails = await _userService.GetUserByEmailAsync(email);
-                var userWithRole = await _userService.GetUserByUsernameAsync(userDetails.UserName);
+                var userWithRole = await _userService.GetUserByEmailAsync(userDetails.Email);
                 var roleNames = userWithRole.UserRoles.Select(ur => ur.RoleName).ToList();
 
-                string token = GenerateJwtToken(userDetails.UserName, string.Join(",", roleNames), userDetails.Id);
+                string token = GenerateJwtToken(userDetails.Email, string.Join(",", roleNames), userDetails.Id);
                 string refreshToken = GenerateRefreshToken();
 
                 // Store refresh token in user record
@@ -159,22 +159,22 @@ namespace Finamon.Service.Services
             }
         }
 
-        public string GenerateJwtToken(string username, string roleName, int userId)
+        public string GenerateJwtToken(string email, string roleNames, int userId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
 
             // Tạo danh sách claims
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, username),
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-            };
+    {
+        new Claim(ClaimTypes.Name, email), // ✅ Dùng email thay vì username
+        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+    };
 
             // Thêm từng role riêng biệt
-            if (!string.IsNullOrEmpty(roleName))
+            if (!string.IsNullOrEmpty(roleNames))
             {
-                foreach (var role in roleName.Split(',').Select(r => r.Trim()))
+                foreach (var role in roleNames.Split(',').Select(r => r.Trim()))
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role));
                 }
@@ -190,6 +190,7 @@ namespace Finamon.Service.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+
 
         private string GenerateRefreshToken()
         {
@@ -222,7 +223,7 @@ namespace Finamon.Service.Services
                 var userDetails = await _userService.GetUserByIdAsync(user.Id);
                 var roleNames = userDetails.UserRoles.Select(ur => ur.RoleName).ToList();
 
-                string newToken = GenerateJwtToken(userDetails.UserName, string.Join(",", roleNames), userDetails.Id);
+                string newToken = GenerateJwtToken(userDetails.Email, string.Join(",", roleNames), userDetails.Id);
                 string newRefreshToken = GenerateRefreshToken();
 
                 // Update refresh token in database
@@ -271,11 +272,11 @@ namespace Finamon.Service.Services
 
                 var user = new User()
                 {
-                    Location = registerModel.Location,
-                    UserName = registerModel.Username,
+                    //Location = registerModel.Location,
+                    //UserName = "Customer",
                     Email = registerModel.Email,
                     Password = PasswordTools.HashPassword(registerModel.Password),
-                    Phone = registerModel.Phone,
+                    //Phone = registerModel.Phone,
                     Status = true,
                     EmailVerified = false // Set EmailVerified to false by default
                 };
@@ -382,9 +383,9 @@ namespace Finamon.Service.Services
                 );
 
                 // Tạo token
-                var userWithRole = await _userService.GetUserByUsernameAsync(user.UserName);
+                var userWithRole = await _userService.GetUserByIdAsync(user.Id);
                 var roleNames = string.Join(",", userWithRole.UserRoles.Select(ur => ur.RoleName));
-                string token = GenerateJwtToken(user.UserName, roleNames, userId);
+                string token = GenerateJwtToken(user.Email, roleNames, userId);
 
                 return new BaseResponse<TokenModel>
                 {
@@ -470,7 +471,7 @@ namespace Finamon.Service.Services
                 await SendEmailAsync(
                     user.Email,
                     "WEB EXCHANGE: YOUR RESET PASSWORD",
-                    GetPasswordResetEmailTemplate(user.UserName, providePassword)
+                    GetPasswordResetEmailTemplate(user.Email, providePassword)
                 );
 
                 await _unitOfWork.Repository<User>().Update(user, user.Id);
@@ -598,7 +599,7 @@ namespace Finamon.Service.Services
 </html>";
         }
 
-        private string GetPasswordResetEmailTemplate(string username, string password)
+        private string GetPasswordResetEmailTemplate(string? email, string password)
         {
             return @"
 <html>
@@ -642,7 +643,7 @@ namespace Finamon.Service.Services
   <div class='container'>
     <div class='header'>Password Reset Request</div>
     <div class='content'>
-      <p>Hello <span class='highlight'>" + username + @"</span>,</p>
+      <p>Hello <span class='highlight'>" + email + @"</span>,</p>
       <p>Your reset password is: <span class='highlight'>" + password + @"</span></p>
       <p>This is a temporary password. Please change your password after logging in.</p>
     </div>
@@ -697,12 +698,30 @@ namespace Finamon.Service.Services
         {
             try
             {
+
                 if (!_verificationCodes.TryGetValue(model.Email, out var verificationData))
                 {
                     return new BaseResponse<TokenModel>
                     {
                         Code = StatusCodes.Status400BadRequest,
                         Message = "No verification code found for this email"
+                    };
+                }
+                if (string.IsNullOrEmpty(verificationData.Code) || string.IsNullOrEmpty(model.VerificationCode))
+                {
+                    return new BaseResponse<TokenModel>
+                    {
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = "Verification code is missing or invalid"
+                    };
+                }
+
+                if (!verificationData.Code.Equals(model.VerificationCode))
+                {
+                    return new BaseResponse<TokenModel>
+                    {
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = "Invalid verification code"
                     };
                 }
 
@@ -750,10 +769,11 @@ namespace Finamon.Service.Services
 
                 // Generate tokens for the verified user
                 var userDetails = await _userService.GetUserByEmailAsync(user.Email);
-                var userWithRole = await _userService.GetUserByUsernameAsync(userDetails.UserName);
+                var userWithRole = await _userService.GetUserByEmailAsync(userDetails.Email);
+
                 var roleNames = userWithRole.UserRoles.Select(ur => ur.RoleName).ToList();
 
-                string token = GenerateJwtToken(userDetails.UserName, string.Join(",", roleNames), userDetails.Id);
+                string token = GenerateJwtToken(userDetails.Email, string.Join(",", roleNames), userDetails.Id);
                 string refreshToken = GenerateRefreshToken();
 
                 // Store refresh token in user record - this indicates email is verified

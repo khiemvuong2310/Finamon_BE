@@ -9,7 +9,7 @@ namespace Finamon_Data.Entities
 {
     public class User :BaseEntity
     {
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
         public string Password { get; set; }
         public string Email { get; set; }
         public string? Phone { get; set; }
@@ -20,8 +20,8 @@ namespace Finamon_Data.Entities
         public bool? Status { get; set; }
         public bool EmailVerified { get; set; } = false;
 
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public DateTime UpdatedDate { get; set; } = DateTime.Now;
+        public DateTime? CreatedDate { get; set; } = DateTime.Now;
+        public DateTime? UpdatedDate { get; set; } = DateTime.Now;
         public virtual ICollection<UserRole>? UserRoles { get; set; }
         public ICollection<Expense> Expenses { get; set; }
         public ICollection<Report> Reports { get; set; }

@@ -4,8 +4,8 @@ namespace Finamon.Service.RequestModel
 {
     public class ExpenseRequest
     {
-        [Required(ErrorMessage = "Description is required")]
-        public string Description { get; set; }
+        //[Required(ErrorMessage = "Description is required")]
+        public string? Description { get; set; }
 
         [Required(ErrorMessage = "Amount is required")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than 0")]

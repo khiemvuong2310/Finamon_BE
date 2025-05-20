@@ -35,6 +35,7 @@ namespace Finamon.AppStarts
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IExpenseService, ExpenseService>();
             services.AddScoped<IBudgetService, BudgetService>();
+            services.AddScoped<IReportService, ReportService>();
 
             // Thêm AutoMapper vào dịch vụ
             services.AddAutoMapper(typeof(UserMappingProfile));

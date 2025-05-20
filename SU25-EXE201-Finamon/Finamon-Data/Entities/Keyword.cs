@@ -8,6 +8,6 @@ namespace Finamon_Data.Entities
 {
     public class Keyword : BaseEntity
     {
-        public string Text { get; set; }
+        public string? Text { get; set; }
     }
 }

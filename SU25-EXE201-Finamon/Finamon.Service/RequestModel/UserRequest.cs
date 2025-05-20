@@ -4,8 +4,7 @@ namespace Finamon.Service.RequestModel
 {
     public class UserRequest
     {
-        [Required]
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
         
         [Required]
         [EmailAddress]

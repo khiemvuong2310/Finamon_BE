@@ -10,6 +10,7 @@ namespace Finamon_Data.Entities
     {
         public string? Name { get; set; }
 
+        public string? Color { get; set; }
         public DateTime CreatedDate { get; set; }
 
         public DateTime? UpdatedDate { get; set; }

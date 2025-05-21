@@ -13,9 +13,9 @@ namespace Finamon.Service.Mapping
             CreateMap<Budget, BudgetResponse>();
             CreateMap<BudgetRequestModel, Budget>();
 
-            // Category mappings
-            CreateMap<Category, CategoryResponse>();
-            CreateMap<CategoryRequestModel, Category>();
+            // BudgetDetail mappings
+            CreateMap<BudgetDetail, BudgetDetailResponse>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name));
 
             // BudgetAlert mappings
             CreateMap<BudgetAlert, BudgetAlertResponse>();

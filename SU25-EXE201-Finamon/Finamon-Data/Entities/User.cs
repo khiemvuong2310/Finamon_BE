@@ -27,5 +27,6 @@ namespace Finamon_Data.Entities
         public ICollection<Report> Reports { get; set; }
         public ICollection<ChatSession> ChatSessions { get; set; }
         public ICollection<UserMembership> UserMemberships { get; set; }
+        public ICollection<Budget> Budgets { get; set; }
     }
 }

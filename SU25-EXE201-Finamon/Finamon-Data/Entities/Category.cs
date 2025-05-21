@@ -15,6 +15,8 @@ namespace Finamon_Data.Entities
 
         public DateTime? UpdatedDate { get; set; }
 
+        // Navigation properties
         public ICollection<Expense> Expenses { get; set; }
+        public ICollection<BudgetDetail> BudgetDetails { get; set; }
     }
 }

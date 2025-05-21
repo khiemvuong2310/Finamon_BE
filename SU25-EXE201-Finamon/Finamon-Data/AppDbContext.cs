@@ -17,6 +17,7 @@ namespace Finamon_Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Budget> Budgets { get; set; }
         public DbSet<BudgetAlert> BudgetAlerts { get; set; }
+        public DbSet<BudgetDetail> BudgetDetails { get; set; }
         public DbSet<Chat> Chats { get; set; }
         public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<Report> Reports { get; set; }
@@ -35,15 +36,36 @@ namespace Finamon_Data
 
             modelBuilder.Entity<UserRole>()
                 .HasOne(ur => ur.User)
-                .WithMany(u => u.UserRoles) // ⚠️ Bổ sung liên kết ngược
+                .WithMany(u => u.UserRoles)
                 .HasForeignKey(ur => ur.UserId)
-                .OnDelete(DeleteBehavior.Cascade); // Xóa user thì xóa luôn các liên kết
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserRole>()
                 .HasOne(ur => ur.Role)
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(ur => ur.RoleId)
-                .OnDelete(DeleteBehavior.Restrict); // Không xóa role nếu đang được dùng
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure One-to-Many: User -> Budgets
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Budgets)
+                .WithOne(b => b.User)
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure One-to-Many: Budget -> BudgetDetails
+            modelBuilder.Entity<Budget>()
+                .HasMany<BudgetDetail>()
+                .WithOne(bd => bd.Budget)
+                .HasForeignKey(bd => bd.BudgetId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure One-to-Many: Budget -> BudgetAlerts
+            modelBuilder.Entity<Budget>()
+                .HasMany(b => b.Alerts)
+                .WithOne(ba => ba.Budget)
+                .HasForeignKey(ba => ba.BudgetId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure One-to-Many: User -> Expenses
             modelBuilder.Entity<User>()
@@ -99,7 +121,15 @@ namespace Finamon_Data
             modelBuilder.Entity<Blog>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<ChatSession>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<Chat>().HasQueryFilter(m => !m.IsDelete);
+            modelBuilder.Entity<BudgetDetail>().HasQueryFilter(m => !m.IsDelete);
+            modelBuilder.Entity<BudgetAlert>().HasQueryFilter(m => !m.IsDelete);
 
+            // Configure One-to-Many: Category -> BudgetDetails
+            modelBuilder.Entity<Category>()
+                .HasMany(c => c.BudgetDetails)
+                .WithOne(bd => bd.Category)
+                .HasForeignKey(bd => bd.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             //SeedData
             modelBuilder.Entity<Role>().HasData(
@@ -107,7 +137,6 @@ namespace Finamon_Data
                 new Role { Id = 2, Name = "Staff" },
                 new Role { Id = 3, Name = "Customer" }
                 );
-
         }
     }
 }

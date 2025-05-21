@@ -29,6 +29,9 @@ namespace Finamon.Service.Services
             var query = _context.Budgets
                 .Include(b => b.Expenses)
                 .Include(b => b.Alerts)
+                .Include(b => b.BudgetDetails)
+                    .ThenInclude(bd => bd.Category)
+                .Include(b => b.User)
                 .AsQueryable();
 
             if (queryRequest != null)
@@ -89,6 +92,9 @@ namespace Finamon.Service.Services
             var budget = await _context.Budgets
                 .Include(b => b.Expenses)
                 .Include(b => b.Alerts)
+                .Include(b => b.BudgetDetails)
+                    .ThenInclude(bd => bd.Category)
+                .Include(b => b.User)
                 .FirstOrDefaultAsync(b => b.Id == id);
 
             if (budget == null)
@@ -99,27 +105,38 @@ namespace Finamon.Service.Services
 
         public async Task<BudgetResponse> CreateBudgetAsync(BudgetRequestModel request)
         {
+            var user = await _context.Users.FindAsync(request.UserId);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {request.UserId} not found");
+
             var budget = _mapper.Map<Budget>(request);
             budget.StartDate = DateTime.UtcNow.AddHours(7);
 
             _context.Budgets.Add(budget);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<BudgetResponse>(budget);
+            return await GetBudgetByIdAsync(budget.Id);
         }
 
         public async Task<BudgetResponse> UpdateBudgetAsync(int id, BudgetRequestModel request)
         {
-            var budget = await _context.Budgets.FindAsync(id);
+            var budget = await _context.Budgets
+                .Include(b => b.User)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
             if (budget == null)
                 throw new KeyNotFoundException($"Budget with ID {id} not found");
+
+            var user = await _context.Users.FindAsync(request.UserId);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {request.UserId} not found");
 
             _mapper.Map(request, budget);
             budget.EndDate = DateTime.UtcNow.AddHours(7);
 
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<BudgetResponse>(budget);
+            return await GetBudgetByIdAsync(budget.Id);
         }
 
         public async Task DeleteBudgetAsync(int id)

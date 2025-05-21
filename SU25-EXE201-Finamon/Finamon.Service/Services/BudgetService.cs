@@ -100,7 +100,7 @@ namespace Finamon.Service.Services
         public async Task<BudgetResponse> CreateBudgetAsync(BudgetRequestModel request)
         {
             var budget = _mapper.Map<Budget>(request);
-            budget.StartDate = DateTime.UtcNow;
+            budget.StartDate = DateTime.UtcNow.AddHours(7);
 
             _context.Budgets.Add(budget);
             await _context.SaveChangesAsync();
@@ -115,7 +115,7 @@ namespace Finamon.Service.Services
                 throw new KeyNotFoundException($"Budget with ID {id} not found");
 
             _mapper.Map(request, budget);
-            budget.EndDate = DateTime.UtcNow;
+            budget.EndDate = DateTime.UtcNow.AddHours(7);
 
             await _context.SaveChangesAsync();
 

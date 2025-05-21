@@ -24,6 +24,7 @@ namespace Finamon.Service.Services
             var expense = _mapper.Map<Expense>(request);
             expense.UserId = userId;
             expense.IsDelete = false;
+            expense.Date = DateTime.UtcNow.AddHours(7);
 
             await _context.Expenses.AddAsync(expense);
             await _context.SaveChangesAsync();
@@ -45,6 +46,7 @@ namespace Finamon.Service.Services
             }
 
             _mapper.Map(request, expense);
+            expense.Date = DateTime.UtcNow.AddHours(7);
 
             await _context.SaveChangesAsync();
             return await GetExpenseByIdAsync(expense.Id);

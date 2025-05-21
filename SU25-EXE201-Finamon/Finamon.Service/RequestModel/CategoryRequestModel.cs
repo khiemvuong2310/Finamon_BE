@@ -6,5 +6,7 @@ namespace Finamon.Service.RequestModel
     {
         [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; }
+
+        public string? Color { get; set; }
     }
 } 

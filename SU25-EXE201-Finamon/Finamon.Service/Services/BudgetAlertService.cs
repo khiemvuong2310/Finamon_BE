@@ -105,7 +105,7 @@ namespace Finamon.Service.Services
         public async Task<BudgetAlertResponse> CreateAlertAsync(BudgetAlertRequestModel request)
         {
             var alert = _mapper.Map<BudgetAlert>(request);
-            alert.CreatedAt = DateTime.UtcNow;
+            alert.CreatedAt = DateTime.UtcNow.AddHours(7);
 
             _context.BudgetAlerts.Add(alert);
             await _context.SaveChangesAsync();
@@ -120,7 +120,7 @@ namespace Finamon.Service.Services
                 throw new KeyNotFoundException($"Alert with ID {id} not found");
 
             _mapper.Map(request, alert);
-            alert.UpdatedDate = DateTime.UtcNow;  
+            alert.UpdatedDate = DateTime.UtcNow.AddHours(7);  
 
             await _context.SaveChangesAsync();
 

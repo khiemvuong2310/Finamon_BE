@@ -36,6 +36,11 @@ namespace Finamon.Service.Services
                 categories = categories.Where(c => c.Name.Contains(query.Name));
             }
 
+            if (!string.IsNullOrWhiteSpace(query.Color))
+            {
+                categories = categories.Where(c => c.Color.Contains(query.Color));
+            }
+
             if (query.CreatedFrom.HasValue)
             {
                 categories = categories.Where(c => c.CreatedDate >= query.CreatedFrom.Value);
@@ -54,6 +59,9 @@ namespace Finamon.Service.Services
                     "name" => query.SortDescending
                         ? categories.OrderByDescending(c => c.Name)
                         : categories.OrderBy(c => c.Name),
+                    "color" => query.SortDescending
+                        ? categories.OrderByDescending(c => c.Color)
+                        : categories.OrderBy(c => c.Color),
                     "createddate" => query.SortDescending
                         ? categories.OrderByDescending(c => c.CreatedDate)
                         : categories.OrderBy(c => c.CreatedDate),
@@ -91,7 +99,7 @@ namespace Finamon.Service.Services
         public async Task<CategoryResponse> CreateCategoryAsync(CategoryRequestModel request)
         {
             var category = _mapper.Map<Category>(request);
-            category.CreatedDate = DateTime.UtcNow;
+            category.CreatedDate = DateTime.UtcNow.AddHours(7);
 
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
@@ -106,7 +114,7 @@ namespace Finamon.Service.Services
                 throw new KeyNotFoundException($"Category with ID {id} not found");
 
             _mapper.Map(request, category);
-            category.UpdatedDate = DateTime.UtcNow;
+            category.UpdatedDate = DateTime.UtcNow.AddHours(7);
 
             await _context.SaveChangesAsync();
 

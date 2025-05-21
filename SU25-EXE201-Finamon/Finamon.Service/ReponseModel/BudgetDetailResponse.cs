@@ -4,6 +4,7 @@ namespace Finamon.Service.ReponseModel
     {
         public int Id { get; set; }
         public int BudgetId { get; set; }
+        public string? BudgetName { get; set; }
         public decimal MaxAmount { get; set; }
         public decimal CurrentAmount { get; set; }
         public int CategoryId { get; set; }

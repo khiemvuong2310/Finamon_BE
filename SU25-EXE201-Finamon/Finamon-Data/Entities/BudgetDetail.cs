@@ -6,16 +6,18 @@ using System.Threading.Tasks;
 
 namespace Finamon_Data.Entities
 {
-    public class BudgetAlert : BaseEntity
+    public class BudgetDetail: BaseEntity
     {
-        public string? Message { get; set; }
         public int BudgetId { get; set; }
-        public float? AlertThreshold { get; set; } // Percentage threshold for alert
+        public decimal MaxAmount { get; set; }
+        public decimal CurrentAmount { get; set; }
+        public int CategoryId { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedDate { get; set; }
-
+        public string? Description { get; set; }
 
         // Navigation properties
         public Budget Budget { get; set; }
+        public Category Category { get; set; }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Finamon_Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250520142916_UpdateDatabaseInNullable")]
-    partial class UpdateDatabaseInNullable
+    [Migration("20250521130933_IntialCreateDatabase")]
+    partial class IntialCreateDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -61,19 +61,36 @@ namespace Finamon_Data.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<decimal?>("CurrentAmount")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<decimal>("Limit")
+                    b.Property<decimal?>("Limit")
                         .HasColumnType("decimal(65,30)");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Budgets");
                 });
@@ -86,6 +103,9 @@ namespace Finamon_Data.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<float?>("AlertThreshold")
+                        .HasColumnType("float");
+
                     b.Property<int>("BudgetId")
                         .HasColumnType("int");
 
@@ -96,7 +116,6 @@ namespace Finamon_Data.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Message")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<DateTime?>("UpdatedDate")
@@ -109,6 +128,52 @@ namespace Finamon_Data.Migrations
                     b.ToTable("BudgetAlerts");
                 });
 
+            modelBuilder.Entity("Finamon_Data.Entities.BudgetDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BudgetId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("BudgetId1")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("CurrentAmount")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<decimal>("MaxAmount")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BudgetId");
+
+                    b.HasIndex("BudgetId1");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("BudgetDetails");
+                });
+
             modelBuilder.Entity("Finamon_Data.Entities.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -116,6 +181,9 @@ namespace Finamon_Data.Migrations
                         .HasColumnType("int");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Color")
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
@@ -495,6 +563,17 @@ namespace Finamon_Data.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("Finamon_Data.Entities.Budget", b =>
+                {
+                    b.HasOne("Finamon_Data.Entities.User", "User")
+                        .WithMany("Budgets")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Finamon_Data.Entities.BudgetAlert", b =>
                 {
                     b.HasOne("Finamon_Data.Entities.Budget", "Budget")
@@ -504,6 +583,29 @@ namespace Finamon_Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Budget");
+                });
+
+            modelBuilder.Entity("Finamon_Data.Entities.BudgetDetail", b =>
+                {
+                    b.HasOne("Finamon_Data.Entities.Budget", "Budget")
+                        .WithMany()
+                        .HasForeignKey("BudgetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Finamon_Data.Entities.Budget", null)
+                        .WithMany("BudgetDetails")
+                        .HasForeignKey("BudgetId1");
+
+                    b.HasOne("Finamon_Data.Entities.Category", "Category")
+                        .WithMany("BudgetDetails")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Budget");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Finamon_Data.Entities.Chat", b =>
@@ -639,11 +741,15 @@ namespace Finamon_Data.Migrations
                 {
                     b.Navigation("Alerts");
 
+                    b.Navigation("BudgetDetails");
+
                     b.Navigation("Expenses");
                 });
 
             modelBuilder.Entity("Finamon_Data.Entities.Category", b =>
                 {
+                    b.Navigation("BudgetDetails");
+
                     b.Navigation("Expenses");
                 });
 
@@ -664,6 +770,8 @@ namespace Finamon_Data.Migrations
 
             modelBuilder.Entity("Finamon_Data.Entities.User", b =>
                 {
+                    b.Navigation("Budgets");
+
                     b.Navigation("ChatSessions");
 
                     b.Navigation("Expenses");

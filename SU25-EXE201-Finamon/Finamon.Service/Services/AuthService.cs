@@ -699,7 +699,6 @@ namespace Finamon.Service.Services
         {
             try
             {
-
                 if (!_verificationCodes.TryGetValue(model.Email, out var verificationData))
                 {
                     return new BaseResponse<TokenModel>
@@ -708,7 +707,8 @@ namespace Finamon.Service.Services
                         Message = "No verification code found for this email"
                     };
                 }
-                if (string.IsNullOrEmpty(verificationData.Code) || string.IsNullOrEmpty(model.VerificationCode))
+
+                if (string.IsNullOrWhiteSpace(verificationData.Code) || string.IsNullOrWhiteSpace(model.VerificationCode))
                 {
                     return new BaseResponse<TokenModel>
                     {
@@ -717,7 +717,7 @@ namespace Finamon.Service.Services
                     };
                 }
 
-                if (!verificationData.Code.Equals(model.VerificationCode))
+                if (!verificationData.Code.Trim().Equals(model.VerificationCode.Trim(), StringComparison.OrdinalIgnoreCase))
                 {
                     return new BaseResponse<TokenModel>
                     {
@@ -736,19 +736,8 @@ namespace Finamon.Service.Services
                     };
                 }
 
-                if (verificationData.Code != model.VerificationCode)
-                {
-                    return new BaseResponse<TokenModel>
-                    {
-                        Code = StatusCodes.Status400BadRequest,
-                        Message = "Invalid verification code"
-                    };
-                }
-
-                // Remove the verification code after successful verification
                 _verificationCodes.Remove(model.Email);
 
-                // Find user by email
                 var user = await _unitOfWork.Repository<User>()
                     .AsQueryable()
                     .Where(u => u.Email == model.Email && !u.IsDelete)
@@ -763,21 +752,16 @@ namespace Finamon.Service.Services
                     };
                 }
 
-                // Set EmailVerified to true
                 user.EmailVerified = true;
                 await _unitOfWork.Repository<User>().Update(user, user.Id);
                 await _unitOfWork.CommitAsync();
 
-                // Generate tokens for the verified user
                 var userDetails = await _userService.GetUserByEmailAsync(user.Email);
-                var userWithRole = await _userService.GetUserByEmailAsync(userDetails.Email);
+                var roleNames = userDetails.UserRoles.Select(r => r.RoleName).ToList();
 
-                var roleNames = userWithRole.UserRoles.Select(ur => ur.RoleName).ToList();
+                var token = GenerateJwtToken(userDetails.Email, string.Join(",", roleNames), userDetails.Id);
+                var refreshToken = GenerateRefreshToken();
 
-                string token = GenerateJwtToken(userDetails.Email, string.Join(",", roleNames), userDetails.Id);
-                string refreshToken = GenerateRefreshToken();
-
-                // Store refresh token in user record - this indicates email is verified
                 user.Token = refreshToken;
                 await _unitOfWork.Repository<User>().Update(user, user.Id);
                 await _unitOfWork.CommitAsync();
@@ -802,6 +786,7 @@ namespace Finamon.Service.Services
                 };
             }
         }
+
 
         private string GenerateVerificationCode()
         {

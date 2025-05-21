@@ -230,8 +230,7 @@
               "RelativeToolTip": "Finamon-Data\\AppDbContext.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T13:10:51.6Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-21T13:10:51.6Z"
             },
             {
               "$type": "Document",
@@ -243,8 +242,7 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\BaseEntity.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T13:01:06.451Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-21T13:01:06.451Z"
             },
             {
               "$type": "Document",
@@ -256,8 +254,7 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\BudgetDetail.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T10:01:56.641Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-21T10:01:56.641Z"
             },
             {
               "$type": "Document",
@@ -269,8 +266,7 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\Category.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T06:57:21.736Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-21T06:57:21.736Z"
             },
             {
               "$type": "Document",
@@ -282,8 +278,7 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\Budget.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-20T13:55:42.112Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-20T13:55:42.112Z"
             },
             {
               "$type": "Document",
@@ -295,8 +290,7 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\BudgetAlert.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAABHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-20T14:09:21.973Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-20T14:09:21.973Z"
             },
             {
               "$type": "Document",
@@ -306,7 +300,7 @@
               "RelativeDocumentMoniker": "Finamon.Service\\Services\\BudgetService.cs",
               "ToolTip": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\BudgetService.cs",
               "RelativeToolTip": "Finamon.Service\\Services\\BudgetService.cs",
-              "ViewState": "AgIAAI0AAAAAAAAAAAAowEkAAAAiAAAAAAAAAA==",
+              "ViewState": "AgIAAI0AAAAAAAAAAAA7wEkAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-21T05:13:38.941Z",
               "EditorCaption": ""
@@ -321,8 +315,7 @@
               "RelativeToolTip": "Finamon.Service\\Mapping\\ExpenseMappingProfile.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T11:34:56.009Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-21T11:34:56.009Z"
             },
             {
               "$type": "Document",
@@ -334,8 +327,7 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\UserMembership.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T10:13:43.076Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-21T10:13:43.076Z"
             },
             {
               "$type": "Document",
@@ -383,8 +375,7 @@
               "RelativeToolTip": "Finamon.Service\\Mapping\\BudgetMappingProfile.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T05:15:35.939Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-21T05:15:35.939Z"
             },
             {
               "$type": "Document",
@@ -432,8 +423,7 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\User.cs",
               "ViewState": "AgIAAA8AAAAAAAAAAAA7wBcAAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T04:36:04.571Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-21T04:36:04.571Z"
             },
             {
               "$type": "Document",
@@ -505,8 +495,7 @@
               "RelativeToolTip": "Finamon.Service\\Mapping\\CategoryMappingProfile.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T04:24:38.192Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-21T04:24:38.192Z"
             },
             {
               "$type": "Document",
@@ -590,8 +579,7 @@
               "RelativeToolTip": "Finamon.Service\\Services\\AuthService.cs",
               "ViewState": "AgIAAP8CAAAAAAAAAAAYwL0CAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-20T13:37:47.811Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-20T13:37:47.811Z"
             },
             {
               "$type": "Document",
@@ -699,8 +687,7 @@
               "RelativeToolTip": "Finamon\\Controllers\\BudgetAlertController.cs",
               "ViewState": "AgIAABgAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-20T05:22:25.038Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-20T05:22:25.038Z"
             },
             {
               "$type": "Document",
@@ -712,8 +699,7 @@
               "RelativeToolTip": "Finamon\\Controllers\\BudgetController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-20T05:22:21.933Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-20T05:22:21.933Z"
             },
             {
               "$type": "Document",
@@ -725,8 +711,7 @@
               "RelativeToolTip": "Finamon.Service\\Services\\CategoryService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAG0AAABcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-19T17:08:24.845Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-19T17:08:24.845Z"
             },
             {
               "$type": "Document",
@@ -750,8 +735,7 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\Role.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-19T17:01:28.853Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-19T17:01:28.853Z"
             },
             {
               "$type": "Document",
@@ -775,8 +759,7 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\Blog.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-19T17:01:19.369Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-19T17:01:19.369Z"
             },
             {
               "$type": "Document",
@@ -800,8 +783,7 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\Membership.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-19T17:01:06.751Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-19T17:01:06.751Z"
             }
           ]
         },
@@ -812,6 +794,10 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
             }
           ]
         }

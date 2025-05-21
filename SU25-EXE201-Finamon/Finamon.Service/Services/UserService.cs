@@ -192,8 +192,7 @@ namespace Finamon.Service.Services
             userDetail.TotalExpenseAmount = user.Expenses?.Sum(e => e.Amount) ?? 0;
             userDetail.TotalReports = user.Reports?.Count ?? 0;
             userDetail.TotalChatSessions = user.ChatSessions?.Count ?? 0;
-            //userDetail.HasActiveMembership = user.UserMemberships?.Any(m => m.ExpiryDate > DateTime.Now) ?? false;
-
+            userDetail.HasActiveMembership = user.UserMemberships?.Any(m => m.EndDate > DateTime.Now) ?? false;
             return userDetail;
         }
 

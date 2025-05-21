@@ -36,12 +36,14 @@ namespace Finamon.AppStarts
             services.AddScoped<IExpenseService, ExpenseService>();
             services.AddScoped<IBudgetService, BudgetService>();
             services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<ICategoryService, CategoryService>();
 
             // Thêm AutoMapper vào dịch vụ
             services.AddAutoMapper(typeof(UserMappingProfile));
             services.AddAutoMapper(typeof(UserRoleMapping));
             services.AddAutoMapper(typeof(ExpenseMappingProfile));
             services.AddAutoMapper(typeof(BudgetMappingProfile));
+            services.AddAutoMapper(typeof(CategoryMappingProfile));
         }
     }
 }

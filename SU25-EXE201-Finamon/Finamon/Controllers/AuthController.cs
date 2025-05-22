@@ -1,4 +1,4 @@
-using Finamon.Service.Interfaces;
+﻿using Finamon.Service.Interfaces;
 using Finamon.Service.RequestModel;
 using Finamon.Service.ReponseModel;
 using Microsoft.AspNetCore.Authorization;
@@ -22,7 +22,15 @@ namespace Finamon.Controllers
         public async Task<ActionResult<BaseResponseForLogin<LoginResponseModel>>> Login([FromBody] LoginModel model)
         {
             var response = await _authService.AuthenticateAsync(model.Email, model.Password);
-            return Ok(response);
+            if (response.Code.HasValue)
+            {
+                return StatusCode(response.Code.Value, response);
+            }
+            return StatusCode(500, new BaseResponseForLogin<LoginResponseModel>
+            {
+                Code = 500,
+                Message = "Unexpected error occurred."
+            });
         }
 
         [HttpPost("register")]
@@ -30,7 +38,15 @@ namespace Finamon.Controllers
         public async Task<ActionResult<BaseResponse<TokenModel>>> Register([FromBody] RegisterRequestModel model)
         {
             var response = await _authService.RegisterAsync(model);
-            return Ok(response);
+            if (response.Code.HasValue)
+            {
+                return StatusCode(response.Code.Value, response);
+            }
+            return StatusCode(500, new BaseResponse<TokenModel>
+            {
+                Code = 500,
+                Message = "Unexpected error occurred."
+            });
         }
 
         [HttpPost("refresh-token")]
@@ -38,7 +54,15 @@ namespace Finamon.Controllers
         public async Task<ActionResult<BaseResponse<TokenModel>>> RefreshToken([FromBody] RefreshTokenRequest request)
         {
             var response = await _authService.RefreshTokenAsync(request.RefreshToken);
-            return Ok(response);
+            if (response.Code.HasValue)
+            {
+                return StatusCode(response.Code.Value, response);
+            }
+            return StatusCode(500, new BaseResponse<TokenModel>
+            {
+                Code = 500,
+                Message = "Unexpected error occurred."
+            });
         }
 
         [HttpPost("forgot-password")]
@@ -46,7 +70,15 @@ namespace Finamon.Controllers
         public async Task<ActionResult<BaseResponse>> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
             var response = await _authService.ForgotPassword(request);
-            return Ok(response);
+            if (response.Code.HasValue)
+            {
+                return StatusCode(response.Code.Value, response);
+            }
+            return StatusCode(500, new BaseResponse
+            {
+                Code = 500,
+                Message = "Unexpected error occurred."
+            });
         }
 
         [HttpPost("verify-email")]
@@ -54,7 +86,15 @@ namespace Finamon.Controllers
         public async Task<ActionResult<BaseResponse<TokenModel>>> VerifyEmail([FromBody] EmailVerificationModel model)
         {
             var response = await _authService.VerifyAccountAsync(model);
-            return Ok(response);
+            if (response.Code.HasValue)
+            {
+                return StatusCode(response.Code.Value, response);
+            }
+            return StatusCode(500, new BaseResponse<TokenModel>
+            {
+                Code = 500,
+                Message = "Unexpected error occurred."
+            });
         }
 
         [HttpPost("send-verification-email")]
@@ -62,7 +102,15 @@ namespace Finamon.Controllers
         public async Task<ActionResult<BaseResponse>> SendVerificationEmail([FromBody] string email)
         {
             var response = await _authService.SendVerificationEmailAsync(email);
-            return Ok(response);
+            if (response.Code.HasValue)
+            {
+                return StatusCode(response.Code.Value, response);
+            }
+            return StatusCode(500, new BaseResponse
+            {
+                Code = 500,
+                Message = "Unexpected error occurred."
+            });
         }
 
         [HttpPost("admin/create-account")]
@@ -70,7 +118,15 @@ namespace Finamon.Controllers
         public async Task<ActionResult<BaseResponse<TokenModel>>> AdminCreateAccount([FromBody] AdminCreateAccountModel model)
         {
             var response = await _authService.AdminGenAcc(model);
-            return Ok(response);
+            if (response.Code.HasValue)
+            {
+                return StatusCode(response.Code.Value, response);
+            }
+            return StatusCode(500, new BaseResponse<TokenModel>
+            {
+                Code = 500,
+                Message = "Unexpected error occurred."
+            });
         }
 
         [HttpPost("admin/send-account/{userId}")]
@@ -78,7 +134,15 @@ namespace Finamon.Controllers
         public async Task<ActionResult<BaseResponse>> SendAccount(int userId)
         {
             var response = await _authService.SendAccount(userId);
-            return Ok(response);
+            if (response.Code.HasValue)
+            {
+                return StatusCode(response.Code.Value, response);
+            }
+            return StatusCode(500, new BaseResponse
+            {
+                Code = 500,
+                Message = "Unexpected error occurred."
+            });
         }
 
         [HttpPost("set-email-verified")]
@@ -86,7 +150,15 @@ namespace Finamon.Controllers
         public async Task<ActionResult<BaseResponse>> SetEmailVerified([FromBody] string email)
         {
             var response = await _authService.SetEmailVerified(email);
-            return Ok(response);
+            if (response.Code.HasValue)
+            {
+                return StatusCode(response.Code.Value, response);
+            }
+            return StatusCode(500, new BaseResponse
+            {
+                Code = 500,
+                Message = "Unexpected error occurred."
+            });
         }
     }
 } 

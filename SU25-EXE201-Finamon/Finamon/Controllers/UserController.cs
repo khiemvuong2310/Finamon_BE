@@ -87,7 +87,7 @@ namespace Finamon.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteUser(int id)
         {
             var result = await _userService.DeleteUserAsync(id);

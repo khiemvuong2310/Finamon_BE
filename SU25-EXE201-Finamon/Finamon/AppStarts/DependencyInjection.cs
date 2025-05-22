@@ -37,6 +37,7 @@ namespace Finamon.AppStarts
             services.AddScoped<IBudgetService, BudgetService>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IBlogService, BlogService>();
 
             // Thêm AutoMapper vào dịch vụ
             services.AddAutoMapper(typeof(UserMappingProfile));
@@ -44,6 +45,7 @@ namespace Finamon.AppStarts
             services.AddAutoMapper(typeof(ExpenseMappingProfile));
             services.AddAutoMapper(typeof(BudgetMappingProfile));
             services.AddAutoMapper(typeof(CategoryMappingProfile));
+            services.AddAutoMapper(typeof(BlogMappingProfile));
         }
     }
 }

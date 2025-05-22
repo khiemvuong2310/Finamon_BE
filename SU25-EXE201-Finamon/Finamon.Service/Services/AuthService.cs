@@ -61,7 +61,7 @@ namespace Finamon.Service.Services
                     return new BaseResponseForLogin<LoginResponseModel>
                     {
                         Code = StatusCodes.Status404NotFound,
-                        Message = "Username or Password incorrect",
+                        Message = "User not found",
                         Data = null,
                         IsBanned = false
                     };
@@ -72,8 +72,8 @@ namespace Finamon.Service.Services
                 {
                     return new BaseResponseForLogin<LoginResponseModel>
                     {
-                        Code = StatusCodes.Status404NotFound,
-                        Message = "Username or Password incorrect",
+                        Code = StatusCodes.Status401Unauthorized,
+                        Message = "Invalid password",
                         Data = null,
                         IsBanned = false
                     };

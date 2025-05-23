@@ -23,10 +23,11 @@ namespace Finamon_Data.Entities
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
         public DateTime? UpdatedDate { get; set; } = DateTime.Now;
         public virtual ICollection<UserRole>? UserRoles { get; set; }
-        public ICollection<Expense> Expenses { get; set; }
-        public ICollection<Report> Reports { get; set; }
-        public ICollection<ChatSession> ChatSessions { get; set; }
-        public ICollection<UserMembership> UserMemberships { get; set; }
-        public ICollection<Budget> Budgets { get; set; }
+        public virtual ICollection<Expense> Expenses { get; set; }
+        public virtual ICollection<Report> Reports { get; set; }
+        public virtual ICollection<ChatSession> ChatSessions { get; set; }
+        public virtual ICollection<UserMembership> UserMemberships { get; set; }
+        public virtual ICollection<Budget> Budgets { get; set; }
+        public virtual ICollection<Comment> Comments { get; set; }
     }
 }

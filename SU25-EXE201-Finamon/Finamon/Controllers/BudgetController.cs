@@ -2,6 +2,9 @@
 using Finamon.Service.RequestModel;
 using Finamon.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Finamon.Service.RequestModel.QueryRequest;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Finamon.Controllers
 {
@@ -17,9 +20,9 @@ namespace Finamon.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BudgetResponse>>> GetAllBudgets()
+        public async Task<ActionResult<PaginatedResponse<BudgetResponse>>> GetAllBudgets([FromQuery] BudgetQueryRequest queryRequest)
         {
-            var budgets = await _budgetService.GetAllBudgetsAsync();
+            var budgets = await _budgetService.GetAllBudgetsAsync(queryRequest);
             return Ok(budgets);
         }
 

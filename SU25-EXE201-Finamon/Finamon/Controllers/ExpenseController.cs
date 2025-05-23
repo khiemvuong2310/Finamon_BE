@@ -1,6 +1,7 @@
 ﻿using Finamon.Service.Interfaces;
 using Finamon.Service.ReponseModel;
 using Finamon.Service.RequestModel;
+using Finamon.Service.RequestModel.QueryRequest;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

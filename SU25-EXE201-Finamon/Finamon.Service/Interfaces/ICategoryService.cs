@@ -8,7 +8,7 @@ namespace Finamon.Service.Interfaces
 {
     public interface ICategoryService
     {
-        Task<IEnumerable<CategoryResponse>> GetAllCategoriesAsync(CategoryQueryRequest query);
+        Task<PaginatedResponse<CategoryResponse>> GetAllCategoriesAsync(CategoryQueryRequest query);
         Task<CategoryResponse> GetCategoryByIdAsync(int id);
         Task<CategoryResponse> CreateCategoryAsync(CategoryRequestModel request);
         Task<CategoryResponse> UpdateCategoryAsync(int id, CategoryRequestModel request);

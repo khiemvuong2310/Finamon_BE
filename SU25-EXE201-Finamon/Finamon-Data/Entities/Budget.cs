@@ -15,6 +15,7 @@ namespace Finamon_Data.Entities
         public int UserId { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
         public bool IsActive { get; set; } = true; // Trạng thái active của budget
 
         // Navigation properties

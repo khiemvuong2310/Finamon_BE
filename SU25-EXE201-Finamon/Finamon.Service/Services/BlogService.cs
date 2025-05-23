@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using AutoMapper;
+using Finamon.Service.RequestModel.QueryRequest;
 
 namespace Finamon.Service.Services
 {
@@ -211,7 +212,7 @@ namespace Finamon.Service.Services
             }
         }
 
-        public async Task<BaseResponse<PagedBlogResponse>> GetAllBlogsAsync(BlogFilterRequest filter)
+        public async Task<BaseResponse<PaginatedResponse<BlogResponse>>> GetAllBlogsAsync(BlogFilterRequest filter)
         {
             try
             {
@@ -220,7 +221,7 @@ namespace Finamon.Service.Services
                 var validationResults = new List<ValidationResult>();
                 if (!Validator.TryValidateObject(filter, validationContext, validationResults, true))
                 {
-                    return new BaseResponse<PagedBlogResponse>
+                    return new BaseResponse<PaginatedResponse<BlogResponse>>
                     {
                         Code = StatusCodes.Status400BadRequest,
                         Message = string.Join(", ", validationResults.Select(r => r.ErrorMessage))
@@ -250,26 +251,15 @@ namespace Finamon.Service.Services
                     query = query.Where(b => b.CreatedDate <= filter.ToDate.Value);
                 }
 
-                // Get total count
-                var totalCount = await query.CountAsync();
+                // Apply sorting (default to CreatedDate descending)
+                query = query.OrderByDescending(b => b.CreatedDate);
+                
+                var paginatedBlogs = await PaginatedResponse<Blog>.CreateAsync(query, filter.PageNumber, filter.PageSize);
+                var blogResponses = _mapper.Map<List<BlogResponse>>(paginatedBlogs.Items);
 
-                // Apply pagination
-                var blogs = await query
-                    .OrderByDescending(b => b.CreatedDate)
-                    .Skip((filter.PageNumber - 1) * filter.PageSize)
-                    .Take(filter.PageSize)
-                    .ToListAsync();
+                var response = new PaginatedResponse<BlogResponse>(blogResponses, paginatedBlogs.TotalCount, paginatedBlogs.PageIndex, filter.PageSize);
 
-                var response = new PagedBlogResponse
-                {
-                    Items = _mapper.Map<List<BlogResponse>>(blogs),
-                    TotalCount = totalCount,
-                    PageNumber = filter.PageNumber,
-                    PageSize = filter.PageSize,
-                    TotalPages = (int)Math.Ceiling(totalCount / (double)filter.PageSize)
-                };
-
-                return new BaseResponse<PagedBlogResponse>
+                return new BaseResponse<PaginatedResponse<BlogResponse>>
                 {
                     Code = StatusCodes.Status200OK,
                     Message = "Blogs retrieved successfully",
@@ -278,7 +268,7 @@ namespace Finamon.Service.Services
             }
             catch (Exception ex)
             {
-                return new BaseResponse<PagedBlogResponse>
+                return new BaseResponse<PaginatedResponse<BlogResponse>>
                 {
                     Code = StatusCodes.Status500InternalServerError,
                     Message = "Failed to retrieve blogs: " + ex.Message

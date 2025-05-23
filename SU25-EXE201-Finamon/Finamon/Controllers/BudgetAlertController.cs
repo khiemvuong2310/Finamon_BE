@@ -21,9 +21,9 @@ namespace Finamon.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BudgetAlertResponse>>> GetAllAlerts([FromQuery] BudgetAlertQueryRequest query)
+        public async Task<ActionResult<PaginatedResponse<BudgetAlertResponse>>> GetAllAlerts([FromQuery] BudgetAlertQueryRequest queryRequest)
         {
-            var alerts = await _alertService.GetAllAlertsAsync(query);
+            var alerts = await _alertService.GetAllAlertsAsync(queryRequest);
             return Ok(alerts);
         }
 
@@ -42,17 +42,28 @@ namespace Finamon.Controllers
         }
 
         [HttpGet("budget/{budgetId}")]
-        public async Task<ActionResult<IEnumerable<BudgetAlertResponse>>> GetAlertsByBudgetId(int budgetId)
+        public async Task<ActionResult<PaginatedResponse<BudgetAlertResponse>>> GetAlertsByBudgetId(int budgetId, [FromQuery] BudgetAlertQueryRequest queryRequest)
         {
-            var alerts = await _alertService.GetAlertsByBudgetIdAsync(budgetId);
+            var alerts = await _alertService.GetAlertsByBudgetIdAsync(budgetId, queryRequest);
             return Ok(alerts);
         }
 
         [HttpPost]
         public async Task<ActionResult<BudgetAlertResponse>> CreateAlert(BudgetAlertRequestModel request)
         {
-            var alert = await _alertService.CreateAlertAsync(request);
-            return CreatedAtAction(nameof(GetAlertById), new { id = alert.Id }, alert);
+            try
+            {
+                var alert = await _alertService.CreateAlertAsync(request);
+                return CreatedAtAction(nameof(GetAlertById), new { id = alert.Id }, alert);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occurred. Please try again later.");
+            }
         }
 
         [HttpPut("{id}")]
@@ -66,6 +77,10 @@ namespace Finamon.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occurred. Please try again later.");
             }
         }
 

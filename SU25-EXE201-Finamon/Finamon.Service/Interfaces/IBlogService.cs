@@ -1,6 +1,7 @@
 using Finamon.Service.RequestModel;
 using Finamon.Service.ReponseModel;
 using System.Threading.Tasks;
+using Finamon.Service.RequestModel.QueryRequest;
 
 namespace Finamon.Service.Interfaces
 {
@@ -10,6 +11,6 @@ namespace Finamon.Service.Interfaces
         Task<BaseResponse<BlogResponse>> UpdateBlogAsync(int id, UpdateBlogRequest request);
         Task<BaseResponse> DeleteBlogAsync(int id);
         Task<BaseResponse<BlogResponse>> GetBlogByIdAsync(int id);
-        Task<BaseResponse<PagedBlogResponse>> GetAllBlogsAsync(BlogFilterRequest filter);
+        Task<BaseResponse<PaginatedResponse<BlogResponse>>> GetAllBlogsAsync(BlogFilterRequest filter);
     }
 } 

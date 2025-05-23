@@ -8,12 +8,12 @@ namespace Finamon.Service.Interfaces
 {
     public interface IBudgetDetailService
     {
-        Task<IEnumerable<BudgetDetailResponse>> GetAllBudgetDetailsAsync(BudgetDetailQueryRequest queryRequest = null);
+        Task<PaginatedResponse<BudgetDetailResponse>> GetAllBudgetDetailsAsync(BudgetDetailQueryRequest queryRequest);
         Task<BudgetDetailResponse> GetBudgetDetailByIdAsync(int id);
         Task<BudgetDetailResponse> CreateBudgetDetailAsync(BudgetDetailRequestModel request);
         Task<BudgetDetailResponse> UpdateBudgetDetailAsync(int id, BudgetDetailRequestModel request);
         Task DeleteBudgetDetailAsync(int id);
-        Task<IEnumerable<BudgetDetailResponse>> GetBudgetDetailsByBudgetIdAsync(int budgetId);
-        Task<IEnumerable<BudgetDetailResponse>> GetBudgetDetailsByCategoryIdAsync(int categoryId);
+        Task<PaginatedResponse<BudgetDetailResponse>> GetBudgetDetailsByBudgetIdAsync(int budgetId, BudgetDetailQueryRequest queryRequest);
+        Task<PaginatedResponse<BudgetDetailResponse>> GetBudgetDetailsByCategoryIdAsync(int categoryId, BudgetDetailQueryRequest queryRequest);
     }
 } 

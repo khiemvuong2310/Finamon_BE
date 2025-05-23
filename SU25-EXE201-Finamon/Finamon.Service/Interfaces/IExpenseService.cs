@@ -1,5 +1,6 @@
 using Finamon.Service.RequestModel;
 using Finamon.Service.ReponseModel;
+using Finamon.Service.RequestModel.QueryRequest;
 
 namespace Finamon.Service.Interfaces
 {
@@ -12,6 +13,6 @@ namespace Finamon.Service.Interfaces
         Task<ExpenseDetailResponse> GetExpenseDetailByIdAsync(int id);
         Task<List<ExpenseResponse>> GetAllExpensesAsync();
         Task<List<ExpenseResponse>> GetExpensesByUserIdAsync(int userId);
-        Task<(List<ExpenseResponse> Expenses, int TotalCount)> GetExpensesByFilterAsync(ExpenseQueryRequest query);
+        Task<PaginatedResponse<ExpenseResponse>> GetExpensesByFilterAsync(ExpenseQueryRequest query);
     }
 } 

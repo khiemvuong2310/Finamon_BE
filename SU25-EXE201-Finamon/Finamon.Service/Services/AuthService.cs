@@ -168,7 +168,7 @@ namespace Finamon.Service.Services
             // Tạo danh sách claims
             var claims = new List<Claim>
     {
-        new Claim(ClaimTypes.Name, email), // ✅ Dùng email thay vì username
+        new Claim(ClaimTypes.Name, email),
         new Claim(ClaimTypes.NameIdentifier, userId.ToString())
     };
 
@@ -185,7 +185,9 @@ namespace Finamon.Service.Services
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(TOKEN_EXPIRY_HOURS),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"]
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);

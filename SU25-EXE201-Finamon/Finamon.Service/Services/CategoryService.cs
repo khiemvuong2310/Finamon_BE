@@ -24,64 +24,72 @@ namespace Finamon.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<CategoryResponse>> GetAllCategoriesAsync(CategoryQueryRequest query)
+        public async Task<PaginatedResponse<CategoryResponse>> GetAllCategoriesAsync(CategoryQueryRequest queryRequest)
         {
-            var categories = _context.Categories
+            var queryable = _context.Categories
                 .Include(c => c.Expenses)
                 .AsQueryable();
 
             // Apply filters
-            if (!string.IsNullOrWhiteSpace(query.Name))
+            if (!string.IsNullOrWhiteSpace(queryRequest.Name))
             {
-                categories = categories.Where(c => c.Name.Contains(query.Name));
+                queryable = queryable.Where(c => c.Name.Contains(queryRequest.Name));
             }
 
-            if (!string.IsNullOrWhiteSpace(query.Color))
+            if (!string.IsNullOrWhiteSpace(queryRequest.Color))
             {
-                categories = categories.Where(c => c.Color.Contains(query.Color));
+                queryable = queryable.Where(c => c.Color.Contains(queryRequest.Color));
             }
 
-            if (query.CreatedFrom.HasValue)
+            if (queryRequest.CreatedFrom.HasValue)
             {
-                categories = categories.Where(c => c.CreatedDate >= query.CreatedFrom.Value);
+                queryable = queryable.Where(c => c.CreatedDate >= queryRequest.CreatedFrom.Value);
             }
 
-            if (query.CreatedTo.HasValue)
+            if (queryRequest.CreatedTo.HasValue)
             {
-                categories = categories.Where(c => c.CreatedDate <= query.CreatedTo.Value);
+                queryable = queryable.Where(c => c.CreatedDate <= queryRequest.CreatedTo.Value);
+            }
+            
+            // Default to not showing deleted if not specified
+            if (queryRequest.IsDeleted.HasValue)
+            {
+                queryable = queryable.Where(c => c.IsDelete == queryRequest.IsDeleted.Value);
+            }
+            else
+            {
+                queryable = queryable.Where(c => !c.IsDelete);
             }
 
             // Apply sorting
-            if (!string.IsNullOrWhiteSpace(query.SortBy))
+            if (!string.IsNullOrWhiteSpace(queryRequest.SortBy))
             {
-                categories = query.SortBy.ToLower() switch
+                queryable = queryRequest.SortBy.ToLower() switch
                 {
-                    "name" => query.SortDescending
-                        ? categories.OrderByDescending(c => c.Name)
-                        : categories.OrderBy(c => c.Name),
-                    "color" => query.SortDescending
-                        ? categories.OrderByDescending(c => c.Color)
-                        : categories.OrderBy(c => c.Color),
-                    "createddate" => query.SortDescending
-                        ? categories.OrderByDescending(c => c.CreatedDate)
-                        : categories.OrderBy(c => c.CreatedDate),
-                    "updateddate" => query.SortDescending
-                        ? categories.OrderByDescending(c => c.UpdatedDate)
-                        : categories.OrderBy(c => c.UpdatedDate),
-                    _ => categories
+                    "name" => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(c => c.Name)
+                        : queryable.OrderBy(c => c.Name),
+                    "color" => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(c => c.Color)
+                        : queryable.OrderBy(c => c.Color),
+                    "createddate" => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(c => c.CreatedDate)
+                        : queryable.OrderBy(c => c.CreatedDate),
+                    "updateddate" => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(c => c.UpdatedDate)
+                        : queryable.OrderBy(c => c.UpdatedDate),
+                    _ => queryable.OrderBy(c => c.Id) // Default sort by Id
                 };
             }
-
-            // Apply pagination
-            if (query.PageSize > 0)
+            else
             {
-                categories = categories
-                    .Skip((query.PageNumber - 1) * query.PageSize)
-                    .Take(query.PageSize);
+                queryable = queryable.OrderBy(c => c.Id); // Default sort by Id
             }
 
-            var result = await categories.ToListAsync();
-            return _mapper.Map<IEnumerable<CategoryResponse>>(result);
+            var paginatedCategories = await PaginatedResponse<Category>.CreateAsync(queryable, queryRequest.PageNumber, queryRequest.PageSize);
+            var categoryResponses = _mapper.Map<List<CategoryResponse>>(paginatedCategories.Items);
+            
+            return new PaginatedResponse<CategoryResponse>(categoryResponses, paginatedCategories.TotalCount, paginatedCategories.PageIndex, queryRequest.PageSize);
         }
 
         public async Task<CategoryResponse> GetCategoryByIdAsync(int id)

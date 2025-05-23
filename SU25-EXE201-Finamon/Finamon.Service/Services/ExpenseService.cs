@@ -5,6 +5,7 @@ using Finamon.Service.Interfaces;
 using Finamon.Service.RequestModel;
 using Finamon.Service.ReponseModel;
 using Microsoft.EntityFrameworkCore;
+using Finamon.Service.RequestModel.QueryRequest;
 
 namespace Finamon.Service.Services
 {
@@ -131,7 +132,7 @@ namespace Finamon.Service.Services
             return _mapper.Map<List<ExpenseResponse>>(expenses);
         }
 
-        public async Task<(List<ExpenseResponse> Expenses, int TotalCount)> GetExpensesByFilterAsync(ExpenseQueryRequest query)
+        public async Task<PaginatedResponse<ExpenseResponse>> GetExpensesByFilterAsync(ExpenseQueryRequest queryRequest)
         {
             var queryable = _context.Expenses
                 .Include(e => e.User)
@@ -140,81 +141,76 @@ namespace Finamon.Service.Services
                 .AsQueryable();
 
             // Apply filters
-            if (!string.IsNullOrEmpty(query.Description))
+            if (!string.IsNullOrEmpty(queryRequest.Description))
             {
-                queryable = queryable.Where(e => e.Description.Contains(query.Description));
+                queryable = queryable.Where(e => e.Description.Contains(queryRequest.Description));
             }
 
-            if (query.MinAmount.HasValue)
+            if (queryRequest.MinAmount.HasValue)
             {
-                queryable = queryable.Where(e => e.Amount >= query.MinAmount.Value);
+                queryable = queryable.Where(e => e.Amount >= queryRequest.MinAmount.Value);
             }
 
-            if (query.MaxAmount.HasValue)
+            if (queryRequest.MaxAmount.HasValue)
             {
-                queryable = queryable.Where(e => e.Amount <= query.MaxAmount.Value);
+                queryable = queryable.Where(e => e.Amount <= queryRequest.MaxAmount.Value);
             }
 
-            if (query.StartDate.HasValue)
+            if (queryRequest.StartDate.HasValue)
             {
-                queryable = queryable.Where(e => e.Date >= query.StartDate.Value);
+                queryable = queryable.Where(e => e.Date >= queryRequest.StartDate.Value);
             }
 
-            if (query.EndDate.HasValue)
+            if (queryRequest.EndDate.HasValue)
             {
-                queryable = queryable.Where(e => e.Date <= query.EndDate.Value);
+                queryable = queryable.Where(e => e.Date <= queryRequest.EndDate.Value);
             }
 
-            if (query.CategoryId.HasValue)
+            if (queryRequest.CategoryId.HasValue)
             {
-                queryable = queryable.Where(e => e.CategoryId == query.CategoryId.Value);
+                queryable = queryable.Where(e => e.CategoryId == queryRequest.CategoryId.Value);
             }
 
-            if (query.BudgetId.HasValue)
+            if (queryRequest.BudgetId.HasValue)
             {
-                queryable = queryable.Where(e => e.BudgetId == query.BudgetId.Value);
+                queryable = queryable.Where(e => e.BudgetId == queryRequest.BudgetId.Value);
             }
 
             // Apply soft delete filter
-            queryable = queryable.Where(e => !e.IsDelete);
+            if (queryRequest.IsDeleted.HasValue)
+            {
+                queryable = queryable.Where(e => e.IsDelete == queryRequest.IsDeleted.Value);
+            }
+            else
+            {
+                queryable = queryable.Where(e => !e.IsDelete);
+            }
 
             // Apply sorting
-            if (!string.IsNullOrEmpty(query.Sort))
+            if (!string.IsNullOrEmpty(queryRequest.SortBy))
             {
-                switch (query.Sort.ToLower())
+                switch (queryRequest.SortBy.ToLower())
                 {
                     case "date":
-                        queryable = queryable.OrderBy(e => e.Date);
+                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(e => e.Date) : queryable.OrderBy(e => e.Date);
                         break;
                     case "amount":
-                        queryable = queryable.OrderBy(e => e.Amount);
-                        break;
-                    case "date_desc":
-                        queryable = queryable.OrderByDescending(e => e.Date);
-                        break;
-                    case "amount_desc":
-                        queryable = queryable.OrderByDescending(e => e.Amount);
+                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(e => e.Amount) : queryable.OrderBy(e => e.Amount);
                         break;
                     default:
-                        queryable = queryable.OrderByDescending(e => e.Id);
+                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(e => e.Id) : queryable.OrderBy(e => e.Id);
                         break;
                 }
             }
             else
             {
-                queryable = queryable.OrderByDescending(e => e.Id);
+                queryable = queryable.OrderByDescending(e => e.Id); // Default sort
             }
 
-            // Get total count
-            var totalCount = await queryable.CountAsync();
+            var paginatedExpenses = await PaginatedResponse<Expense>.CreateAsync(queryable, queryRequest.PageNumber, queryRequest.PageSize);
+            var expenseResponses = _mapper.Map<List<ExpenseResponse>>(paginatedExpenses.Items);
 
-            // Apply pagination
-            var expenses = await queryable
-                .Skip((query.PageNumber - 1) * query.PageSize)
-                .Take(query.PageSize)
-                .ToListAsync();
-
-            return (_mapper.Map<List<ExpenseResponse>>(expenses), totalCount);
+            return new PaginatedResponse<ExpenseResponse>(expenseResponses, paginatedExpenses.TotalCount, paginatedExpenses.PageIndex, queryRequest.PageSize);
         }
     }
 } 

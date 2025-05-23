@@ -8,9 +8,9 @@ namespace Finamon.Service.Interfaces
 {
     public interface IBudgetAlertService
     {
-        Task<IEnumerable<BudgetAlertResponse>> GetAllAlertsAsync(BudgetAlertQueryRequest query);
+        Task<PaginatedResponse<BudgetAlertResponse>> GetAllAlertsAsync(BudgetAlertQueryRequest queryRequest);
         Task<BudgetAlertResponse> GetAlertByIdAsync(int id);
-        Task<IEnumerable<BudgetAlertResponse>> GetAlertsByBudgetIdAsync(int budgetId);
+        Task<PaginatedResponse<BudgetAlertResponse>> GetAlertsByBudgetIdAsync(int budgetId, BudgetAlertQueryRequest queryRequest);
         Task<BudgetAlertResponse> CreateAlertAsync(BudgetAlertRequestModel request);
         Task<BudgetAlertResponse> UpdateAlertAsync(int id, BudgetAlertRequestModel request);
         Task DeleteAlertAsync(int id);

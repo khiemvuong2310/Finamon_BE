@@ -9,6 +9,7 @@ namespace Finamon.Service.ReponseModel
         public string Content { get; set; }
         public int UserId { get; set; }
         public string UserName { get; set; }
+        public bool IsDelete { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
     }

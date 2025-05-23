@@ -266,7 +266,7 @@ namespace Finamon.Service.Services
             return userResponse;
         }
 
-        public async Task<(List<UserResponse> Users, int TotalCount)> GetUsersByFilterAsync(UserQueryRequest query)
+        public async Task<PaginatedResponse<UserResponse>> GetUsersByFilterAsync(UserQueryRequest queryRequest)
         {
             var queryable = _context.Set<User>()
                 .Include(u => u.UserRoles.Where(ur => ur.Status))
@@ -274,45 +274,45 @@ namespace Finamon.Service.Services
                 .AsQueryable();
 
             // Áp dụng các bộ lọc
-            if (!string.IsNullOrEmpty(query.Username))
+            if (!string.IsNullOrEmpty(queryRequest.Username))
             {
-                queryable = queryable.Where(u => u.UserName.Contains(query.Username));
+                queryable = queryable.Where(u => u.UserName.Contains(queryRequest.Username));
             }
 
-            if (!string.IsNullOrEmpty(query.Email))
+            if (!string.IsNullOrEmpty(queryRequest.Email))
             {
-                queryable = queryable.Where(u => u.Email.Contains(query.Email));
+                queryable = queryable.Where(u => u.Email.Contains(queryRequest.Email));
             }
 
-            if (!string.IsNullOrEmpty(query.Phone))
+            if (!string.IsNullOrEmpty(queryRequest.Phone))
             {
-                queryable = queryable.Where(u => u.Phone != null && u.Phone.Contains(query.Phone));
+                queryable = queryable.Where(u => u.Phone != null && u.Phone.Contains(queryRequest.Phone));
             }
 
-            if (!string.IsNullOrEmpty(query.Location))
+            if (!string.IsNullOrEmpty(queryRequest.Location))
             {
-                queryable = queryable.Where(u => u.Location != null && u.Location.Contains(query.Location));
+                queryable = queryable.Where(u => u.Location != null && u.Location.Contains(queryRequest.Location));
             }
 
-            if (query.Status.HasValue)
+            if (queryRequest.Status.HasValue)
             {
-                queryable = queryable.Where(u => u.Status == query.Status.Value);
+                queryable = queryable.Where(u => u.Status == queryRequest.Status.Value);
             }
 
-            if (query.RoleId.HasValue)
+            if (queryRequest.RoleId.HasValue)
             {
-                queryable = queryable.Where(u => u.UserRoles.Any(ur => ur.RoleId == query.RoleId.Value && ur.Status));
+                queryable = queryable.Where(u => u.UserRoles.Any(ur => ur.RoleId == queryRequest.RoleId.Value && ur.Status));
             }
 
-            if (query.EmailVerified.HasValue)
+            if (queryRequest.EmailVerified.HasValue)
             {
-                queryable = queryable.Where(u => u.EmailVerified == query.EmailVerified.Value);
+                queryable = queryable.Where(u => u.EmailVerified == queryRequest.EmailVerified.Value);
             }
 
             // Xử lý soft delete
-            if (query.IsDeleted.HasValue)
+            if (queryRequest.IsDeleted.HasValue)
             {
-                queryable = queryable.Where(u => u.IsDelete == query.IsDeleted.Value);
+                queryable = queryable.Where(u => u.IsDelete == queryRequest.IsDeleted.Value);
             }
             else
             {
@@ -320,40 +320,33 @@ namespace Finamon.Service.Services
             }
 
             // Sắp xếp
-            if (!string.IsNullOrEmpty(query.Sort))
+            if (!string.IsNullOrEmpty(queryRequest.SortBy))
             {
-                switch (query.Sort.ToLower())
+                switch (queryRequest.SortBy.ToLower())
                 {
                     case "username":
-                        queryable = queryable.OrderBy(u => u.UserName);
+                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(u => u.UserName) : queryable.OrderBy(u => u.UserName);
                         break;
                     case "email":
-                        queryable = queryable.OrderByDescending(u => u.Email);
+                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(u => u.Email) : queryable.OrderBy(u => u.Email);
                         break;
                     case "createddate":
-                        queryable = queryable.OrderByDescending(u => u.CreatedDate);
+                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(u => u.CreatedDate) : queryable.OrderBy(u => u.CreatedDate);
                         break;
                     default:
-                        queryable = queryable.OrderByDescending(u => u.CreatedDate);
+                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(u => u.CreatedDate) : queryable.OrderBy(u => u.CreatedDate);
                         break;
                 }
             }
             else
             {
-                queryable = queryable.OrderByDescending(u => u.CreatedDate);
+                queryable = queryable.OrderByDescending(u => u.CreatedDate); // Default sort
             }
 
-            // Lấy tổng số bản ghi
-            var totalCount = await queryable.CountAsync();
-
-            // Phân trang
-            var users = await queryable
-                .Skip((query.PageNumber - 1) * query.PageSize)
-                .Take(query.PageSize)
-                .ToListAsync();
-
+            var paginatedUsers = await PaginatedResponse<User>.CreateAsync(queryable, queryRequest.PageNumber, queryRequest.PageSize);
+            
             var userResponses = new List<UserResponse>();
-            foreach (var user in users)
+            foreach (var user in paginatedUsers.Items)
             {
                 var userResponse = _mapper.Map<UserResponse>(user);
                 var activeRole = user.UserRoles.FirstOrDefault(ur => ur.Status)?.Role;
@@ -365,7 +358,7 @@ namespace Finamon.Service.Services
                 userResponses.Add(userResponse);
             }
 
-            return (userResponses, totalCount);
+            return new PaginatedResponse<UserResponse>(userResponses, paginatedUsers.TotalCount, paginatedUsers.PageIndex, queryRequest.PageSize);
         }
     }
 } 

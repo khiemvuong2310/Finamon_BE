@@ -39,15 +39,38 @@ namespace Finamon_Data.Migrations
                     b.Property<bool>("IsDelete")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Title")
                         .HasColumnType("longtext");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Blogs");
+                });
+
+            modelBuilder.Entity("Finamon_Data.Entities.BlogImage", b =>
+                {
+                    b.Property<int>("BlogId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ImageId")
+                        .HasColumnType("int");
+
+                    b.HasKey("BlogId", "ImageId");
+
+                    b.HasIndex("ImageId");
+
+                    b.ToTable("BlogImages");
                 });
 
             modelBuilder.Entity("Finamon_Data.Entities.Budget", b =>
@@ -80,6 +103,9 @@ namespace Finamon_Data.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("UserId")
@@ -262,6 +288,42 @@ namespace Finamon_Data.Migrations
                     b.ToTable("ChatSessions");
                 });
 
+            modelBuilder.Entity("Finamon_Data.Entities.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("Finamon_Data.Entities.Expense", b =>
                 {
                     b.Property<int>("Id")
@@ -310,6 +372,36 @@ namespace Finamon_Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Expenses");
+                });
+
+            modelBuilder.Entity("Finamon_Data.Entities.Image", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Base64Image")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("Finamon_Data.Entities.Keyword", b =>
@@ -560,6 +652,36 @@ namespace Finamon_Data.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("Finamon_Data.Entities.Blog", b =>
+                {
+                    b.HasOne("Finamon_Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Finamon_Data.Entities.BlogImage", b =>
+                {
+                    b.HasOne("Finamon_Data.Entities.Blog", "Blog")
+                        .WithMany("PostImages")
+                        .HasForeignKey("BlogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Finamon_Data.Entities.Image", "Image")
+                        .WithMany("BlogImages")
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Blog");
+
+                    b.Navigation("Image");
+                });
+
             modelBuilder.Entity("Finamon_Data.Entities.Budget", b =>
                 {
                     b.HasOne("Finamon_Data.Entities.User", "User")
@@ -629,6 +751,25 @@ namespace Finamon_Data.Migrations
                         .HasForeignKey("UserId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Finamon_Data.Entities.Comment", b =>
+                {
+                    b.HasOne("Finamon_Data.Entities.Blog", "Blog")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Finamon_Data.Entities.User", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Blog");
 
                     b.Navigation("User");
                 });
@@ -734,6 +875,13 @@ namespace Finamon_Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Finamon_Data.Entities.Blog", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("PostImages");
+                });
+
             modelBuilder.Entity("Finamon_Data.Entities.Budget", b =>
                 {
                     b.Navigation("Alerts");
@@ -755,6 +903,11 @@ namespace Finamon_Data.Migrations
                     b.Navigation("Chats");
                 });
 
+            modelBuilder.Entity("Finamon_Data.Entities.Image", b =>
+                {
+                    b.Navigation("BlogImages");
+                });
+
             modelBuilder.Entity("Finamon_Data.Entities.Membership", b =>
                 {
                     b.Navigation("UserMemberships");
@@ -770,6 +923,8 @@ namespace Finamon_Data.Migrations
                     b.Navigation("Budgets");
 
                     b.Navigation("ChatSessions");
+
+                    b.Navigation("Comments");
 
                     b.Navigation("Expenses");
 

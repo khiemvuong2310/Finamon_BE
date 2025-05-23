@@ -45,6 +45,8 @@ namespace Finamon
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddEndpointsApiExplorer(); // Thay v� AddOpenApi()
+
+            //Add button Authorize 
             builder.Services.AddSwaggerGen(c =>
             {
                 //c.OperationFilter<SnakecasingParameOperationFilter>();

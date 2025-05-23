@@ -4,6 +4,7 @@ using Finamon.Service.ReponseModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Finamon.Service.RequestModel.QueryRequest;
 
 namespace Finamon.Controllers
 {

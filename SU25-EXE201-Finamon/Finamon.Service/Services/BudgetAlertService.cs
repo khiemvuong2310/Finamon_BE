@@ -24,116 +24,134 @@ namespace Finamon.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<BudgetAlertResponse>> GetAllAlertsAsync(BudgetAlertQueryRequest query)
+        public async Task<PaginatedResponse<BudgetAlertResponse>> GetAllAlertsAsync(BudgetAlertQueryRequest queryRequest)
         {
-            var alerts = _context.BudgetAlerts
+            var query = _context.BudgetAlerts
                 .Include(a => a.Budget)
                 .AsQueryable();
 
+            // Default to not showing deleted if not specified in the query
+            if (queryRequest.IsDeleted.HasValue)
+            {
+                query = query.Where(a => a.IsDelete == queryRequest.IsDeleted.Value);
+            }
+            else
+            {
+                query = query.Where(a => !a.IsDelete);
+            }
+
             // Apply filters
-            if (!string.IsNullOrWhiteSpace(query.Message))
+            if (!string.IsNullOrWhiteSpace(queryRequest.Message))
             {
-                alerts = alerts.Where(a => a.Message.Contains(query.Message));
+                query = query.Where(a => a.Message.Contains(queryRequest.Message));
             }
 
-            if (query.BudgetId.HasValue)
+            if (queryRequest.BudgetId.HasValue)
             {
-                alerts = alerts.Where(a => a.BudgetId == query.BudgetId.Value);
+                query = query.Where(a => a.BudgetId == queryRequest.BudgetId.Value);
             }
 
-            if (query.CreatedFrom.HasValue)
+            if (queryRequest.CreatedFrom.HasValue)
             {
-                alerts = alerts.Where(a => a.CreatedAt >= query.CreatedFrom.Value);
+                query = query.Where(a => a.CreatedAt >= queryRequest.CreatedFrom.Value);
             }
 
-            if (query.CreatedTo.HasValue)
+            if (queryRequest.CreatedTo.HasValue)
             {
-                alerts = alerts.Where(a => a.CreatedAt <= query.CreatedTo.Value);
+                query = query.Where(a => a.CreatedAt <= queryRequest.CreatedTo.Value);
             }
 
             // Apply sorting
-            if (!string.IsNullOrWhiteSpace(query.SortBy))
+            if (!string.IsNullOrWhiteSpace(queryRequest.SortBy))
             {
-                alerts = query.SortBy.ToLower() switch
+                query = queryRequest.SortBy.ToLower() switch
                 {
-                    "message" => query.SortDescending
-                        ? alerts.OrderByDescending(a => a.Message)
-                        : alerts.OrderBy(a => a.Message),
-                    "createat" => query.SortDescending
-                        ? alerts.OrderByDescending(a => a.CreatedAt)
-                        : alerts.OrderBy(a => a.CreatedAt),
-                    "budgetid" => query.SortDescending
-                        ? alerts.OrderByDescending(a => a.BudgetId)
-                        : alerts.OrderBy(a => a.BudgetId),
-                    _ => alerts
+                    "message" => queryRequest.SortDescending
+                        ? query.OrderByDescending(a => a.Message)
+                        : query.OrderBy(a => a.Message),
+                    "createdat" => queryRequest.SortDescending  // Corrected from "createat"
+                        ? query.OrderByDescending(a => a.CreatedAt)
+                        : query.OrderBy(a => a.CreatedAt),
+                    "budgetid" => queryRequest.SortDescending
+                        ? query.OrderByDescending(a => a.BudgetId)
+                        : query.OrderBy(a => a.BudgetId),
+                    _ => query.OrderByDescending(a => a.Id) // Default sort
                 };
             }
-
-            // Apply pagination
-            if (query.PageSize > 0)
+            else
             {
-                alerts = alerts
-                    .Skip((query.PageNumber - 1) * query.PageSize)
-                    .Take(query.PageSize);
+                query = query.OrderByDescending(a => a.Id); // Default sort
             }
 
-            var result = await alerts.ToListAsync();
-            return _mapper.Map<IEnumerable<BudgetAlertResponse>>(result);
+            var paginatedAlerts = await PaginatedResponse<BudgetAlert>.CreateAsync(query, queryRequest.PageNumber, queryRequest.PageSize);
+            var alertResponses = _mapper.Map<List<BudgetAlertResponse>>(paginatedAlerts.Items);
+
+            return new PaginatedResponse<BudgetAlertResponse>(alertResponses, paginatedAlerts.TotalCount, paginatedAlerts.PageIndex, queryRequest.PageSize);
         }
 
         public async Task<BudgetAlertResponse> GetAlertByIdAsync(int id)
         {
             var alert = await _context.BudgetAlerts
                 .Include(a => a.Budget)
-                .FirstOrDefaultAsync(a => a.Id == id);
+                .FirstOrDefaultAsync(a => a.Id == id && !a.IsDelete);
 
             if (alert == null)
-                throw new KeyNotFoundException($"Alert with ID {id} not found");
+                throw new KeyNotFoundException($"Alert with ID {id} not found or has been deleted");
 
             return _mapper.Map<BudgetAlertResponse>(alert);
         }
 
-        public async Task<IEnumerable<BudgetAlertResponse>> GetAlertsByBudgetIdAsync(int budgetId)
+        public async Task<PaginatedResponse<BudgetAlertResponse>> GetAlertsByBudgetIdAsync(int budgetId, BudgetAlertQueryRequest queryRequest)
         {
-            var alerts = await _context.BudgetAlerts
-                .Include(a => a.Budget)
-                .Where(a => a.BudgetId == budgetId)
-                .ToListAsync();
-            return _mapper.Map<IEnumerable<BudgetAlertResponse>>(alerts);
+            queryRequest.BudgetId = budgetId; // Ensure BudgetId is set for filtering
+            // queryRequest.IsDeleted = false; // Ensure only non-deleted alerts are fetched by default if not specified
+            return await GetAllAlertsAsync(queryRequest);
         }
 
         public async Task<BudgetAlertResponse> CreateAlertAsync(BudgetAlertRequestModel request)
         {
+            var budgetExists = await _context.Budgets.AnyAsync(b => b.Id == request.BudgetId && !b.IsDelete);
+            if (!budgetExists) throw new KeyNotFoundException($"Budget with ID {request.BudgetId} not found or has been deleted.");
+
             var alert = _mapper.Map<BudgetAlert>(request);
-            alert.CreatedAt = DateTime.UtcNow.AddHours(7);
+            alert.CreatedAt = DateTime.UtcNow;
+            alert.IsDelete = false;
 
             _context.BudgetAlerts.Add(alert);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<BudgetAlertResponse>(alert);
+            // Re-fetch to include Budget for the response
+            var createdAlert = await _context.BudgetAlerts.Include(a => a.Budget).FirstOrDefaultAsync(a => a.Id == alert.Id);
+            return _mapper.Map<BudgetAlertResponse>(createdAlert);
         }
 
         public async Task<BudgetAlertResponse> UpdateAlertAsync(int id, BudgetAlertRequestModel request)
         {
-            var alert = await _context.BudgetAlerts.FindAsync(id);
+            var alert = await _context.BudgetAlerts.FirstOrDefaultAsync(a => a.Id == id && !a.IsDelete);
             if (alert == null)
-                throw new KeyNotFoundException($"Alert with ID {id} not found");
+                throw new KeyNotFoundException($"Alert with ID {id} not found or has been deleted");
+            
+            var budgetExists = await _context.Budgets.AnyAsync(b => b.Id == request.BudgetId && !b.IsDelete);
+            if (!budgetExists) throw new KeyNotFoundException($"Budget with ID {request.BudgetId} not found or has been deleted.");
 
             _mapper.Map(request, alert);
-            alert.UpdatedDate = DateTime.UtcNow.AddHours(7);  
+            alert.UpdatedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-
-            return _mapper.Map<BudgetAlertResponse>(alert);
+            
+            var updatedAlert = await _context.BudgetAlerts.Include(a => a.Budget).FirstOrDefaultAsync(a => a.Id == alert.Id);
+            return _mapper.Map<BudgetAlertResponse>(updatedAlert);
         }
 
         public async Task DeleteAlertAsync(int id)
         {
-            var alert = await _context.BudgetAlerts.FindAsync(id);
+            var alert = await _context.BudgetAlerts.FirstOrDefaultAsync(a => a.Id == id && !a.IsDelete);
             if (alert == null)
-                throw new KeyNotFoundException($"Alert with ID {id} not found");
+                throw new KeyNotFoundException($"Alert with ID {id} not found or has been deleted");
 
-            _context.BudgetAlerts.Remove(alert);
+            alert.IsDelete = true;
+            alert.UpdatedDate = DateTime.UtcNow;
+            //_context.BudgetAlerts.Remove(alert); // Soft delete
             await _context.SaveChangesAsync();
         }
     }

@@ -24,84 +24,90 @@ namespace Finamon.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<BudgetDetailResponse>> GetAllBudgetDetailsAsync(BudgetDetailQueryRequest queryRequest = null)
+        public async Task<PaginatedResponse<BudgetDetailResponse>> GetAllBudgetDetailsAsync(BudgetDetailQueryRequest queryRequest)
         {
             var query = _context.BudgetDetails
                 .Include(bd => bd.Budget)
                 .Include(bd => bd.Category)
                 .AsQueryable();
 
-            if (queryRequest != null)
+            // Default to not showing deleted if not specified in the query
+            if (queryRequest.IsDeleted.HasValue)
             {
-                // Apply filters
-                if (queryRequest.BudgetId.HasValue)
-                {
-                    query = query.Where(bd => bd.BudgetId == queryRequest.BudgetId.Value);
-                }
-
-                if (queryRequest.CategoryId.HasValue)
-                {
-                    query = query.Where(bd => bd.CategoryId == queryRequest.CategoryId.Value);
-                }
-
-                if (queryRequest.MinMaxAmount.HasValue)
-                {
-                    query = query.Where(bd => bd.MaxAmount >= queryRequest.MinMaxAmount.Value);
-                }
-
-                if (queryRequest.MaxMaxAmount.HasValue)
-                {
-                    query = query.Where(bd => bd.MaxAmount <= queryRequest.MaxMaxAmount.Value);
-                }
-
-                if (queryRequest.MinCurrentAmount.HasValue)
-                {
-                    query = query.Where(bd => bd.CurrentAmount >= queryRequest.MinCurrentAmount.Value);
-                }
-
-                if (queryRequest.MaxCurrentAmount.HasValue)
-                {
-                    query = query.Where(bd => bd.CurrentAmount <= queryRequest.MaxCurrentAmount.Value);
-                }
-
-                if (queryRequest.CreatedFrom.HasValue)
-                {
-                    query = query.Where(bd => bd.CreatedAt >= queryRequest.CreatedFrom.Value);
-                }
-
-                if (queryRequest.CreatedTo.HasValue)
-                {
-                    query = query.Where(bd => bd.CreatedAt <= queryRequest.CreatedTo.Value);
-                }
-
-                // Apply sorting
-                if (!string.IsNullOrWhiteSpace(queryRequest.SortBy))
-                {
-                    query = queryRequest.SortBy.ToLower() switch
-                    {
-                        "maxamount" => queryRequest.SortDescending
-                            ? query.OrderByDescending(bd => bd.MaxAmount)
-                            : query.OrderBy(bd => bd.MaxAmount),
-                        "currentamount" => queryRequest.SortDescending
-                            ? query.OrderByDescending(bd => bd.CurrentAmount)
-                            : query.OrderBy(bd => bd.CurrentAmount),
-                        "createdat" => queryRequest.SortDescending
-                            ? query.OrderByDescending(bd => bd.CreatedAt)
-                            : query.OrderBy(bd => bd.CreatedAt),
-                        _ => query
-                    };
-                }
-
-                // Apply pagination
-                if (queryRequest.PageSize > 0)
-                {
-                    query = query.Skip((queryRequest.PageNumber - 1) * queryRequest.PageSize)
-                               .Take(queryRequest.PageSize);
-                }
+                query = query.Where(bd => bd.IsDelete == queryRequest.IsDeleted.Value);
+            }
+            else
+            {
+                query = query.Where(bd => !bd.IsDelete);
             }
 
-            var budgetDetails = await query.ToListAsync();
-            return _mapper.Map<IEnumerable<BudgetDetailResponse>>(budgetDetails);
+            // Apply filters
+            if (queryRequest.BudgetId.HasValue)
+            {
+                query = query.Where(bd => bd.BudgetId == queryRequest.BudgetId.Value);
+            }
+
+            if (queryRequest.CategoryId.HasValue)
+            {
+                query = query.Where(bd => bd.CategoryId == queryRequest.CategoryId.Value);
+            }
+
+            if (queryRequest.MinMaxAmount.HasValue) // Assuming this filters by MaxAmount >= value
+            {
+                query = query.Where(bd => bd.MaxAmount >= queryRequest.MinMaxAmount.Value);
+            }
+
+            if (queryRequest.MaxMaxAmount.HasValue) // Assuming this filters by MaxAmount <= value
+            {
+                query = query.Where(bd => bd.MaxAmount <= queryRequest.MaxMaxAmount.Value);
+            }
+
+            if (queryRequest.MinCurrentAmount.HasValue)
+            {
+                query = query.Where(bd => bd.CurrentAmount >= queryRequest.MinCurrentAmount.Value);
+            }
+
+            if (queryRequest.MaxCurrentAmount.HasValue)
+            {
+                query = query.Where(bd => bd.CurrentAmount <= queryRequest.MaxCurrentAmount.Value);
+            }
+
+            if (queryRequest.CreatedFrom.HasValue)
+            {
+                query = query.Where(bd => bd.CreatedAt >= queryRequest.CreatedFrom.Value);
+            }
+
+            if (queryRequest.CreatedTo.HasValue)
+            {
+                query = query.Where(bd => bd.CreatedAt <= queryRequest.CreatedTo.Value);
+            }
+
+            // Apply sorting
+            if (!string.IsNullOrWhiteSpace(queryRequest.SortBy))
+            {
+                query = queryRequest.SortBy.ToLower() switch
+                {
+                    "maxamount" => queryRequest.SortDescending
+                        ? query.OrderByDescending(bd => bd.MaxAmount)
+                        : query.OrderBy(bd => bd.MaxAmount),
+                    "currentamount" => queryRequest.SortDescending
+                        ? query.OrderByDescending(bd => bd.CurrentAmount)
+                        : query.OrderBy(bd => bd.CurrentAmount),
+                    "createdat" => queryRequest.SortDescending
+                        ? query.OrderByDescending(bd => bd.CreatedAt)
+                        : query.OrderBy(bd => bd.CreatedAt),
+                    _ => query.OrderByDescending(bd => bd.Id) // Default sort
+                };
+            }
+            else
+            {
+                query = query.OrderByDescending(bd => bd.Id); // Default sort
+            }
+
+            var paginatedDetails = await PaginatedResponse<BudgetDetail>.CreateAsync(query, queryRequest.PageNumber, queryRequest.PageSize);
+            var detailResponses = _mapper.Map<List<BudgetDetailResponse>>(paginatedDetails.Items);
+            
+            return new PaginatedResponse<BudgetDetailResponse>(detailResponses, paginatedDetails.TotalCount, paginatedDetails.PageIndex, queryRequest.PageSize);
         }
 
         public async Task<BudgetDetailResponse> GetBudgetDetailByIdAsync(int id)
@@ -109,29 +115,28 @@ namespace Finamon.Service.Services
             var budgetDetail = await _context.BudgetDetails
                 .Include(bd => bd.Budget)
                 .Include(bd => bd.Category)
-                .FirstOrDefaultAsync(bd => bd.Id == id);
+                .FirstOrDefaultAsync(bd => bd.Id == id && !bd.IsDelete);
 
             if (budgetDetail == null)
-                throw new KeyNotFoundException($"BudgetDetail with ID {id} not found");
+                throw new KeyNotFoundException($"BudgetDetail with ID {id} not found or has been deleted");
 
             return _mapper.Map<BudgetDetailResponse>(budgetDetail);
         }
 
         public async Task<BudgetDetailResponse> CreateBudgetDetailAsync(BudgetDetailRequestModel request)
         {
-            // Validate Budget exists
-            var budget = await _context.Budgets.FindAsync(request.BudgetId);
+            var budget = await _context.Budgets.FirstOrDefaultAsync(b => b.Id == request.BudgetId && !b.IsDelete);
             if (budget == null)
-                throw new KeyNotFoundException($"Budget with ID {request.BudgetId} not found");
+                throw new KeyNotFoundException($"Budget with ID {request.BudgetId} not found or has been deleted");
 
-            // Validate Category exists
-            var category = await _context.Categories.FindAsync(request.CategoryId);
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == request.CategoryId && !c.IsDelete);
             if (category == null)
-                throw new KeyNotFoundException($"Category with ID {request.CategoryId} not found");
+                throw new KeyNotFoundException($"Category with ID {request.CategoryId} not found or has been deleted");
 
             var budgetDetail = _mapper.Map<BudgetDetail>(request);
-            budgetDetail.CreatedAt = DateTime.UtcNow.AddHours(7);
-            budgetDetail.CurrentAmount = 0; // Initialize current amount to 0
+            budgetDetail.CreatedAt = DateTime.UtcNow;
+            budgetDetail.CurrentAmount = 0; 
+            budgetDetail.IsDelete = false;
 
             _context.BudgetDetails.Add(budgetDetail);
             await _context.SaveChangesAsync();
@@ -144,29 +149,27 @@ namespace Finamon.Service.Services
             var budgetDetail = await _context.BudgetDetails
                 .Include(bd => bd.Budget)
                 .Include(bd => bd.Category)
-                .FirstOrDefaultAsync(bd => bd.Id == id);
+                .FirstOrDefaultAsync(bd => bd.Id == id && !bd.IsDelete);
 
             if (budgetDetail == null)
-                throw new KeyNotFoundException($"BudgetDetail with ID {id} not found");
+                throw new KeyNotFoundException($"BudgetDetail with ID {id} not found or has been deleted");
 
-            // Validate Budget exists if changed
             if (request.BudgetId != budgetDetail.BudgetId)
             {
-                var budget = await _context.Budgets.FindAsync(request.BudgetId);
+                var budget = await _context.Budgets.FirstOrDefaultAsync(b => b.Id == request.BudgetId && !b.IsDelete);
                 if (budget == null)
-                    throw new KeyNotFoundException($"Budget with ID {request.BudgetId} not found");
+                    throw new KeyNotFoundException($"Budget with ID {request.BudgetId} not found or has been deleted");
             }
 
-            // Validate Category exists if changed
             if (request.CategoryId != budgetDetail.CategoryId)
             {
-                var category = await _context.Categories.FindAsync(request.CategoryId);
+                var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == request.CategoryId && !c.IsDelete);
                 if (category == null)
-                    throw new KeyNotFoundException($"Category with ID {request.CategoryId} not found");
+                    throw new KeyNotFoundException($"Category with ID {request.CategoryId} not found or has been deleted");
             }
 
             _mapper.Map(request, budgetDetail);
-            budgetDetail.UpdatedDate = DateTime.UtcNow.AddHours(7);
+            budgetDetail.UpdatedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
@@ -175,34 +178,28 @@ namespace Finamon.Service.Services
 
         public async Task DeleteBudgetDetailAsync(int id)
         {
-            var budgetDetail = await _context.BudgetDetails.FindAsync(id);
+            var budgetDetail = await _context.BudgetDetails.FirstOrDefaultAsync(bd => bd.Id == id && !bd.IsDelete);
             if (budgetDetail == null)
-                throw new KeyNotFoundException($"BudgetDetail with ID {id} not found");
+                throw new KeyNotFoundException($"BudgetDetail with ID {id} not found or has been deleted");
 
-            _context.BudgetDetails.Remove(budgetDetail);
+            budgetDetail.IsDelete = true;
+            budgetDetail.UpdatedDate = DateTime.UtcNow;
+            //_context.BudgetDetails.Remove(budgetDetail); // Soft delete
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<BudgetDetailResponse>> GetBudgetDetailsByBudgetIdAsync(int budgetId)
+        public async Task<PaginatedResponse<BudgetDetailResponse>> GetBudgetDetailsByBudgetIdAsync(int budgetId, BudgetDetailQueryRequest queryRequest)
         {
-            var budgetDetails = await _context.BudgetDetails
-                .Include(bd => bd.Budget)
-                .Include(bd => bd.Category)
-                .Where(bd => bd.BudgetId == budgetId)
-                .ToListAsync();
-
-            return _mapper.Map<IEnumerable<BudgetDetailResponse>>(budgetDetails);
+            queryRequest.BudgetId = budgetId; 
+            // queryRequest.IsDeleted = false; // Ensure only non-deleted are fetched by default
+            return await GetAllBudgetDetailsAsync(queryRequest);
         }
 
-        public async Task<IEnumerable<BudgetDetailResponse>> GetBudgetDetailsByCategoryIdAsync(int categoryId)
+        public async Task<PaginatedResponse<BudgetDetailResponse>> GetBudgetDetailsByCategoryIdAsync(int categoryId, BudgetDetailQueryRequest queryRequest)
         {
-            var budgetDetails = await _context.BudgetDetails
-                .Include(bd => bd.Budget)
-                .Include(bd => bd.Category)
-                .Where(bd => bd.CategoryId == categoryId)
-                .ToListAsync();
-
-            return _mapper.Map<IEnumerable<BudgetDetailResponse>>(budgetDetails);
+            queryRequest.CategoryId = categoryId;
+            // queryRequest.IsDeleted = false; // Ensure only non-deleted are fetched by default
+            return await GetAllBudgetDetailsAsync(queryRequest);
         }
     }
 } 

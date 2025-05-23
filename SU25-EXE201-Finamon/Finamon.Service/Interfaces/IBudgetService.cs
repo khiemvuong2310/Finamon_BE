@@ -8,7 +8,7 @@ namespace Finamon.Service.Interfaces
 {
     public interface IBudgetService
     {
-        Task<IEnumerable<BudgetResponse>> GetAllBudgetsAsync(BudgetQueryRequest? queryRequest = null);
+        Task<PaginatedResponse<BudgetResponse>> GetAllBudgetsAsync(BudgetQueryRequest queryRequest);
         Task<BudgetResponse> GetBudgetByIdAsync(int id);
         Task<BudgetResponse> CreateBudgetAsync(BudgetRequestModel request);
         Task<BudgetResponse> UpdateBudgetAsync(int id, BudgetRequestModel request);

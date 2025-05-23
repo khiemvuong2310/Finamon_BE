@@ -20,7 +20,7 @@ namespace Finamon.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BudgetDetailResponse>>> GetAllBudgetDetails([FromQuery] BudgetDetailQueryRequest queryRequest)
+        public async Task<ActionResult<PaginatedResponse<BudgetDetailResponse>>> GetAllBudgetDetails([FromQuery] BudgetDetailQueryRequest queryRequest)
         {
             var budgetDetails = await _budgetDetailService.GetAllBudgetDetailsAsync(queryRequest);
             return Ok(budgetDetails);
@@ -41,16 +41,16 @@ namespace Finamon.Controllers
         }
 
         [HttpGet("budget/{budgetId}")]
-        public async Task<ActionResult<IEnumerable<BudgetDetailResponse>>> GetBudgetDetailsByBudgetId(int budgetId)
+        public async Task<ActionResult<PaginatedResponse<BudgetDetailResponse>>> GetBudgetDetailsByBudgetId(int budgetId, [FromQuery] BudgetDetailQueryRequest queryRequest)
         {
-            var budgetDetails = await _budgetDetailService.GetBudgetDetailsByBudgetIdAsync(budgetId);
+            var budgetDetails = await _budgetDetailService.GetBudgetDetailsByBudgetIdAsync(budgetId, queryRequest);
             return Ok(budgetDetails);
         }
 
         [HttpGet("category/{categoryId}")]
-        public async Task<ActionResult<IEnumerable<BudgetDetailResponse>>> GetBudgetDetailsByCategoryId(int categoryId)
+        public async Task<ActionResult<PaginatedResponse<BudgetDetailResponse>>> GetBudgetDetailsByCategoryId(int categoryId, [FromQuery] BudgetDetailQueryRequest queryRequest)
         {
-            var budgetDetails = await _budgetDetailService.GetBudgetDetailsByCategoryIdAsync(categoryId);
+            var budgetDetails = await _budgetDetailService.GetBudgetDetailsByCategoryIdAsync(categoryId, queryRequest);
             return Ok(budgetDetails);
         }
 

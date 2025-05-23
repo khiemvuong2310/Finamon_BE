@@ -1,6 +1,8 @@
 ﻿using Finamon.Service.ReponseModel;
 using Finamon.Service.RequestModel;
 using Finamon.Service.RequestModel.QueryRequest;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Finamon.Service.Interfaces
 {
@@ -13,7 +15,7 @@ namespace Finamon.Service.Interfaces
         Task<UserResponse> GetUserByIdAsync(int id);
         Task<UserResponse> GetUserByUsernameAsync(string username);
         Task<UserDetailResponse> GetUserDetailByIdAsync(int id);
-        Task<(List<UserResponse> Users, int TotalCount)> GetUsersByFilterAsync(UserQueryRequest query);
+        Task<PaginatedResponse<UserResponse>> GetUsersByFilterAsync(UserQueryRequest query);
         Task<UserResponse> UpdateUserAsync(int id, UserUpdateRequest request);
     }
 }

@@ -1,8 +1,14 @@
-using Finamon.Service.Interfaces;
-using Finamon.Service.RequestModel;
-using Finamon.Service.RequestModel.QueryRequest;
+using Finamon_Data.Entities;
+using Finamon.Service.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using System;
+using Finamon.Service.Interfaces;
+using Finamon_Data.Models;
+using Finamon.Service.RequestModel;
+using Finamon.Service.RequestModel.QueryRequest;
+using System.IO;
 
 namespace Finamon.Controllers
 {
@@ -18,47 +24,93 @@ namespace Finamon.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllImages([FromQuery] ImageQueryRequest queryRequest)
+        public async Task<IActionResult> GetImages([FromQuery] Finamon.Service.RequestModel.QueryRequest.ImageQueryRequest queryRequest)
         {
             var images = await _imageService.GetAllImagesAsync(queryRequest);
             return Ok(images);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetImageById(int id)
+        public async Task<IActionResult> GetImage(int id)
         {
-            var image = await _imageService.GetImageByIdAsync(id);
-            if (image == null)
-            {
+            var imageViewModel = await _imageService.GetImageByIdAsync(id);
+            if (imageViewModel == null)
                 return NotFound();
-            }
-            return Ok(image);
+            return Ok(imageViewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateImage([FromBody] ImageRequest imageRequest)
+        public async Task<IActionResult> CreateImage([FromForm] ImageCreateModel model)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
+
+            if (model.File == null || model.File.Length == 0)
+            {
+                return BadRequest("File is required.");
             }
-            var image = await _imageService.CreateImageAsync(imageRequest);
-            return CreatedAtAction(nameof(GetImageById), new { id = image.Id }, image);
+
+            string base64Image;
+            using (var memoryStream = new MemoryStream())
+            {
+                await model.File.CopyToAsync(memoryStream);
+                var imageBytes = memoryStream.ToArray();
+                base64Image = Convert.ToBase64String(imageBytes);
+            }
+
+            var serviceRequest = new Finamon.Service.RequestModel.ImageRequest
+            {
+                Base64Image = base64Image,
+                ContentType = model.File.ContentType
+            };
+
+            try
+            {
+                var imageViewModel = await _imageService.CreateImageAsync(serviceRequest);
+                return CreatedAtAction(nameof(GetImage), new { id = imageViewModel.Id }, imageViewModel);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateImage(int id, [FromBody] ImageRequest imageRequest)
+        public async Task<IActionResult> UpdateImage(int id, [FromForm] ImageUpdateModel model)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
-            var image = await _imageService.UpdateImageAsync(id, imageRequest);
-            if (image == null)
+
+            if (model.File == null || model.File.Length == 0)
             {
-                return NotFound();
+                return BadRequest("File is required for update.");
             }
-            return Ok(image);
+
+            string base64Image;
+            using (var memoryStream = new MemoryStream())
+            {
+                await model.File.CopyToAsync(memoryStream);
+                var imageBytes = memoryStream.ToArray();
+                base64Image = Convert.ToBase64String(imageBytes);
+            }
+
+            var serviceRequest = new Finamon.Service.RequestModel.ImageRequest
+            {
+                Base64Image = base64Image,
+                ContentType = model.File.ContentType
+            };
+
+            try
+            {
+                var imageViewModel = await _imageService.UpdateImageAsync(id, serviceRequest);
+                if (imageViewModel == null)
+                    return NotFound();
+                return Ok(imageViewModel);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
@@ -66,10 +118,8 @@ namespace Finamon.Controllers
         {
             var result = await _imageService.DeleteImageAsync(id);
             if (!result)
-            {
                 return NotFound();
-            }
             return NoContent();
         }
     }
-} 
+}

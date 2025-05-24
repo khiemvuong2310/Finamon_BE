@@ -56,7 +56,7 @@ namespace Finamon.Service.Services
             user.CreatedDate = DateTime.Now;
             user.UpdatedDate = DateTime.Now;
             user.Status = true;
-            user.EmailVerified = false;
+            user.EmailVerified = true;
 
             await _context.Set<User>().AddAsync(user);
             await _context.SaveChangesAsync();

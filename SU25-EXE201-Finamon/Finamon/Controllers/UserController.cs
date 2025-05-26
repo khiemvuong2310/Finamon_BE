@@ -35,9 +35,17 @@ namespace Finamon.Controllers
                 var user = await _userService.GetUserByIdAsync(id);
                 return Ok(user);
             }
-            catch (Exception ex)
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
 

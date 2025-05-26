@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Finamon_Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250523190900_UpdateBudgetTable")]
-    partial class UpdateBudgetTable
+    [Migration("20250526123841_IntialCreateTable")]
+    partial class IntialCreateTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

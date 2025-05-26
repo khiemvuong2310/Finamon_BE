@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
+using DotNetEnv; // Thêm dòng này
+
 
 namespace Finamon
 {
@@ -11,6 +13,7 @@ namespace Finamon
     {
         public static void Main(string[] args)
         {
+            Env.Load(); // Tải biến môi trường từ file .env
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -27,7 +30,7 @@ namespace Finamon
             builder.Services.AddProblemDetails();
 
             builder.Services.AddDbContext<AppDbContext>(options => {
-                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+                var connectionString = builder.Configuration["DB_CONNECTION_STRING"];
                 var serverVersion = new MySqlServerVersion(new Version(8, 0, 2));
                 options.UseMySql(connectionString, serverVersion);
             });

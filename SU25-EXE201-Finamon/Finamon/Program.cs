@@ -19,7 +19,10 @@ namespace Finamon
             // Add services to the container.
             builder.Services.InstallService(builder.Configuration);
             builder.Services.ConfigureAuthService(builder.Configuration);
-    
+
+            //This ensures that users can only access their own information through the GetUserByIdAsync endpoint.
+            builder.Services.AddHttpContextAccessor();
+
             builder.Services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.ReferenceHandler = null;

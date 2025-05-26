@@ -16,6 +16,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Http;
 
 namespace Finamon.Service.Services
 {
@@ -24,12 +25,14 @@ namespace Finamon.Service.Services
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserService(AppDbContext context, IMapper mapper, IConfiguration configuration)
+        public UserService(AppDbContext context, IMapper mapper, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         private string HashPassword(string password)
@@ -142,6 +145,25 @@ namespace Finamon.Service.Services
 
         public async Task<UserResponse> GetUserByIdAsync(int id)
         {
+            // Get the current user's ID from the claims
+            var currentUserIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
+            if (currentUserIdClaim == null)
+            {
+                throw new UnauthorizedAccessException("User is not authenticated");
+            }
+
+            // Parse the current user's ID
+            if (!int.TryParse(currentUserIdClaim.Value, out int currentUserId))
+            {
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+            }
+
+            // Check if the requested ID matches the current user's ID
+            if (currentUserId != id)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to view this user's information");
+            }
+
             var user = await _context.Set<User>()
                 .Include(u => u.UserRoles.Where(ur => ur.Status))
                     .ThenInclude(ur => ur.Role)
@@ -149,7 +171,7 @@ namespace Finamon.Service.Services
 
             if (user == null)
             {
-                throw new Exception("User not found");
+                throw new KeyNotFoundException("User not found");
             }
 
             var userResponse = _mapper.Map<UserResponse>(user);

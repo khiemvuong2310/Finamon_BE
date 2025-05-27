@@ -26,13 +26,20 @@ namespace Finamon.Service.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IFirebaseStorageService _firebaseStorageService;
 
-        public UserService(AppDbContext context, IMapper mapper, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public UserService(
+            AppDbContext context, 
+            IMapper mapper, 
+            IConfiguration configuration, 
+            IHttpContextAccessor httpContextAccessor,
+            IFirebaseStorageService firebaseStorageService)
         {
             _context = context;
             _mapper = mapper;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _firebaseStorageService = firebaseStorageService;
         }
 
         private string HashPassword(string password)
@@ -55,6 +62,21 @@ namespace Finamon.Service.Services
             }
 
             var user = _mapper.Map<User>(request);
+            
+            // Handle image upload if provided
+            if (request.ImageFile != null)
+            {
+                try
+                {
+                    var imageUrl = await _firebaseStorageService.UploadImageAsync(request.ImageFile);
+                    user.Image = imageUrl;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Failed to upload image: {ex.Message}");
+                }
+            }
+
             user.Password = HashPassword(request.Password);
             user.CreatedDate = DateTime.Now;
             user.UpdatedDate = DateTime.Now;
@@ -88,6 +110,27 @@ namespace Finamon.Service.Services
             if (user == null)
             {
                 throw new Exception("User not found");
+            }
+
+            // Handle image upload if provided
+            if (request.ImageFile != null)
+            {
+                try
+                {
+                    // Delete old image if exists
+                    if (!string.IsNullOrEmpty(user.Image))
+                    {
+                        await _firebaseStorageService.DeleteImageAsync(user.Image);
+                    }
+
+                    // Upload new image
+                    var imageUrl = await _firebaseStorageService.UploadImageAsync(request.ImageFile);
+                    request.Image = imageUrl;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Failed to upload image: {ex.Message}");
+                }
             }
 
             _mapper.Map(request, user);

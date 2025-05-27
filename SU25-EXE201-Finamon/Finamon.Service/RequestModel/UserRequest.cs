@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Finamon.Service.RequestModel
 {
@@ -24,6 +25,8 @@ namespace Finamon.Service.RequestModel
 
         [Range(1, 3, ErrorMessage = "RoleId must be between 1 and 3.")]
         public int RoleId { get; set; }
+
+        public IFormFile? ImageFile { get; set; }
     }
 
 
@@ -36,6 +39,7 @@ namespace Finamon.Service.RequestModel
         public string? Image { get; set; }
         public bool? Status { get; set; }
         public int? RoleId { get; set; }
+        public IFormFile? ImageFile { get; set; }
     }
 
     public class UserLoginRequest

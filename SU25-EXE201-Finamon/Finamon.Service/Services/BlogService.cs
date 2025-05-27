@@ -19,11 +19,13 @@ namespace Finamon.Service.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IFirebaseStorageService _firebaseStorageService;
 
-        public BlogService(IUnitOfWork unitOfWork, IMapper mapper)
+        public BlogService(IUnitOfWork unitOfWork, IMapper mapper, IFirebaseStorageService firebaseStorageService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _firebaseStorageService = firebaseStorageService;
         }
 
         public async Task<BaseResponse<BlogResponse>> CreateBlogAsync(CreateBlogRequest request)
@@ -48,6 +50,24 @@ namespace Finamon.Service.Services
                     Content = request.Content?.Trim(),
                     CreatedDate = DateTime.UtcNow
                 };
+
+                // Handle image upload if provided
+                if (request.ImageFile != null)
+                {
+                    try
+                    {
+                        var imageUrl = await _firebaseStorageService.UploadImageAsync(request.ImageFile);
+                        blog.Image = imageUrl;
+                    }
+                    catch (Exception ex)
+                    {
+                        return new BaseResponse<BlogResponse>
+                        {
+                            Code = StatusCodes.Status500InternalServerError,
+                            Message = $"Failed to upload image: {ex.Message}"
+                        };
+                    }
+                }
 
                 await _unitOfWork.Repository<Blog>().InsertAsync(blog);
                 await _unitOfWork.CommitAsync();
@@ -98,6 +118,31 @@ namespace Finamon.Service.Services
                     };
                 }
 
+                // Handle image upload if provided
+                if (request.ImageFile != null)
+                {
+                    try
+                    {
+                        // Delete old image if exists
+                        if (!string.IsNullOrEmpty(blog.Image))
+                        {
+                            await _firebaseStorageService.DeleteImageAsync(blog.Image);
+                        }
+
+                        // Upload new image
+                        var imageUrl = await _firebaseStorageService.UploadImageAsync(request.ImageFile);
+                        blog.Image = imageUrl;
+                    }
+                    catch (Exception ex)
+                    {
+                        return new BaseResponse<BlogResponse>
+                        {
+                            Code = StatusCodes.Status500InternalServerError,
+                            Message = $"Failed to upload image: {ex.Message}"
+                        };
+                    }
+                }
+
                 blog.Title = request.Title?.Trim();
                 blog.Content = request.Content?.Trim();
                 blog.UpdatedDate = DateTime.UtcNow;
@@ -146,6 +191,20 @@ namespace Finamon.Service.Services
                         Code = StatusCodes.Status404NotFound,
                         Message = "Blog not found"
                     };
+                }
+
+                // Delete image if exists
+                if (!string.IsNullOrEmpty(blog.Image))
+                {
+                    try
+                    {
+                        await _firebaseStorageService.DeleteImageAsync(blog.Image);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log the error but continue with blog deletion
+                        // You might want to handle this differently based on your requirements
+                    }
                 }
 
                 blog.IsDelete = true;

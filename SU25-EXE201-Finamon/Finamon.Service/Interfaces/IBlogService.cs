@@ -12,5 +12,6 @@ namespace Finamon.Service.Interfaces
         Task<BaseResponse> DeleteBlogAsync(int id);
         Task<BaseResponse<BlogResponse>> GetBlogByIdAsync(int id);
         Task<BaseResponse<PaginatedResponse<BlogResponse>>> GetAllBlogsAsync(BlogFilterRequest filter);
+        Task<BaseResponse<PaginatedResponse<BlogResponse>>> GetBlogsByUserIdAsync(int userId, BlogFilterRequest filter);
     }
 } 

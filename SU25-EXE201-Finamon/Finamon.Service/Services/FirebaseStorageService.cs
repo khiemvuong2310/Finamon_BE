@@ -22,19 +22,29 @@ namespace Finamon.Service.Services
         {
             _logger = logger;
 
-            // Khởi tạo Storage Client từ environment variable
             var firebaseConfig = Environment.GetEnvironmentVariable("FIREBASE_CONFIG");
-            if (string.IsNullOrEmpty(firebaseConfig))
+            GoogleCredential credential;
+            if (!string.IsNullOrEmpty(firebaseConfig))
             {
-                throw new ArgumentNullException("FIREBASE_CONFIG environment variable is not set");
+                credential = GoogleCredential.FromJson(firebaseConfig);
             }
-
-            var credential = GoogleCredential.FromJson(firebaseConfig);
+            else
+            {
+                credential = GoogleCredential.FromFile("firebase-adminsdk.json");
+            }
             _storageClient = StorageClient.Create(credential);
-            
+            // Code mới
+            //var firebaseConfig = Environment.GetEnvironmentVariable("FIREBASE_CONFIG");
+            //if (string.IsNullOrEmpty(firebaseConfig))
+            //{
+            //    throw new ArgumentNullException("FIREBASE_CONFIG environment variable is not set");
+            //}
+            //var credential = GoogleCredential.FromJson(firebaseConfig);
+
             // Lấy bucket name từ environment variable
-            _bucketName = Environment.GetEnvironmentVariable("FIREBASE_STORAGE_BUCKET") 
-                ?? throw new ArgumentNullException("FIREBASE_STORAGE_BUCKET environment variable is not set");
+            _bucketName = "pawfund-e7fdd.appspot.com";
+            //_bucketName = Environment.GetEnvironmentVariable("FIREBASE_STORAGE_BUCKET") 
+            //    ?? throw new ArgumentNullException("FIREBASE_STORAGE_BUCKET environment variable is not set");
         }
 
         public async Task<string> UploadImageAsync(IFormFile file)
@@ -50,7 +60,7 @@ namespace Finamon.Service.Services
                 if (!allowedTypes.Contains(file.ContentType.ToLower()))
                     throw new ArgumentException($"File type {file.ContentType} is not allowed");
 
-                // Validate file size (max 10MB)
+                // Validate file size (max 5)
                 if (file.Length > 5 * 1024 * 1024)
                     throw new ArgumentException("File size exceeds 5mb limit");
 

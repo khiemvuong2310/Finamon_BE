@@ -27,7 +27,7 @@ namespace Finamon.Controllers
         /// <returns>The public URL of the uploaded image</returns>
         [HttpPost("upload")]
         [Authorize]
-        [RequestSizeLimit(10 * 1024 * 1024)] // 10MB limit
+        [RequestSizeLimit(5 * 1024 * 1024)] // 10MB limit
         public async Task<ActionResult<string>> UploadImage(IFormFile file)
         {
             try

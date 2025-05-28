@@ -20,8 +20,7 @@ namespace Finamon.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<BaseResponse<BlogResponse>>> CreateBlog([FromBody] CreateBlogRequest request)
+        public async Task<ActionResult<BaseResponse<BlogResponse>>> CreateBlog([FromForm] CreateBlogRequest request)
         {
             var response = await _blogService.CreateBlogAsync(request);
             if (response.Code.HasValue)
@@ -36,8 +35,8 @@ namespace Finamon.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<BaseResponse<BlogResponse>>> UpdateBlog(int id, [FromBody] UpdateBlogRequest request)
+        [Authorize]
+        public async Task<ActionResult<BaseResponse<BlogResponse>>> UpdateBlog(int id, [FromForm] UpdateBlogRequest request)
         {
             var response = await _blogService.UpdateBlogAsync(id, request);
             if (response.Code.HasValue)
@@ -93,6 +92,22 @@ namespace Finamon.Controllers
                 return StatusCode(response.Code.Value, response);
             }
             return StatusCode(500, new BaseResponse<PagedBlogResponse>
+            {
+                Code = 500,
+                Message = "Unexpected error occurred."
+            });
+        }
+
+        [HttpGet("user/{userId}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<BaseResponse<PaginatedResponse<BlogResponse>>>> GetBlogsByUserId(int userId, [FromQuery] BlogFilterRequest filter)
+        {
+            var response = await _blogService.GetBlogsByUserIdAsync(userId, filter);
+            if (response.Code.HasValue)
+            {
+                return StatusCode(response.Code.Value, response);
+            }
+            return StatusCode(500, new BaseResponse<PaginatedResponse<BlogResponse>>
             {
                 Code = 500,
                 Message = "Unexpected error occurred."

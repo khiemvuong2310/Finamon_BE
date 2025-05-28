@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using AutoMapper;
 using Finamon.Service.RequestModel.QueryRequest;
+using System.Security.Claims;
 
 namespace Finamon.Service.Services
 {
@@ -20,12 +21,24 @@ namespace Finamon.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IFirebaseStorageService _firebaseStorageService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
-        public BlogService(IUnitOfWork unitOfWork, IMapper mapper, IFirebaseStorageService firebaseStorageService)
+        public BlogService(
+            IUnitOfWork unitOfWork, 
+            IMapper mapper, 
+            IFirebaseStorageService firebaseStorageService,
+            IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _firebaseStorageService = firebaseStorageService;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        private DateTime GetVietnamTime()
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, VietnamTimeZone);
         }
 
         public async Task<BaseResponse<BlogResponse>> CreateBlogAsync(CreateBlogRequest request)
@@ -44,11 +57,26 @@ namespace Finamon.Service.Services
                     };
                 }
 
+                // Lấy UserId từ token
+                var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return new BaseResponse<BlogResponse>
+                    {
+                        Code = StatusCodes.Status401Unauthorized,
+                        Message = "User not authenticated"
+                    };
+                }
+
+                var vietnamTime = GetVietnamTime();
                 var blog = new Blog
                 {
                     Title = request.Title?.Trim(),
                     Content = request.Content?.Trim(),
-                    CreatedDate = DateTime.UtcNow
+                    UserId = userId,
+                    Status = true,
+                    CreatedDate = vietnamTime,
+                    UpdatedDate = vietnamTime
                 };
 
                 // Handle image upload if provided
@@ -105,6 +133,17 @@ namespace Finamon.Service.Services
                     };
                 }
 
+                // Lấy UserId từ token
+                var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return new BaseResponse<BlogResponse>
+                    {
+                        Code = StatusCodes.Status401Unauthorized,
+                        Message = "User not authenticated"
+                    };
+                }
+
                 var blog = await _unitOfWork.Repository<Blog>()
                     .AsQueryable()
                     .FirstOrDefaultAsync(b => b.Id == id && !b.IsDelete);
@@ -117,6 +156,20 @@ namespace Finamon.Service.Services
                         Message = "Blog not found"
                     };
                 }
+
+                // Kiểm tra xem người dùng có quyền sửa blog này không
+                //if (blog.UserId != userId)
+                //{
+                //    var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole("Admin") ?? false;
+                //    if (!isAdmin)
+                //    {
+                //        return new BaseResponse<BlogResponse>
+                //        {
+                //            Code = StatusCodes.Status403Forbidden,
+                //            Message = "You don't have permission to update this blog"
+                //        };
+                //    }
+                //}
 
                 // Handle image upload if provided
                 if (request.ImageFile != null)
@@ -145,7 +198,7 @@ namespace Finamon.Service.Services
 
                 blog.Title = request.Title?.Trim();
                 blog.Content = request.Content?.Trim();
-                blog.UpdatedDate = DateTime.UtcNow;
+                blog.UpdatedDate = GetVietnamTime();
 
                 await _unitOfWork.Repository<Blog>().Update(blog, blog.Id);
                 await _unitOfWork.CommitAsync();
@@ -208,7 +261,7 @@ namespace Finamon.Service.Services
                 }
 
                 blog.IsDelete = true;
-                blog.UpdatedDate = DateTime.UtcNow;
+                blog.UpdatedDate = GetVietnamTime();
                 await _unitOfWork.Repository<Blog>().Update(blog, blog.Id);
                 await _unitOfWork.CommitAsync();
 
@@ -335,6 +388,86 @@ namespace Finamon.Service.Services
             }
         }
 
-        
+        public async Task<BaseResponse<PaginatedResponse<BlogResponse>>> GetBlogsByUserIdAsync(int userId, BlogFilterRequest filter)
+        {
+            try
+            {
+                // Validate filter
+                var validationContext = new ValidationContext(filter);
+                var validationResults = new List<ValidationResult>();
+                if (!Validator.TryValidateObject(filter, validationContext, validationResults, true))
+                {
+                    return new BaseResponse<PaginatedResponse<BlogResponse>>
+                    {
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = string.Join(", ", validationResults.Select(r => r.ErrorMessage))
+                    };
+                }
+
+                // Kiểm tra user có tồn tại không
+                var user = await _unitOfWork.Repository<User>()
+                    .AsQueryable()
+                    .FirstOrDefaultAsync(u => u.Id == userId && !u.IsDelete);
+
+                if (user == null)
+                {
+                    return new BaseResponse<PaginatedResponse<BlogResponse>>
+                    {
+                        Code = StatusCodes.Status404NotFound,
+                        Message = "User not found"
+                    };
+                }
+
+                var query = _unitOfWork.Repository<Blog>()
+                    .AsQueryable()
+                    .Where(b => b.UserId == userId && !b.IsDelete);
+
+                // Apply filters
+                if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+                {
+                    var searchTerm = filter.SearchTerm.Trim().ToLower();
+                    query = query.Where(b =>
+                        (b.Title != null && b.Title.ToLower().Contains(searchTerm)) ||
+                        (b.Content != null && b.Content.ToLower().Contains(searchTerm)));
+                }
+
+                if (filter.FromDate.HasValue)
+                {
+                    query = query.Where(b => b.CreatedDate >= filter.FromDate.Value);
+                }
+
+                if (filter.ToDate.HasValue)
+                {
+                    query = query.Where(b => b.CreatedDate <= filter.ToDate.Value);
+                }
+
+                // Apply sorting (default to CreatedDate descending)
+                query = query.OrderByDescending(b => b.CreatedDate);
+
+                var paginatedBlogs = await PaginatedResponse<Blog>.CreateAsync(query, filter.PageNumber, filter.PageSize);
+                var blogResponses = _mapper.Map<List<BlogResponse>>(paginatedBlogs.Items);
+
+                var response = new PaginatedResponse<BlogResponse>(
+                    blogResponses,
+                    paginatedBlogs.TotalCount,
+                    paginatedBlogs.PageIndex,
+                    filter.PageSize);
+
+                return new BaseResponse<PaginatedResponse<BlogResponse>>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Blogs retrieved successfully",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse<PaginatedResponse<BlogResponse>>
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Message = "Failed to retrieve blogs: " + ex.Message
+                };
+            }
+        }
     }
 } 

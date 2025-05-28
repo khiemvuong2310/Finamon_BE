@@ -25,9 +25,7 @@ namespace Finamon_Data
         public DbSet<Keyword> Keywords { get; set; }
         public DbSet<Membership> Memberships { get; set; }
         public DbSet<UserMembership> UserMemberships { get; set; }
-        public DbSet<Image> Images { get; set; }
         public DbSet<Comment> Comments { get; set; }
-        public DbSet<BlogImage> BlogImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -126,7 +124,6 @@ namespace Finamon_Data
             modelBuilder.Entity<Chat>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<BudgetDetail>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<BudgetAlert>().HasQueryFilter(m => !m.IsDelete);
-            modelBuilder.Entity<Image>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<Comment>().HasQueryFilter(m => !m.IsDelete);
 
             // Configure One-to-Many: Category -> BudgetDetails
@@ -148,22 +145,6 @@ namespace Finamon_Data
                 .HasMany(b => b.Comments)
                 .WithOne(c => c.Blog)
                 .HasForeignKey(c => c.PostId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Configure Many-to-Many: Blog <-> Image via BlogImage
-            modelBuilder.Entity<BlogImage>()
-                .HasKey(bi => new { bi.BlogId, bi.ImageId });
-
-            modelBuilder.Entity<BlogImage>()
-                .HasOne(bi => bi.Blog)
-                .WithMany(b => b.PostImages) 
-                .HasForeignKey(bi => bi.BlogId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<BlogImage>()
-                .HasOne(bi => bi.Image)
-                .WithMany(i => i.BlogImages)
-                .HasForeignKey(bi => bi.ImageId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             //SeedData

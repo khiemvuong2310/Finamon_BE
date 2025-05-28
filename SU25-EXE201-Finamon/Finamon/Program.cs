@@ -4,7 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
-using DotNetEnv; // Thêm dòng này
+using DotNetEnv;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.AspNetCore.Http.Features; // Thêm dòng này
 
 
 namespace Finamon
@@ -93,6 +96,30 @@ namespace Finamon
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement { { securitySchema, new string[] { "Bearer" } } });
             });
 
+
+            // ============= FIREBASE CONFIG (SỬA LẠI) =============
+            var firebaseConfig = Environment.GetEnvironmentVariable("FIREBASE_CONFIG");
+            if (!string.IsNullOrEmpty(firebaseConfig))
+            {
+                FirebaseApp.Create(new AppOptions()
+                {
+                    Credential = GoogleCredential.FromJson(firebaseConfig),
+                    ProjectId = "pawfund-e7fdd" // Thêm ProjectId
+                });
+            }
+            else
+            {
+                FirebaseApp.Create(new AppOptions()
+                {
+                    Credential = GoogleCredential.FromFile("firebase-adminsdk.json"),
+                    ProjectId = "pawfund-e7fdd" // Thêm ProjectId
+                });
+            }
+            // File upload config (đã có)
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 104857600; // 100 MB
+            });
 
             var app = builder.Build();
 

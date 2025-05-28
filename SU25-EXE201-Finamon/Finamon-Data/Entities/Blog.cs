@@ -14,11 +14,10 @@ namespace Finamon_Data.Entities
         public bool Status { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
+        public string? Image { get; set; }
 
         // Navigation properties
         public virtual User? User { get; set; }
-        public virtual ICollection<BlogImage> PostImages { get; set; }
         public virtual ICollection<Comment> Comments { get; set; }
-
     }
 }

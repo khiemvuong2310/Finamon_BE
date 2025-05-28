@@ -38,10 +38,10 @@ namespace Finamon.AppStarts
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IBlogService, BlogService>();
-            services.AddScoped<IImageService, ImageService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IMembershipService, MembershipService>();
             services.AddScoped<IKeywordService, KeywordService>();
+            services.AddScoped<IFirebaseStorageService, FirebaseStorageService>();
 
             // Thêm AutoMapper vào dịch vụ
             services.AddAutoMapper(typeof(UserMappingProfile));
@@ -51,7 +51,6 @@ namespace Finamon.AppStarts
             services.AddAutoMapper(typeof(CategoryMappingProfile));
             services.AddAutoMapper(typeof(BlogMappingProfile));
             services.AddAutoMapper(typeof(ReportMappingProfile));
-            services.AddAutoMapper(typeof(ImageMappingProfile));
             services.AddAutoMapper(typeof(CommentMappingProfile));
             services.AddAutoMapper(typeof(MembershipProfile));
             services.AddAutoMapper(typeof(KeywordProfile));

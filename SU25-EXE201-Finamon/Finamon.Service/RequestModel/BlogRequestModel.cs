@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Finamon.Service.RequestModel
 {
@@ -12,6 +13,8 @@ namespace Finamon.Service.RequestModel
         [Required(ErrorMessage = "Content is required")]
         [StringLength(5000, MinimumLength = 10, ErrorMessage = "Content must be between 10 and 5000 characters")]
         public string Content { get; set; }
+
+        public IFormFile? ImageFile { get; set; }
     }
 
     public class UpdateBlogRequest
@@ -23,6 +26,7 @@ namespace Finamon.Service.RequestModel
         [Required(ErrorMessage = "Content is required")]
         [StringLength(5000, MinimumLength = 10, ErrorMessage = "Content must be between 10 and 5000 characters")]
         public string Content { get; set; }
-    }
 
+        public IFormFile? ImageFile { get; set; }
+    }
 } 

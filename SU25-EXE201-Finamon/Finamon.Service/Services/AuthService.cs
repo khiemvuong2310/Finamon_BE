@@ -372,7 +372,7 @@ namespace Finamon.Service.Services
                 var userRole = new UserRole
                 {
                     UserId = userId,
-                    RoleId = 1, // Manager role ID
+                    RoleId = 1, // Admin role ID
                     Status = true
                 };
 
@@ -384,11 +384,11 @@ namespace Finamon.Service.Services
                 await SendEmailAsync(
                     user.Email,
                     "YOUR ENTRY ACCOUNT",
-                    GetAccountEmailTemplate(user.Email, "0123456")
+                    GetAccountEmailTemplate(user.Email, "12345678")
                 );
 
-                // Tạo token
-                var userWithRole = await _userService.GetUserByIdAsync(user.Id);
+                // Lấy thông tin user và tạo token
+                var userWithRole = await _userService.GetUserByEmailAsync(user.Email);
                 var roleNames = string.Join(",", userWithRole.UserRoles.Select(ur => ur.RoleName));
                 string token = GenerateJwtToken(user.Email, roleNames, userId, false);
 

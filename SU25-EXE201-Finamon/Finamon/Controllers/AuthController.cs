@@ -21,7 +21,7 @@ namespace Finamon.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<BaseResponseForLogin<LoginResponseModel>>> Login([FromBody] LoginModel model)
         {
-            var response = await _authService.AuthenticateAsync(model.Email, model.Password);
+            var response = await _authService.AuthenticateAsync(model.Email, model.Password, model.Mobile);
             if (response.Code.HasValue)
             {
                 return StatusCode(response.Code.Value, response);

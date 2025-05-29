@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Finamon.Service.RequestModel;
 using Finamon.Service.ReponseModel;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 
 namespace Finamon.Service.Services
@@ -29,6 +30,7 @@ namespace Finamon.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private const int TOKEN_EXPIRY_HOURS = 24;
+        private const int TOKEN_Mobile_EXPIRY_HOURS = 48;
         private const int REFRESH_TOKEN_EXPIRY_DAYS = 7;
         private const string EMAIL_SENDER = "studentexchangeweb@gmail.com";
         private const string EMAIL_PASSWORD = "fwpl wpkw zhqe peyh";
@@ -47,7 +49,7 @@ namespace Finamon.Service.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<BaseResponseForLogin<LoginResponseModel>> AuthenticateAsync(string email, string password)
+        public async Task<BaseResponseForLogin<LoginResponseModel>> AuthenticateAsync(string email, string password , bool? mobile = false )
         {
             try
             {
@@ -111,7 +113,7 @@ namespace Finamon.Service.Services
                 var userWithRole = await _userService.GetUserByEmailAsync(userDetails.Email);
                 var roleNames = userWithRole.UserRoles.Select(ur => ur.RoleName).ToList();
 
-                string token = GenerateJwtToken(userDetails.Email, string.Join(",", roleNames), userDetails.Id);
+                string token = GenerateJwtToken(userDetails.Email, string.Join(",", roleNames), userDetails.Id, mobile);
                 string refreshToken = GenerateRefreshToken();
 
                 // Store refresh token in user record
@@ -160,17 +162,17 @@ namespace Finamon.Service.Services
             }
         }
 
-        public string GenerateJwtToken(string email, string roleNames, int userId)
+        public string GenerateJwtToken(string email, string roleNames, int userId, bool? mobile)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
 
             // Tạo danh sách claims
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, email),
-        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-    };
+            {
+                new Claim(ClaimTypes.Name, email),
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+            };
 
             // Thêm từng role riêng biệt
             if (!string.IsNullOrEmpty(roleNames))
@@ -184,7 +186,7 @@ namespace Finamon.Service.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(TOKEN_EXPIRY_HOURS),
+                Expires = DateTime.UtcNow.AddHours(mobile == true ? TOKEN_Mobile_EXPIRY_HOURS : TOKEN_EXPIRY_HOURS),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"]
@@ -226,7 +228,7 @@ namespace Finamon.Service.Services
                 var userDetails = await _userService.GetUserByIdAsync(user.Id);
                 var roleNames = userDetails.UserRoles.Select(ur => ur.RoleName).ToList();
 
-                string newToken = GenerateJwtToken(userDetails.Email, string.Join(",", roleNames), userDetails.Id);
+                string newToken = GenerateJwtToken(userDetails.Email, string.Join(",", roleNames), userDetails.Id, false);
                 string newRefreshToken = GenerateRefreshToken();
 
                 // Update refresh token in database
@@ -388,7 +390,7 @@ namespace Finamon.Service.Services
                 // Tạo token
                 var userWithRole = await _userService.GetUserByIdAsync(user.Id);
                 var roleNames = string.Join(",", userWithRole.UserRoles.Select(ur => ur.RoleName));
-                string token = GenerateJwtToken(user.Email, roleNames, userId);
+                string token = GenerateJwtToken(user.Email, roleNames, userId, false);
 
                 return new BaseResponse<TokenModel>
                 {
@@ -761,7 +763,7 @@ namespace Finamon.Service.Services
                 var userDetails = await _userService.GetUserByEmailAsync(user.Email);
                 var roleNames = userDetails.UserRoles.Select(r => r.RoleName).ToList();
 
-                var token = GenerateJwtToken(userDetails.Email, string.Join(",", roleNames), userDetails.Id);
+                var token = GenerateJwtToken(userDetails.Email, string.Join(",", roleNames), userDetails.Id, false);
                 var refreshToken = GenerateRefreshToken();
 
                 user.Token = refreshToken;

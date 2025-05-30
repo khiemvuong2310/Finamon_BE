@@ -20,7 +20,7 @@ namespace Finamon.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<BaseResponse<BlogResponse>>> CreateBlog([FromForm] CreateBlogRequest request)
+        public async Task<ActionResult<BaseResponse<BlogResponse>>> CreateBlog([FromBody] CreateBlogRequest request)
         {
             var response = await _blogService.CreateBlogAsync(request);
             if (response.Code.HasValue)
@@ -36,7 +36,7 @@ namespace Finamon.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<ActionResult<BaseResponse<BlogResponse>>> UpdateBlog(int id, [FromForm] UpdateBlogRequest request)
+        public async Task<ActionResult<BaseResponse<BlogResponse>>> UpdateBlog(int id, [FromBody] UpdateBlogRequest request)
         {
             var response = await _blogService.UpdateBlogAsync(id, request);
             if (response.Code.HasValue)

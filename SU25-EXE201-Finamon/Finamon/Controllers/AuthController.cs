@@ -19,7 +19,7 @@ namespace Finamon.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<BaseResponseForLogin<LoginResponseModel>>> Login([FromForm] LoginModel model)
+        public async Task<ActionResult<BaseResponseForLogin<LoginResponseModel>>> Login([FromBody] LoginModel model)
         {
             var response = await _authService.AuthenticateAsync(model.Email, model.Password, model.Mobile);
             if (response.Code.HasValue)
@@ -35,7 +35,7 @@ namespace Finamon.Controllers
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<ActionResult<BaseResponse<TokenModel>>> Register([FromForm] RegisterRequestModel model)
+        public async Task<ActionResult<BaseResponse<TokenModel>>> Register([FromBody] RegisterRequestModel model)
         {
             var response = await _authService.RegisterAsync(model);
             if (response.Code.HasValue)

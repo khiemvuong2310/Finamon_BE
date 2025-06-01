@@ -16,7 +16,7 @@ namespace Finamon.Service.RequestModel
         //[RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$", ErrorMessage = "Password must include letters and numbers.")]
         public string Password { get; set; }
 
-        [RegularExpression(@"^(03|05|07|08|09)\d{8}$", ErrorMessage = "Invalid Vietnamese phone number.")]
+        //[RegularExpression(@"^(03|05|07|08|09)\d{8}$", ErrorMessage = "Invalid Vietnamese phone number.")]
         public string? Phone { get; set; }
 
         public string? Location { get; set; }

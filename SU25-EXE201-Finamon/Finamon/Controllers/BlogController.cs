@@ -20,7 +20,7 @@ namespace Finamon.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<BaseResponse<BlogResponse>>> CreateBlog([FromBody] CreateBlogRequest request)
+        public async Task<ActionResult<BaseResponse<BlogResponse>>> CreateBlog([FromForm] CreateBlogRequest request)
         {
             var response = await _blogService.CreateBlogAsync(request);
             if (response.Code.HasValue)

@@ -121,6 +121,9 @@ namespace Finamon
                 options.MultipartBodyLengthLimit = 104857600; // 100 MB
             });
 
+            builder.WebHost.ConfigureKestrel(options => {
+                options.ListenAnyIP(5296); // Binds to all IPs
+            });
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

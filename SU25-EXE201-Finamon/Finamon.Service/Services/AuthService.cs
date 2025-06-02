@@ -721,7 +721,7 @@ namespace Finamon.Service.Services
                     };
                 }
 
-                if (!verificationData.Code.Trim().Equals(model.VerificationCode.Trim(), StringComparison.OrdinalIgnoreCase))
+                if (!verificationData.Code.Trim().ToUpper().Equals(model.VerificationCode.Trim().ToUpper()))
                 {
                     return new BaseResponse<TokenModel>
                     {

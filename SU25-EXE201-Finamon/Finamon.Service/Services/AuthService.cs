@@ -720,7 +720,7 @@ namespace Finamon.Service.Services
                         Message = "Verification code is missing or invalid"
                     };
                 }
-
+                //Check verification code bỏ qua chữ hoa và thường
                 if (!verificationData.Code.Trim().ToUpper().Equals(model.VerificationCode.Trim().ToUpper()))
                 {
                     return new BaseResponse<TokenModel>
@@ -729,7 +729,7 @@ namespace Finamon.Service.Services
                         Message = "Invalid verification code"
                     };
                 }
-
+                //Check DateTime 
                 if (DateTime.UtcNow > verificationData.Expiry)
                 {
                     _verificationCodes.Remove(model.Email);

@@ -135,6 +135,8 @@ namespace Finamon
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Finamon API v1");
                 });
             }
+            app.UseSwagger();
+            app.UseSwaggerUI();
             app.UseExceptionHandler();
 
             app.UseHttpsRedirection();

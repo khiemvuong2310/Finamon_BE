@@ -49,7 +49,7 @@ namespace Finamon.Service.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<BaseResponseForLogin<LoginResponseModel>> AuthenticateAsync(string email, string password , bool? mobile = false )
+        public async Task<BaseResponseForLogin<LoginResponseModel>> AuthenticateAsync(string email, string password, bool? mobile = false)
         {
             try
             {
@@ -651,7 +651,9 @@ namespace Finamon.Service.Services
       <p>Hello <span class='highlight'>" + email + @"</span>,</p>
       <p>Your reset password is: <span class='highlight'>" + password + @"</span></p>
       <p>This is a temporary password. Please change your password after logging in.</p>
+
     </div>
+
     <div class='footer'>
       &copy; " + DateTime.Now.Year + @" Exchange Web. All rights reserved.
     </div>
@@ -803,57 +805,90 @@ namespace Finamon.Service.Services
             return @"
 <html>
 <head>
+  <meta charset='UTF-8'>
   <style>
     body {
       font-family: Arial, sans-serif;
       line-height: 1.6;
+      background-color: #f0f2f5;
+      padding: 0;
+      margin: 0;
     }
     .container {
-      padding: 20px;
-      background-color: #f4f4f4;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+      padding: 30px;
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
       max-width: 600px;
-      margin: 0 auto;
+      margin: 40px auto;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     }
     .header {
-      font-size: 20px;
+      font-size: 24px;
       font-weight: bold;
       text-align: center;
+      color: #333;
       margin-bottom: 20px;
     }
     .content {
       font-size: 16px;
-      color: #333;
-    }
-    .footer {
-      font-size: 12px;
-      color: #888;
-      text-align: center;
-      margin-top: 20px;
+      color: #555;
+      line-height: 1.8;
     }
     .code {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: bold;
       color: #007BFF;
       text-align: center;
-      padding: 10px;
-      background-color: #fff;
-      border-radius: 5px;
-      margin: 20px 0;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border: 1px dashed #007BFF;
+      border-radius: 8px;
+      margin: 25px auto;
+      width: 200px;
+    }
+    .footer {
+      font-size: 12px;
+      color: #999;
+      text-align: center;
+      margin-top: 30px;
+    }
+    .social {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .social a {
+      display: inline-block;
+      padding: 12px 25px;
+      background-color: #4267B2;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    .social a:hover {
+      background-color: #365899;
     }
   </style>
 </head>
 <body>
   <div class='container'>
-    <div class='header'>Email Verification</div>
+    <div class='header'>Verify Your Email</div>
     <div class='content'>
-      <p>Thank you for registering with our Exchange Web!</p>
-      <p>Your verification code is:</p>
+      <p>Hello,</p>
+      <p>Thank you for registering with <strong>Exchange Web</strong>!</p>
+      <p>Please use the verification code below to complete your registration:</p>
       <div class='code'>" + verificationCode + @"</div>
-      <p>This code will expire in 15 minutes.</p>
-      <p>If you didn't request this verification, please ignore this email.</p>
+      <p>This code will expire in <strong>15 minutes</strong>.</p>
+      <p>If you did not request this verification, you can safely ignore this email.</p>
     </div>
+
+    <div class='social'>
+      <p>Like &amp; Share our Facebook app for more updates:</p>
+      <a href='https://www.facebook.com/profile.php?id=61576627709105'>Share on Facebook</a>
+    </div>
+
     <div class='footer'>
       &copy; " + DateTime.Now.Year + @" Exchange Web. All rights reserved.
     </div>

@@ -3,6 +3,7 @@ using Finamon.Service.RequestModel;
 using Finamon.Service.RequestModel.QueryRequest;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Finamon.Service.Interfaces
 {
@@ -17,5 +18,6 @@ namespace Finamon.Service.Interfaces
         Task<UserDetailResponse> GetUserDetailByIdAsync(int id);
         Task<PaginatedResponse<UserResponse>> GetUsersByFilterAsync(UserQueryRequest query);
         Task<UserResponse> UpdateUserAsync(int id, UserUpdateRequest request);
+        Task<UserResponse> UpdateUserImageAsync(int id, IFormFile imageFile);
     }
 }

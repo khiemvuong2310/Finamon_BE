@@ -4,6 +4,7 @@ using Finamon.Service.RequestModel.QueryRequest;
 using Finamon.Service.ReponseModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 namespace Finamon.Controllers
 {
@@ -18,13 +19,13 @@ namespace Finamon.Controllers
             _userService = userService;
         }
 
-        [HttpGet]
-        [Authorize(Roles = "Admin,Staff")]
-        public async Task<ActionResult<List<UserResponse>>> GetAllUsers()
-        {
-            var users = await _userService.GetAllUsersAsync();
-            return Ok(users);
-        }
+        //[HttpGet]
+        //[Authorize(Roles = "Admin,Staff")]
+        //public async Task<ActionResult<List<UserResponse>>> GetAllUsers()
+        //{
+        //    var users = await _userService.GetAllUsersAsync();
+        //    return Ok(users);
+        //}
 
         [HttpGet("{id}")]
         [Authorize]
@@ -106,7 +107,7 @@ namespace Finamon.Controllers
             return NoContent();
         }
 
-        [HttpGet("filter")]
+        [HttpGet]
         [Authorize(Roles = "Admin,Staff")]
         public async Task<ActionResult<(List<UserResponse> Users, int TotalCount)>> GetUsersByFilter([FromQuery] UserQueryRequest query)
         {
@@ -141,6 +142,29 @@ namespace Finamon.Controllers
             catch (Exception ex)
             {
                 return NotFound(ex.Message);
+            }
+        }
+
+        [HttpPut("{id}/image")]
+        [Authorize]
+        public async Task<ActionResult<UserResponse>> UpdateUserImage(int id, IFormFile imageFile)
+        {
+            try
+            {
+                var user = await _userService.UpdateUserImageAsync(id, imageFile);
+                return Ok(user);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
     }

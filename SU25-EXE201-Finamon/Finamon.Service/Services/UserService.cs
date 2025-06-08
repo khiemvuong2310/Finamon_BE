@@ -425,5 +425,64 @@ namespace Finamon.Service.Services
 
             return new PaginatedResponse<UserResponse>(userResponses, paginatedUsers.TotalCount, paginatedUsers.PageIndex, queryRequest.PageSize);
         }
+
+        public async Task<UserResponse> UpdateUserImageAsync(int id, IFormFile imageFile)
+        {
+            // Get the current user's ID from the claims
+            var currentUserIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
+            if (currentUserIdClaim == null)
+            {
+                throw new UnauthorizedAccessException("User is not authenticated");
+            }
+
+            // Parse the current user's ID
+            if (!int.TryParse(currentUserIdClaim.Value, out int currentUserId))
+            {
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+            }
+
+            // Check if the requested ID matches the current user's ID
+            if (currentUserId != id)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to update this user's image");
+            }
+
+            var user = await _context.Set<User>()
+                .Include(u => u.UserRoles.Where(ur => ur.Status))
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Id == id && !u.IsDelete);
+
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            if (imageFile == null)
+            {
+                throw new ArgumentException("Image file is required");
+            }
+
+            try
+            {
+                // Delete old image if exists
+                if (!string.IsNullOrEmpty(user.Image))
+                {
+                    await _firebaseStorageService.DeleteImageAsync(user.Image);
+                }
+
+                // Upload new image
+                var imageUrl = await _firebaseStorageService.UploadImageAsync(imageFile);
+                user.Image = imageUrl;
+                user.UpdatedDate = DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                return await GetUserByIdAsync(user.Id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to update user image: {ex.Message}");
+            }
+        }
     }
 } 

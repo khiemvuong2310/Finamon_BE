@@ -121,7 +121,9 @@ namespace Finamon.Service.Services
                 throw new KeyNotFoundException($"User with ID {request.UserId} not found or has been deleted");
 
             var budget = _mapper.Map<Budget>(request);
-            budget.StartDate = DateTime.UtcNow;
+            budget.CurrentAmount = 0; // Set mặc định là 0
+            budget.IsActive = true;   // Set mặc định là active
+            budget.StartDate = request.StartDate ?? DateTime.UtcNow; 
             budget.IsDelete = false; // Set IsDelete to false on creation
 
             _context.Budgets.Add(budget);

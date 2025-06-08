@@ -24,10 +24,21 @@ namespace Finamon.Service.Services
             _mapper = mapper;
         }
 
+        private async Task<decimal> CalculateCurrentAmount(int categoryId, decimal maxAmount)
+        {
+            var totalExpenses = await _context.Expenses
+                .Where(e => e.CategoryId == categoryId && !e.IsDelete)
+                .SumAsync(e => e.Amount);
+
+            // Return remaining amount (maxAmount - total expenses)
+            return maxAmount - totalExpenses;
+        }
+
         public async Task<PaginatedResponse<BudgetCategoryResponse>> GetAllBudgetCategoriesAsync(BudgetCategoryQueryRequest queryRequest)
         {
             var query = _context.BudgetCategories
                 .Include(bc => bc.Category)
+                .Include(bc => bc.CategoryAlerts.Where(ca => !ca.IsDelete))
                 .AsQueryable();
 
             // Default to not showing deleted if not specified in the query
@@ -87,6 +98,12 @@ namespace Finamon.Service.Services
 
             var paginatedCategories = await PaginatedResponse<BudgetCategory>.CreateAsync(query, queryRequest.PageNumber, queryRequest.PageSize);
             var categoryResponses = _mapper.Map<List<BudgetCategoryResponse>>(paginatedCategories.Items);
+
+            // Calculate CurrentAmount for each budget category
+            foreach (var categoryResponse in categoryResponses)
+            {
+                categoryResponse.CurrentAmount = await CalculateCurrentAmount(categoryResponse.CategoryId, categoryResponse.MaxAmount);
+            }
             
             return new PaginatedResponse<BudgetCategoryResponse>(categoryResponses, paginatedCategories.TotalCount, paginatedCategories.PageIndex, queryRequest.PageSize);
         }
@@ -95,12 +112,16 @@ namespace Finamon.Service.Services
         {
             var budgetCategory = await _context.BudgetCategories
                 .Include(bc => bc.Category)
+                .Include(bc => bc.CategoryAlerts.Where(ca => !ca.IsDelete))
                 .FirstOrDefaultAsync(bc => bc.Id == id && !bc.IsDelete);
 
             if (budgetCategory == null)
                 throw new KeyNotFoundException($"BudgetCategory with ID {id} not found or has been deleted");
 
-            return _mapper.Map<BudgetCategoryResponse>(budgetCategory);
+            var response = _mapper.Map<BudgetCategoryResponse>(budgetCategory);
+            response.CurrentAmount = await CalculateCurrentAmount(response.CategoryId, response.MaxAmount);
+
+            return response;
         }
 
         public async Task<BudgetCategoryResponse> CreateBudgetCategoryAsync(BudgetCategoryRequestModel request)

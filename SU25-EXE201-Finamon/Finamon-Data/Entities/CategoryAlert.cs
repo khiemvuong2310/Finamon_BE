@@ -12,6 +12,7 @@ namespace Finamon_Data.Entities
         public float AlertThreshold { get; set; }  // Percentage threshold for alert
         public DateTime? CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
+
         // Navigation property
         public BudgetCategory BudgetCategory { get; set; }
     }

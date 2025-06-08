@@ -21,6 +21,12 @@ namespace Finamon.Service.Mapping
             // BudgetAlert mappings
             CreateMap<BudgetAlert, BudgetAlertResponse>();
             CreateMap<BudgetAlertRequestModel, BudgetAlert>();
+
+            // CategoryAlert mappings
+            CreateMap<CategoryAlert, CategoryAlertResponse>();
+            CreateMap<CategoryAlertRequestModel, CategoryAlert>()
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedDate, opt => opt.Ignore());
         }
     }
 }

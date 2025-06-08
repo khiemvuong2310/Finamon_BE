@@ -24,11 +24,25 @@ namespace Finamon.Service.Services
             _mapper = mapper;
         }
 
+        private async Task<decimal> CalculateCurrentAmount(int userId, DateTime startDate, decimal? limit)
+        {
+            var totalExpenses = await _context.Expenses
+                .Where(e => e.UserId == userId &&
+                           e.Date.Year == startDate.Year &&
+                           e.Date.Month == startDate.Month &&
+                           !e.IsDelete)
+                .SumAsync(e => e.Amount);
+
+            // Return remaining amount (limit - total expenses)
+            return limit.GetValueOrDefault() - totalExpenses;
+        }
+
         public async Task<PaginatedResponse<BudgetResponse>> GetAllBudgetsAsync(BudgetQueryRequest queryRequest)
         {
             var query = _context.Budgets
                 .Include(b => b.Expenses)
-                .Include(b => b.Alerts)
+                .Include(b => b.Alerts.Where(a => !a.IsDelete))
+                    .ThenInclude(a => a.Budget)
                 .Include(b => b.User)
                 .AsQueryable();
 
@@ -92,6 +106,28 @@ namespace Finamon.Service.Services
 
             var paginatedBudgets = await PaginatedResponse<Budget>.CreateAsync(query, queryRequest.PageNumber, queryRequest.PageSize);
             var budgetResponses = _mapper.Map<List<BudgetResponse>>(paginatedBudgets.Items);
+
+            // Calculate CurrentAmount for each budget
+            foreach (var budgetResponse in budgetResponses)
+            {
+                var budget = paginatedBudgets.Items.First(b => b.Id == budgetResponse.Id);
+                if (budget.StartDate.HasValue)
+                {
+                    budgetResponse.CurrentAmount = await CalculateCurrentAmount(budget.UserId, budget.StartDate.Value, budget.Limit);
+                }
+                else
+                {
+                    budgetResponse.CurrentAmount = budget.Limit.GetValueOrDefault();
+                }
+
+                // Ensure alerts are properly loaded and sorted
+                if (budget.Alerts != null)
+                {
+                    budgetResponse.Alerts = _mapper.Map<ICollection<BudgetAlertResponse>>(
+                        budget.Alerts.OrderByDescending(a => a.CreatedAt).ToList()
+                    );
+                }
+            }
             
             return new PaginatedResponse<BudgetResponse>(budgetResponses, paginatedBudgets.TotalCount, paginatedBudgets.PageIndex, queryRequest.PageSize);
         }
@@ -100,14 +136,35 @@ namespace Finamon.Service.Services
         {
             var budget = await _context.Budgets
                 .Include(b => b.Expenses)
-                .Include(b => b.Alerts)
+                .Include(b => b.Alerts.Where(a => !a.IsDelete))
+                    .ThenInclude(a => a.Budget)
                 .Include(b => b.User)
                 .FirstOrDefaultAsync(b => b.Id == id && !b.IsDelete);
 
             if (budget == null)
                 throw new KeyNotFoundException($"Budget with ID {id} not found or has been deleted");
 
-            return _mapper.Map<BudgetResponse>(budget);
+            var budgetResponse = _mapper.Map<BudgetResponse>(budget);
+            
+            // Calculate CurrentAmount if StartDate is available
+            if (budget.StartDate.HasValue)
+            {
+                budgetResponse.CurrentAmount = await CalculateCurrentAmount(budget.UserId, budget.StartDate.Value, budget.Limit);
+            }
+            else
+            {
+                budgetResponse.CurrentAmount = budget.Limit.GetValueOrDefault();
+            }
+
+            // Ensure alerts are properly loaded and sorted
+            if (budget.Alerts != null)
+            {
+                budgetResponse.Alerts = _mapper.Map<ICollection<BudgetAlertResponse>>(
+                    budget.Alerts.OrderByDescending(a => a.CreatedAt).ToList()
+                );
+            }
+
+            return budgetResponse;
         }
 
         public async Task<BudgetResponse> CreateBudgetAsync(BudgetRequestModel request)
@@ -131,6 +188,7 @@ namespace Finamon.Service.Services
         {
             var budget = await _context.Budgets
                 .Include(b => b.User)
+                .Include(b => b.Alerts.Where(a => !a.IsDelete))
                 .FirstOrDefaultAsync(b => b.Id == id && !b.IsDelete);
 
             if (budget == null)

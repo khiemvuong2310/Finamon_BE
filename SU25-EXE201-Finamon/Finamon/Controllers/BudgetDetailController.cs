@@ -10,29 +10,29 @@ namespace Finamon.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BudgetDetailController : ControllerBase
+    public class BudgetCategoryController : ControllerBase
     {
-        private readonly IBudgetDetailService _budgetDetailService;
+        private readonly IBudgetCategoryService _budgetCategoryService;
 
-        public BudgetDetailController(IBudgetDetailService budgetDetailService)
+        public BudgetCategoryController(IBudgetCategoryService budgetCategoryService)
         {
-            _budgetDetailService = budgetDetailService;
+            _budgetCategoryService = budgetCategoryService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<PaginatedResponse<BudgetDetailResponse>>> GetAllBudgetDetails([FromQuery] BudgetDetailQueryRequest queryRequest)
+        public async Task<ActionResult<PaginatedResponse<BudgetCategoryResponse>>> GetAllBudgetCategories([FromQuery] BudgetCategoryQueryRequest queryRequest)
         {
-            var budgetDetails = await _budgetDetailService.GetAllBudgetDetailsAsync(queryRequest);
-            return Ok(budgetDetails);
+            var budgetCategories = await _budgetCategoryService.GetAllBudgetCategoriesAsync(queryRequest);
+            return Ok(budgetCategories);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<BudgetDetailResponse>> GetBudgetDetailById(int id)
+        public async Task<ActionResult<BudgetCategoryResponse>> GetBudgetCategoryById(int id)
         {
             try
             {
-                var budgetDetail = await _budgetDetailService.GetBudgetDetailByIdAsync(id);
-                return Ok(budgetDetail);
+                var budgetCategory = await _budgetCategoryService.GetBudgetCategoryByIdAsync(id);
+                return Ok(budgetCategory);
             }
             catch (KeyNotFoundException ex)
             {
@@ -40,27 +40,20 @@ namespace Finamon.Controllers
             }
         }
 
-        [HttpGet("budget/{budgetId}")]
-        public async Task<ActionResult<PaginatedResponse<BudgetDetailResponse>>> GetBudgetDetailsByBudgetId(int budgetId, [FromQuery] BudgetDetailQueryRequest queryRequest)
-        {
-            var budgetDetails = await _budgetDetailService.GetBudgetDetailsByBudgetIdAsync(budgetId, queryRequest);
-            return Ok(budgetDetails);
-        }
-
         [HttpGet("category/{categoryId}")]
-        public async Task<ActionResult<PaginatedResponse<BudgetDetailResponse>>> GetBudgetDetailsByCategoryId(int categoryId, [FromQuery] BudgetDetailQueryRequest queryRequest)
+        public async Task<ActionResult<PaginatedResponse<BudgetCategoryResponse>>> GetBudgetCategoriesByCategoryId(int categoryId, [FromQuery] BudgetCategoryQueryRequest queryRequest)
         {
-            var budgetDetails = await _budgetDetailService.GetBudgetDetailsByCategoryIdAsync(categoryId, queryRequest);
-            return Ok(budgetDetails);
+            var budgetCategories = await _budgetCategoryService.GetBudgetCategoriesByCategoryIdAsync(categoryId, queryRequest);
+            return Ok(budgetCategories);
         }
 
         [HttpPost]
-        public async Task<ActionResult<BudgetDetailResponse>> CreateBudgetDetail(BudgetDetailRequestModel request)
+        public async Task<ActionResult<BudgetCategoryResponse>> CreateBudgetCategory(BudgetCategoryRequestModel request)
         {
             try
             {
-                var budgetDetail = await _budgetDetailService.CreateBudgetDetailAsync(request);
-                return CreatedAtAction(nameof(GetBudgetDetailById), new { id = budgetDetail.Id }, budgetDetail);
+                var budgetCategory = await _budgetCategoryService.CreateBudgetCategoryAsync(request);
+                return CreatedAtAction(nameof(GetBudgetCategoryById), new { id = budgetCategory.Id }, budgetCategory);
             }
             catch (KeyNotFoundException ex)
             {
@@ -69,12 +62,12 @@ namespace Finamon.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<BudgetDetailResponse>> UpdateBudgetDetail(int id, BudgetDetailRequestModel request)
+        public async Task<ActionResult<BudgetCategoryResponse>> UpdateBudgetCategory(int id, BudgetCategoryRequestModel request)
         {
             try
             {
-                var budgetDetail = await _budgetDetailService.UpdateBudgetDetailAsync(id, request);
-                return Ok(budgetDetail);
+                var budgetCategory = await _budgetCategoryService.UpdateBudgetCategoryAsync(id, request);
+                return Ok(budgetCategory);
             }
             catch (KeyNotFoundException ex)
             {
@@ -83,11 +76,11 @@ namespace Finamon.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBudgetDetail(int id)
+        public async Task<IActionResult> DeleteBudgetCategory(int id)
         {
             try
             {
-                await _budgetDetailService.DeleteBudgetDetailAsync(id);
+                await _budgetCategoryService.DeleteBudgetCategoryAsync(id);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

@@ -2,11 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Finamon.Service.RequestModel
 {
-    public class BudgetDetailRequestModel
+    public class BudgetCategoryRequestModel
     {
-        [Required]
-        public int BudgetId { get; set; }
-        
         [Required]
         public decimal MaxAmount { get; set; }
         

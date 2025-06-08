@@ -29,8 +29,6 @@ namespace Finamon.Service.Services
             var query = _context.Budgets
                 .Include(b => b.Expenses)
                 .Include(b => b.Alerts)
-                .Include(b => b.BudgetDetails)
-                    .ThenInclude(bd => bd.Category)
                 .Include(b => b.User)
                 .AsQueryable();
 
@@ -103,10 +101,8 @@ namespace Finamon.Service.Services
             var budget = await _context.Budgets
                 .Include(b => b.Expenses)
                 .Include(b => b.Alerts)
-                .Include(b => b.BudgetDetails)
-                    .ThenInclude(bd => bd.Category)
                 .Include(b => b.User)
-                .FirstOrDefaultAsync(b => b.Id == id && !b.IsDelete); // Ensure not deleted
+                .FirstOrDefaultAsync(b => b.Id == id && !b.IsDelete);
 
             if (budget == null)
                 throw new KeyNotFoundException($"Budget with ID {id} not found or has been deleted");
@@ -121,10 +117,9 @@ namespace Finamon.Service.Services
                 throw new KeyNotFoundException($"User with ID {request.UserId} not found or has been deleted");
 
             var budget = _mapper.Map<Budget>(request);
-            budget.CurrentAmount = 0; // Set mặc định là 0
-            budget.IsActive = true;   // Set mặc định là active
-            budget.StartDate = request.StartDate ?? DateTime.UtcNow; 
-            budget.IsDelete = false; // Set IsDelete to false on creation
+            budget.IsActive = true;
+            budget.StartDate = request.StartDate ?? DateTime.UtcNow.AddHours(7);
+            budget.IsDelete = false;
 
             _context.Budgets.Add(budget);
             await _context.SaveChangesAsync();
@@ -146,7 +141,7 @@ namespace Finamon.Service.Services
                 throw new KeyNotFoundException($"User with ID {request.UserId} not found or has been deleted");
 
             _mapper.Map(request, budget);
-            budget.UpdatedDate = DateTime.UtcNow; // Assuming Budget entity has UpdatedDate
+            budget.UpdatedDate = DateTime.UtcNow.AddHours(7);
 
             await _context.SaveChangesAsync();
 
@@ -160,8 +155,7 @@ namespace Finamon.Service.Services
                 throw new KeyNotFoundException($"Budget with ID {id} not found or has been deleted");
 
             budget.IsDelete = true;
-            budget.UpdatedDate = DateTime.UtcNow; // Assuming Budget entity has UpdatedDate
-            //_context.Budgets.Remove(budget); // Soft delete instead of hard delete
+            budget.UpdatedDate = DateTime.UtcNow.AddHours(7);
             await _context.SaveChangesAsync();
         }
     }

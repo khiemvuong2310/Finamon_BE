@@ -36,7 +36,7 @@ namespace Finamon.AppStarts
             services.AddScoped<IExpenseService, ExpenseService>();
             services.AddScoped<IBudgetService, BudgetService>();
             services.AddScoped<IBudgetAlertService, BudgetAlertService>();
-            services.AddScoped<IBudgetDetailService, BudgetDetailService>();
+            services.AddScoped<IBudgetCategoryService, BudgetCategoryService>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IBlogService, BlogService>();

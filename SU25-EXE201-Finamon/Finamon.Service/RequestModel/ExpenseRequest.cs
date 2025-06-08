@@ -16,8 +16,6 @@ namespace Finamon.Service.RequestModel
 
         [Required(ErrorMessage = "CategoryId is required")]
         public int CategoryId { get; set; }
-
-        public int? BudgetId { get; set; }
     }
 
     public class ExpenseUpdateRequest
@@ -26,7 +24,6 @@ namespace Finamon.Service.RequestModel
         public decimal? Amount { get; set; }
         //public DateTime? Date { get; set; }
         public int? CategoryId { get; set; }
-        public int? BudgetId { get; set; }
     }
 
     //public class ExpenseQueryRequest

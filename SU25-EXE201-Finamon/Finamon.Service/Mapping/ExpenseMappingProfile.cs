@@ -12,9 +12,9 @@ namespace Finamon.Service.Mapping
             CreateMap<Expense, ExpenseResponse>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
-                .ForMember(dest => dest.BudgetName, opt => opt.MapFrom(src => src.Budget != null ? $"Budget {src.Budget.Id}" : null))
                 .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => DateTime.UtcNow.AddHours(7)))
-                .ForMember(dest => dest.UpdatedDate, opt => opt.MapFrom(src => DateTime.UtcNow.AddHours(7)));
+                .ForMember(dest => dest.UpdatedDate, opt => opt.MapFrom(src => DateTime.UtcNow.AddHours(7)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateTime.UtcNow.AddHours(7)));
 
             CreateMap<Expense, ExpenseDetailResponse>()
                 .IncludeBase<Expense, ExpenseResponse>();
@@ -23,7 +23,6 @@ namespace Finamon.Service.Mapping
             CreateMap<ExpenseUpdateRequest, Expense>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-            CreateMap<Budget, BudgetResponse>();
             CreateMap<Category, CategoryResponse>();
         }
     }

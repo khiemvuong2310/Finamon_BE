@@ -17,7 +17,8 @@ namespace Finamon_Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Budget> Budgets { get; set; }
         public DbSet<BudgetAlert> BudgetAlerts { get; set; }
-        public DbSet<BudgetDetail> BudgetDetails { get; set; }
+        public DbSet<BudgetCategory> BudgetCategories { get; set; }
+        public DbSet<CategoryAlert> CategoryAlerts { get; set; }
         public DbSet<Chat> Chats { get; set; }
         public DbSet<ChatSession> ChatSessions { get; set; }
         public DbSet<Report> Reports { get; set; }
@@ -54,18 +55,18 @@ namespace Finamon_Data
                 .HasForeignKey(b => b.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure One-to-Many: Budget -> BudgetDetails
-            modelBuilder.Entity<Budget>()
-                .HasMany<BudgetDetail>()
-                .WithOne(bd => bd.Budget)
-                .HasForeignKey(bd => bd.BudgetId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             // Configure One-to-Many: Budget -> BudgetAlerts
             modelBuilder.Entity<Budget>()
                 .HasMany(b => b.Alerts)
                 .WithOne(ba => ba.Budget)
                 .HasForeignKey(ba => ba.BudgetId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure One-to-Many: BudgetCategory -> CategoryAlerts
+            modelBuilder.Entity<BudgetCategory>()
+                .HasMany(bc => bc.CategoryAlerts)
+                .WithOne(ca => ca.BudgetCategory)
+                .HasForeignKey(ca => ca.BudgetCategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Configure One-to-Many: User -> Expenses
@@ -81,14 +82,6 @@ namespace Finamon_Data
                 .WithOne(e => e.Category)
                 .HasForeignKey(e => e.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
-                
-            // Configure One-to-Many: Budget -> Expenses (optional relationship)
-            modelBuilder.Entity<Budget>()
-                .HasMany<Expense>()
-                .WithOne(e => e.Budget)
-                .HasForeignKey(e => e.BudgetId)
-                .OnDelete(DeleteBehavior.SetNull)
-                .IsRequired(false);
                 
             // Configure Many-to-Many: User <-> Membership via UserMembership
             modelBuilder.Entity<UserMembership>()
@@ -122,15 +115,16 @@ namespace Finamon_Data
             modelBuilder.Entity<Blog>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<ChatSession>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<Chat>().HasQueryFilter(m => !m.IsDelete);
-            modelBuilder.Entity<BudgetDetail>().HasQueryFilter(m => !m.IsDelete);
+            modelBuilder.Entity<BudgetCategory>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<BudgetAlert>().HasQueryFilter(m => !m.IsDelete);
+            modelBuilder.Entity<CategoryAlert>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<Comment>().HasQueryFilter(m => !m.IsDelete);
 
-            // Configure One-to-Many: Category -> BudgetDetails
+            // Configure One-to-Many: Category -> BudgetCategories
             modelBuilder.Entity<Category>()
-                .HasMany(c => c.BudgetDetails)
-                .WithOne(bd => bd.Category)
-                .HasForeignKey(bd => bd.CategoryId)
+                .HasMany(c => c.BudgetCategorys)
+                .WithOne(bc => bc.Category)
+                .HasForeignKey(bc => bc.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Configure One-to-Many: User -> Comments

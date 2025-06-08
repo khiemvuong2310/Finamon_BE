@@ -17,6 +17,6 @@ namespace Finamon_Data.Entities
 
         // Navigation properties
         public ICollection<Expense> Expenses { get; set; }
-        public ICollection<BudgetDetail> BudgetDetails { get; set; }
+        public ICollection<BudgetCategory> BudgetCategorys { get; set; }
     }
 }

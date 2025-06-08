@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Finamon_Data.Migrations
 {
     /// <inheritdoc />
-    public partial class IntialCreateTable : Migration
+    public partial class IntialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -38,26 +38,6 @@ namespace Finamon_Data.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Images",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Base64Image = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ContentType = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    IsDelete = table.Column<bool>(type: "tinyint(1)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Images", x => x.Id);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Keywords",
                 columns: table => new
                 {
@@ -65,6 +45,8 @@ namespace Finamon_Data.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Text = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     IsDelete = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
@@ -144,6 +126,32 @@ namespace Finamon_Data.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "BudgetCategories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    MaxAmount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Description = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    IsDelete = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BudgetCategories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BudgetCategories_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Blogs",
                 columns: table => new
                 {
@@ -157,6 +165,8 @@ namespace Finamon_Data.Migrations
                     Status = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Image = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     IsDelete = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
@@ -182,7 +192,6 @@ namespace Finamon_Data.Migrations
                     Description = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Limit = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
-                    CurrentAmount = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -338,25 +347,24 @@ namespace Finamon_Data.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "BlogImages",
+                name: "CategoryAlerts",
                 columns: table => new
                 {
-                    BlogId = table.Column<int>(type: "int", nullable: false),
-                    ImageId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    BudgetCategoryId = table.Column<int>(type: "int", nullable: false),
+                    AlertThreshold = table.Column<float>(type: "float", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    IsDelete = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BlogImages", x => new { x.BlogId, x.ImageId });
+                    table.PrimaryKey("PK_CategoryAlerts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BlogImages_Blogs_BlogId",
-                        column: x => x.BlogId,
-                        principalTable: "Blogs",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_BlogImages_Images_ImageId",
-                        column: x => x.ImageId,
-                        principalTable: "Images",
+                        name: "FK_CategoryAlerts_BudgetCategories_BudgetCategoryId",
+                        column: x => x.BudgetCategoryId,
+                        principalTable: "BudgetCategories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -421,46 +429,6 @@ namespace Finamon_Data.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "BudgetDetails",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    BudgetId = table.Column<int>(type: "int", nullable: false),
-                    MaxAmount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    CurrentAmount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    Description = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    BudgetId1 = table.Column<int>(type: "int", nullable: true),
-                    IsDelete = table.Column<bool>(type: "tinyint(1)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BudgetDetails", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_BudgetDetails_Budgets_BudgetId",
-                        column: x => x.BudgetId,
-                        principalTable: "Budgets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_BudgetDetails_Budgets_BudgetId1",
-                        column: x => x.BudgetId1,
-                        principalTable: "Budgets",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_BudgetDetails_Categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Categories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Expenses",
                 columns: table => new
                 {
@@ -470,10 +438,10 @@ namespace Finamon_Data.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Amount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdateDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     BudgetId = table.Column<int>(type: "int", nullable: true),
-                    BudgetId1 = table.Column<int>(type: "int", nullable: true),
                     CategoryId1 = table.Column<int>(type: "int", nullable: true),
                     IsDelete = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
@@ -483,12 +451,6 @@ namespace Finamon_Data.Migrations
                     table.ForeignKey(
                         name: "FK_Expenses_Budgets_BudgetId",
                         column: x => x.BudgetId,
-                        principalTable: "Budgets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_Expenses_Budgets_BudgetId1",
-                        column: x => x.BudgetId1,
                         principalTable: "Budgets",
                         principalColumn: "Id");
                     table.ForeignKey(
@@ -547,11 +509,6 @@ namespace Finamon_Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BlogImages_ImageId",
-                table: "BlogImages",
-                column: "ImageId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Blogs_UserId",
                 table: "Blogs",
                 column: "UserId");
@@ -562,24 +519,19 @@ namespace Finamon_Data.Migrations
                 column: "BudgetId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BudgetDetails_BudgetId",
-                table: "BudgetDetails",
-                column: "BudgetId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BudgetDetails_BudgetId1",
-                table: "BudgetDetails",
-                column: "BudgetId1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BudgetDetails_CategoryId",
-                table: "BudgetDetails",
+                name: "IX_BudgetCategories_CategoryId",
+                table: "BudgetCategories",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Budgets_UserId",
                 table: "Budgets",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CategoryAlerts_BudgetCategoryId",
+                table: "CategoryAlerts",
+                column: "BudgetCategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Chats_ChatSessionId",
@@ -610,11 +562,6 @@ namespace Finamon_Data.Migrations
                 name: "IX_Expenses_BudgetId",
                 table: "Expenses",
                 column: "BudgetId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Expenses_BudgetId1",
-                table: "Expenses",
-                column: "BudgetId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Expenses_CategoryId",
@@ -671,13 +618,10 @@ namespace Finamon_Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "BlogImages");
-
-            migrationBuilder.DropTable(
                 name: "BudgetAlerts");
 
             migrationBuilder.DropTable(
-                name: "BudgetDetails");
+                name: "CategoryAlerts");
 
             migrationBuilder.DropTable(
                 name: "Chats");
@@ -701,7 +645,7 @@ namespace Finamon_Data.Migrations
                 name: "UserRoles");
 
             migrationBuilder.DropTable(
-                name: "Images");
+                name: "BudgetCategories");
 
             migrationBuilder.DropTable(
                 name: "ChatSessions");
@@ -713,13 +657,13 @@ namespace Finamon_Data.Migrations
                 name: "Budgets");
 
             migrationBuilder.DropTable(
-                name: "Categories");
-
-            migrationBuilder.DropTable(
                 name: "Memberships");
 
             migrationBuilder.DropTable(
                 name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Users");

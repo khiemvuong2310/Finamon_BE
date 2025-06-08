@@ -26,6 +26,7 @@ namespace Finamon.Service.Services
             expense.UserId = userId;
             expense.IsDelete = false;
             expense.Date = DateTime.UtcNow.AddHours(7);
+            expense.UpdateDate = DateTime.UtcNow.AddHours(7);
 
             await _context.Expenses.AddAsync(expense);
             await _context.SaveChangesAsync();
@@ -38,7 +39,6 @@ namespace Finamon.Service.Services
             var expense = await _context.Expenses
                 .Include(e => e.User)
                 .Include(e => e.Category)
-                .Include(e => e.Budget)
                 .FirstOrDefaultAsync(e => e.Id == id && !e.IsDelete);
 
             if (expense == null)
@@ -47,7 +47,7 @@ namespace Finamon.Service.Services
             }
 
             _mapper.Map(request, expense);
-            expense.Date = DateTime.UtcNow.AddHours(7);
+            expense.UpdateDate = DateTime.UtcNow.AddHours(7);
 
             await _context.SaveChangesAsync();
             return await GetExpenseByIdAsync(expense.Id);
@@ -62,6 +62,7 @@ namespace Finamon.Service.Services
             }
 
             expense.IsDelete = true;
+            expense.UpdateDate = DateTime.UtcNow.AddHours(7);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -71,7 +72,6 @@ namespace Finamon.Service.Services
             var expense = await _context.Expenses
                 .Include(e => e.User)
                 .Include(e => e.Category)
-                .Include(e => e.Budget)
                 .FirstOrDefaultAsync(e => e.Id == id && !e.IsDelete);
 
             if (expense == null)
@@ -87,7 +87,6 @@ namespace Finamon.Service.Services
             var expense = await _context.Expenses
                 .Include(e => e.User)
                 .Include(e => e.Category)
-                .Include(e => e.Budget)
                 .FirstOrDefaultAsync(e => e.Id == id && !e.IsDelete);
 
             if (expense == null)
@@ -100,23 +99,15 @@ namespace Finamon.Service.Services
 
         public async Task<List<ExpenseResponse>> GetAllExpensesAsync()
         {
-            // Start with base query including related entities
             var queryable = _context.Expenses
                 .Include(e => e.User)
                 .Include(e => e.Category)
-                .Include(e => e.Budget)
                 .AsQueryable();
 
-            // Apply soft delete filter to exclude deleted expenses
             queryable = queryable.Where(e => !e.IsDelete);
-
-            // Apply sorting by Id in descending order (newest first)
             queryable = queryable.OrderByDescending(e => e.Id);
 
-            // Execute the query and get results
             var expenses = await queryable.ToListAsync();
-
-            // Map the results to ExpenseResponse DTOs
             return _mapper.Map<List<ExpenseResponse>>(expenses);
         }
 
@@ -125,7 +116,6 @@ namespace Finamon.Service.Services
             var expenses = await _context.Expenses
                 .Include(e => e.User)
                 .Include(e => e.Category)
-                .Include(e => e.Budget)
                 .Where(e => e.UserId == userId && !e.IsDelete)
                 .ToListAsync();
 
@@ -137,7 +127,6 @@ namespace Finamon.Service.Services
             var queryable = _context.Expenses
                 .Include(e => e.User)
                 .Include(e => e.Category)
-                .Include(e => e.Budget)
                 .AsQueryable();
 
             // Apply filters
@@ -169,11 +158,6 @@ namespace Finamon.Service.Services
             if (queryRequest.CategoryId.HasValue)
             {
                 queryable = queryable.Where(e => e.CategoryId == queryRequest.CategoryId.Value);
-            }
-
-            if (queryRequest.BudgetId.HasValue)
-            {
-                queryable = queryable.Where(e => e.BudgetId == queryRequest.BudgetId.Value);
             }
 
             // Apply soft delete filter

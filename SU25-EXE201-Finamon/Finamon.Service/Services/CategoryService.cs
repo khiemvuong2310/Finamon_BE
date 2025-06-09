@@ -106,6 +106,11 @@ namespace Finamon.Service.Services
 
         public async Task<CategoryResponse> CreateCategoryAsync(CategoryRequestModel request)
         {
+            // Validate if user exists
+            var userExists = await _context.Users.AnyAsync(u => u.Id == request.UserId && !u.IsDelete);
+            if (!userExists)
+                throw new KeyNotFoundException($"User with ID {request.UserId} not found");
+
             var category = _mapper.Map<Category>(request);
             category.CreatedDate = DateTime.UtcNow.AddHours(7);
 
@@ -137,6 +142,38 @@ namespace Finamon.Service.Services
 
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<CategoryResponse>> CreateManyCategoriesAsync(CreateManyCategoriesRequest request)
+        {
+            if (request.Categories == null || !request.Categories.Any())
+                throw new ArgumentException("At least one category is required");
+
+            // Get all unique user IDs from the request
+            var userIds = request.Categories.Select(c => c.UserId).Distinct().ToList();
+
+            // Validate all users exist
+            var existingUserIds = await _context.Users
+                .Where(u => userIds.Contains(u.Id) && !u.IsDelete)
+                .Select(u => u.Id)
+                .ToListAsync();
+
+            var notFoundUserIds = userIds.Except(existingUserIds).ToList();
+            if (notFoundUserIds.Any())
+                throw new KeyNotFoundException($"Users with IDs {string.Join(", ", notFoundUserIds)} not found");
+
+            var categories = request.Categories.Select(categoryRequest =>
+            {
+                var category = _mapper.Map<Category>(categoryRequest);
+                category.CreatedDate = DateTime.UtcNow.AddHours(7);
+                return category;
+            }).ToList();
+
+            await _context.Categories.AddRangeAsync(categories);
+            await _context.SaveChangesAsync();
+
+            var responses = _mapper.Map<IEnumerable<CategoryResponse>>(categories);
+            return responses.ToArray(); // Ensure we return an array for ReactJS
         }
     }
 } 

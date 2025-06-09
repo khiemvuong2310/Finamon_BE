@@ -13,5 +13,6 @@ namespace Finamon.Service.Interfaces
         Task<CategoryResponse> CreateCategoryAsync(CategoryRequestModel request);
         Task<CategoryResponse> UpdateCategoryAsync(int id, CategoryRequestModel request);
         Task DeleteCategoryAsync(int id);
+        Task<IEnumerable<CategoryResponse>> CreateManyCategoriesAsync(CreateManyCategoriesRequest request);
     }
 } 

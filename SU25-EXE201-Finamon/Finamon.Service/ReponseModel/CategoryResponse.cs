@@ -9,6 +9,8 @@ namespace Finamon.Service.ReponseModel
 
         public string? Color { get; set; }
 
+        public int UserId { get; set; }
+
         public DateTime CreatedDate { get; set; }
         public ICollection<ExpenseResponse> Expenses { get; set; }
     }

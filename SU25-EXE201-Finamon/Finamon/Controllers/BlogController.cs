@@ -35,7 +35,7 @@ namespace Finamon.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize]
+        [Authorize(Roles ="Admin,Staff")]
         public async Task<ActionResult<BaseResponse<BlogResponse>>> UpdateBlog(int id, [FromBody] UpdateBlogRequest request)
         {
             var response = await _blogService.UpdateBlogAsync(id, request);

@@ -114,7 +114,7 @@ namespace Finamon.Service.Services
             if (!budgetExists) throw new KeyNotFoundException($"Budget with ID {request.BudgetId} not found or has been deleted.");
 
             var alert = _mapper.Map<BudgetAlert>(request);
-            alert.CreatedAt = DateTime.UtcNow;
+            alert.CreatedAt = DateTime.UtcNow.AddHours(7);
             alert.IsDelete = false;
 
             _context.BudgetAlerts.Add(alert);
@@ -135,7 +135,7 @@ namespace Finamon.Service.Services
             if (!budgetExists) throw new KeyNotFoundException($"Budget with ID {request.BudgetId} not found or has been deleted.");
 
             _mapper.Map(request, alert);
-            alert.UpdatedDate = DateTime.UtcNow;
+            alert.UpdatedDate = DateTime.UtcNow.AddHours(7);
 
             await _context.SaveChangesAsync();
             
@@ -150,7 +150,7 @@ namespace Finamon.Service.Services
                 throw new KeyNotFoundException($"Alert with ID {id} not found or has been deleted");
 
             alert.IsDelete = true;
-            alert.UpdatedDate = DateTime.UtcNow;
+            alert.UpdatedDate = DateTime.UtcNow.AddHours(7);
             //_context.BudgetAlerts.Remove(alert); // Soft delete
             await _context.SaveChangesAsync();
         }

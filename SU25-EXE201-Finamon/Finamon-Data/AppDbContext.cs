@@ -27,6 +27,7 @@ namespace Finamon_Data
         public DbSet<Membership> Memberships { get; set; }
         public DbSet<UserMembership> UserMemberships { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<UserActivity> UserActivities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -78,10 +79,17 @@ namespace Finamon_Data
                 
             // Configure One-to-Many: Category -> Expenses
             modelBuilder.Entity<Category>()
-                .HasMany<Expense>()
+                .HasMany(c => c.Expenses)
                 .WithOne(e => e.Category)
                 .HasForeignKey(e => e.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
+                
+            // Configure One-to-Many: User -> Categories
+            modelBuilder.Entity<Category>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.Categories)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
                 
             // Configure Many-to-Many: User <-> Membership via UserMembership
             modelBuilder.Entity<UserMembership>()
@@ -140,6 +148,16 @@ namespace Finamon_Data
                 .WithOne(c => c.Blog)
                 .HasForeignKey(c => c.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure One-to-Many: User -> UserActivities
+            modelBuilder.Entity<UserActivity>()
+                .HasOne(ua => ua.User)
+                .WithMany(u => u.UserActivities)
+                .HasForeignKey(ua => ua.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure soft delete for UserActivity
+            modelBuilder.Entity<UserActivity>().HasQueryFilter(m => !m.IsDelete);
 
             //SeedData
             modelBuilder.Entity<Role>().HasData(

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Finamon_Data.Entities
 {
@@ -15,8 +13,11 @@ namespace Finamon_Data.Entities
 
         public DateTime? UpdatedDate { get; set; }
 
+        public int UserId { get; set; }
+        public virtual User User { get; set; }
+
         // Navigation properties
-        public ICollection<Expense> Expenses { get; set; }
-        public ICollection<BudgetCategory> BudgetCategorys { get; set; }
+        public virtual ICollection<Expense> Expenses { get; set; }
+        public virtual ICollection<BudgetCategory> BudgetCategorys { get; set; }
     }
 }

@@ -30,7 +30,7 @@ namespace Finamon.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private const int TOKEN_EXPIRY_HOURS = 24;
-        private const int TOKEN_Mobile_EXPIRY_HOURS = 48;
+        private const int TOKEN_Mobile_EXPIRY_HOURS = 336;
         private const int REFRESH_TOKEN_EXPIRY_DAYS = 7;
         private const string EMAIL_SENDER = "studentexchangeweb@gmail.com";
         private const string EMAIL_PASSWORD = "fwpl wpkw zhqe peyh";

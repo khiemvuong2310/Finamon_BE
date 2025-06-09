@@ -2,6 +2,7 @@ namespace Finamon.Service.RequestModel.QueryRequest
 {
     public class ExpenseQueryRequest : BaseQuery
     {
+        public string? Name { get; set; }
         public string? Description { get; set; }
         public decimal? MinAmount { get; set; }
         public decimal? MaxAmount { get; set; }

@@ -28,7 +28,7 @@ namespace Finamon.Service.Services
             if (!userExists)
                 throw new KeyNotFoundException($"User with ID {userId} not found");
 
-            // Random từ 1 đến 8 giờ (60 đến 480 phút)
+            // Random từ 1 đến 8 giờ 
             int useTimeInMinutes = _random.Next(60, 481);
 
             var activity = new UserActivity

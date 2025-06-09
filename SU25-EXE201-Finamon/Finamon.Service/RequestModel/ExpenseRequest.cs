@@ -4,6 +4,8 @@ namespace Finamon.Service.RequestModel
 {
     public class ExpenseRequest
     {
+        public string? Name { get; set; }
+        
         //[Required(ErrorMessage = "Description is required")]
         public string? Description { get; set; }
 
@@ -20,6 +22,7 @@ namespace Finamon.Service.RequestModel
 
     public class ExpenseUpdateRequest
     {
+        public string? Name { get; set; }
         public string? Description { get; set; }
         public decimal? Amount { get; set; }
         //public DateTime? Date { get; set; }

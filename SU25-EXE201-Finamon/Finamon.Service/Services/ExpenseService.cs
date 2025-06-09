@@ -130,6 +130,11 @@ namespace Finamon.Service.Services
                 .AsQueryable();
 
             // Apply filters
+            if (!string.IsNullOrEmpty(queryRequest.Name))
+            {
+                queryable = queryable.Where(e => e.Name.Contains(queryRequest.Name));
+            }
+
             if (!string.IsNullOrEmpty(queryRequest.Description))
             {
                 queryable = queryable.Where(e => e.Description.Contains(queryRequest.Description));

@@ -1,6 +1,7 @@
 using Finamon.Service.Interfaces;
 using Finamon.Service.RequestModel;
 using Finamon.Service.RequestModel.QueryRequest;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
@@ -10,7 +11,7 @@ namespace Finamon.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    // [Authorize] // Uncomment this if you want to protect all endpoints
+    [Authorize] // Uncomment this if you want to protect all endpoints
     public class CommentsController : ControllerBase
     {
         private readonly ICommentService _commentService;

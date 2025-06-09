@@ -2,6 +2,7 @@ using Finamon.Service.Interfaces;
 using Finamon.Service.ReponseModel;
 using Finamon.Service.RequestModel;
 using Finamon.Service.RequestModel.QueryRequest;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace Finamon.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class BudgetAlertController : ControllerBase
     {
         private readonly IBudgetAlertService _alertService;
@@ -85,6 +87,7 @@ namespace Finamon.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles ="Admmin,Staff")]
         public async Task<IActionResult> DeleteAlert(int id)
         {
             try

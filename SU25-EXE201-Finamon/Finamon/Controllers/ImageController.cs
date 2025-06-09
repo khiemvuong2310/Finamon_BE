@@ -90,7 +90,7 @@ namespace Finamon.Controllers
         /// <param name="imageUrl">The public URL of the image to delete</param>
         /// <returns>Success status</returns>
         [HttpDelete("delete")]
-        [Authorize]
+        [Authorize(Roles ="Admin,Staff")]
         public async Task<ActionResult> DeleteImage([FromQuery] string imageUrl)
         {
             try

@@ -192,7 +192,12 @@ namespace Finamon_Data.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Categories");
                 });
@@ -343,9 +348,6 @@ namespace Finamon_Data.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CategoryId1")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime(6)");
 
@@ -366,8 +368,6 @@ namespace Finamon_Data.Migrations
                     b.HasIndex("BudgetId");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("CategoryId1");
 
                     b.HasIndex("UserId");
 
@@ -565,6 +565,33 @@ namespace Finamon_Data.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Finamon_Data.Entities.UserActivity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("UseTime")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserActivities");
+                });
+
             modelBuilder.Entity("Finamon_Data.Entities.UserMembership", b =>
                 {
                     b.Property<int>("Id")
@@ -672,6 +699,17 @@ namespace Finamon_Data.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Finamon_Data.Entities.Category", b =>
+                {
+                    b.HasOne("Finamon_Data.Entities.User", "User")
+                        .WithMany("Categories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Finamon_Data.Entities.CategoryAlert", b =>
                 {
                     b.HasOne("Finamon_Data.Entities.BudgetCategory", "BudgetCategory")
@@ -737,14 +775,10 @@ namespace Finamon_Data.Migrations
                         .HasForeignKey("BudgetId");
 
                     b.HasOne("Finamon_Data.Entities.Category", "Category")
-                        .WithMany()
+                        .WithMany("Expenses")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("Finamon_Data.Entities.Category", null)
-                        .WithMany("Expenses")
-                        .HasForeignKey("CategoryId1");
 
                     b.HasOne("Finamon_Data.Entities.User", "User")
                         .WithMany("Expenses")
@@ -768,6 +802,17 @@ namespace Finamon_Data.Migrations
                     b.HasOne("Finamon_Data.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Finamon_Data.Entities.UserActivity", b =>
+                {
+                    b.HasOne("Finamon_Data.Entities.User", "User")
+                        .WithMany("UserActivities")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -867,6 +912,8 @@ namespace Finamon_Data.Migrations
                 {
                     b.Navigation("Budgets");
 
+                    b.Navigation("Categories");
+
                     b.Navigation("ChatSessions");
 
                     b.Navigation("Comments");
@@ -874,6 +921,8 @@ namespace Finamon_Data.Migrations
                     b.Navigation("Expenses");
 
                     b.Navigation("Reports");
+
+                    b.Navigation("UserActivities");
 
                     b.Navigation("UserMemberships");
 

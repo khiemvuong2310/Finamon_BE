@@ -2,6 +2,7 @@ using Finamon.Service.Interfaces;
 using Finamon.Service.ReponseModel;
 using Finamon.Service.RequestModel;
 using Finamon.Service.RequestModel.QueryRequest;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace Finamon.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -44,8 +46,15 @@ namespace Finamon.Controllers
         [HttpPost]
         public async Task<ActionResult<CategoryResponse>> CreateCategory(CategoryRequestModel request)
         {
-            var category = await _categoryService.CreateCategoryAsync(request);
-            return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, category);
+            try
+            {
+                var category = await _categoryService.CreateCategoryAsync(request);
+                return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, category);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
@@ -69,6 +78,24 @@ namespace Finamon.Controllers
             {
                 await _categoryService.DeleteCategoryAsync(id);
                 return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpPost("many")]
+        public async Task<ActionResult<IEnumerable<CategoryResponse>>> CreateManyCategories([FromBody] CreateManyCategoriesRequest request)
+        {
+            try
+            {
+                var categories = await _categoryService.CreateManyCategoriesAsync(request);
+                return Ok(categories);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (KeyNotFoundException ex)
             {

@@ -358,6 +358,10 @@ namespace Finamon.Service.Services
             {
                 queryable = queryable.Where(u => u.Location != null && u.Location.Contains(queryRequest.Location));
             }
+            if (!string.IsNullOrEmpty(queryRequest.Country))
+            {
+                queryable = queryable.Where(u => u.Country != null && u.Country.Contains(queryRequest.Country));
+            }
 
             if (queryRequest.Status.HasValue)
             {

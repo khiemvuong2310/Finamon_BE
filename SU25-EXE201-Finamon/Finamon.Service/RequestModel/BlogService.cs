@@ -1,6 +1,5 @@
 using Finamon.Repo.UnitOfWork;
 using Finamon.Service.Interfaces;
-using Finamon.Service.RequestModel;
 using Finamon.Service.ReponseModel;
 using Finamon_Data.Entities;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +13,7 @@ using AutoMapper;
 using Finamon.Service.RequestModel.QueryRequest;
 using System.Security.Claims;
 
-namespace Finamon.Service.Services
+namespace Finamon.Service.RequestModel
 {
     public class BlogService : IBlogService
     {
@@ -25,8 +24,8 @@ namespace Finamon.Service.Services
         private static readonly TimeZoneInfo VietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
         public BlogService(
-            IUnitOfWork unitOfWork, 
-            IMapper mapper, 
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
             IFirebaseStorageService firebaseStorageService,
             IHttpContextAccessor httpContextAccessor)
         {
@@ -348,9 +347,9 @@ namespace Finamon.Service.Services
                 if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
                 {
                     var searchTerm = filter.SearchTerm.Trim().ToLower();
-                    query = query.Where(b => 
-                        (b.Title != null && b.Title.ToLower().Contains(searchTerm)) || 
-                        (b.Content != null && b.Content.ToLower().Contains(searchTerm)));
+                    query = query.Where(b =>
+                        b.Title != null && b.Title.ToLower().Contains(searchTerm) ||
+                        b.Content != null && b.Content.ToLower().Contains(searchTerm));
                 }
 
                 if (filter.FromDate.HasValue)
@@ -365,7 +364,7 @@ namespace Finamon.Service.Services
 
                 // Apply sorting (default to CreatedDate descending)
                 query = query.OrderByDescending(b => b.CreatedDate);
-                
+
                 var paginatedBlogs = await PaginatedResponse<Blog>.CreateAsync(query, filter.PageNumber, filter.PageSize);
                 var blogResponses = _mapper.Map<List<BlogResponse>>(paginatedBlogs.Items);
 
@@ -427,8 +426,8 @@ namespace Finamon.Service.Services
                 {
                     var searchTerm = filter.SearchTerm.Trim().ToLower();
                     query = query.Where(b =>
-                        (b.Title != null && b.Title.ToLower().Contains(searchTerm)) ||
-                        (b.Content != null && b.Content.ToLower().Contains(searchTerm)));
+                        b.Title != null && b.Title.ToLower().Contains(searchTerm) ||
+                        b.Content != null && b.Content.ToLower().Contains(searchTerm));
                 }
 
                 if (filter.FromDate.HasValue)
@@ -470,4 +469,4 @@ namespace Finamon.Service.Services
             }
         }
     }
-} 
+}

@@ -21,7 +21,7 @@ namespace Finamon.Service.Services
             _random = new Random();
         }
 
-        public async Task LogUserActivityAsync(int userId)
+        public async Task LogUserActivityAsync(int userId, int useTimeInMinutes)
         {
             // Validate if user exists
             var userExists = await _context.Users.AnyAsync(u => u.Id == userId && !u.IsDelete);
@@ -29,7 +29,7 @@ namespace Finamon.Service.Services
                 throw new KeyNotFoundException($"User with ID {userId} not found");
 
             // Random từ 1 đến 8 giờ 
-            int useTimeInMinutes = _random.Next(60, 481);
+            //int useTimeInMinutes = _random.Next(60, 481);
 
             var activity = new UserActivity
             {

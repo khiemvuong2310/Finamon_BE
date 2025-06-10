@@ -2,6 +2,7 @@
 using Finamon.Repo.UnitOfWork;
 using Finamon.Service.Interfaces;
 using Finamon.Service.Mapping;
+using Finamon.Service.RequestModel;
 using Finamon.Service.Services;
 using Finamon_Data;
 using Microsoft.EntityFrameworkCore;

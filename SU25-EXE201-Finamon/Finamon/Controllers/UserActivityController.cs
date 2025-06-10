@@ -24,11 +24,11 @@ namespace Finamon.Controllers
         /// Log user activity when they login
         /// </summary>
         [HttpPost("log/{userId}")]
-        public async Task<IActionResult> LogUserActivity(int userId)
+        public async Task<IActionResult> LogUserActivity(int userId , int useTimeInMinutes)
         {
             try
             {
-                await _userActivityService.LogUserActivityAsync(userId);
+                await _userActivityService.LogUserActivityAsync(userId, useTimeInMinutes);
                 return Ok(new { message = "User activity logged successfully" });
             }
             catch (Exception ex)

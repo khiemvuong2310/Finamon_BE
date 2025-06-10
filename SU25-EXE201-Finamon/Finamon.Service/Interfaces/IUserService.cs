@@ -19,5 +19,7 @@ namespace Finamon.Service.Interfaces
         Task<PaginatedResponse<UserResponse>> GetUsersByFilterAsync(UserQueryRequest query);
         Task<UserResponse> UpdateUserAsync(int id, UserUpdateRequest request);
         Task<UserResponse> UpdateUserImageAsync(int id, IFormFile imageFile);
+
+        
     }
 }

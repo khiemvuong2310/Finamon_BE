@@ -19,9 +19,10 @@ namespace Finamon_Data.Entities
         public string? Image { get; set; }
         public bool? Status { get; set; }
         public bool EmailVerified { get; set; } = false;
-
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
         public DateTime? UpdatedDate { get; set; } = DateTime.Now;
+
+        //Navigation properties
         public virtual ICollection<UserRole>? UserRoles { get; set; }
         public virtual ICollection<Expense> Expenses { get; set; }
         public virtual ICollection<Category> Categories { get; set; }

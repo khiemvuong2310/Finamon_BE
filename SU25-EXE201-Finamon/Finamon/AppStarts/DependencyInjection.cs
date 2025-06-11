@@ -46,6 +46,7 @@ namespace Finamon.AppStarts
             services.AddScoped<IKeywordService, KeywordService>();
             services.AddScoped<IFirebaseStorageService, FirebaseStorageService>();
             services.AddScoped<ICategoryAlertService, CategoryAlertService>();
+            services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 
             // Thêm AutoMapper vào dịch vụ
             services.AddAutoMapper(typeof(UserMappingProfile));

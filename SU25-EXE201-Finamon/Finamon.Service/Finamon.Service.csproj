@@ -24,5 +24,11 @@
 	<ItemGroup>
 	  <Folder Include="Helpers\" />
 	</ItemGroup>
+
+  <ItemGroup>
+    <None Update="Templates\*.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 	
 </Project>

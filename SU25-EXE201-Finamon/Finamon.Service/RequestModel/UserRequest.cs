@@ -21,6 +21,8 @@ namespace Finamon.Service.RequestModel
 
         public string? Location { get; set; }
 
+        public string? Country { get; set; }    
+
         public string? Image { get; set; }
 
         [Range(1, 3, ErrorMessage = "RoleId must be between 1 and 3.")]
@@ -35,6 +37,8 @@ namespace Finamon.Service.RequestModel
         public string? UserName { get; set; }
         public string? Email { get; set; }
         public string? Phone { get; set; }
+
+        public string? Country { get; set; }
         public string? Location { get; set; }
         public string? Image { get; set; }
         public bool? Status { get; set; }

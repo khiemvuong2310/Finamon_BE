@@ -19,6 +19,19 @@ namespace Finamon
             Env.Load(); // Tải biến môi trường từ file .env
             var builder = WebApplication.CreateBuilder(args);
 
+            // Copy email templates to output directory
+            var templatesSourcePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates");
+            var templatesDestPath = Path.Combine(builder.Environment.ContentRootPath, "Templates");
+            
+            if (!Directory.Exists(templatesDestPath))
+            {
+                Directory.CreateDirectory(templatesDestPath);
+                foreach (var file in Directory.GetFiles(templatesSourcePath, "*.html"))
+                {
+                    File.Copy(file, Path.Combine(templatesDestPath, Path.GetFileName(file)), true);
+                }
+            }
+
             // Add services to the container.
             builder.Services.InstallService(builder.Configuration);
             builder.Services.ConfigureAuthService(builder.Configuration);

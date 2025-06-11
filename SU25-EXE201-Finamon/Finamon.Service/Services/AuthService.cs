@@ -29,6 +29,7 @@ namespace Finamon.Service.Services
         private readonly IUserService _userService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IEmailTemplateService _emailTemplateService;
         private const int TOKEN_EXPIRY_HOURS = 24;
         private const int TOKEN_Mobile_EXPIRY_HOURS = 336;
         private const int REFRESH_TOKEN_EXPIRY_DAYS = 7;
@@ -40,13 +41,15 @@ namespace Finamon.Service.Services
             IConfiguration configuration,
             IUserService userService,
             IUnitOfWork unitOfWork,
-            IHttpContextAccessor httpContextAccessor
+            IHttpContextAccessor httpContextAccessor,
+            IEmailTemplateService emailTemplateService
             )
         {
             _configuration = configuration;
             _userService = userService;
             _unitOfWork = unitOfWork;
             _httpContextAccessor = httpContextAccessor;
+            _emailTemplateService = emailTemplateService;
         }
 
         public async Task<BaseResponseForLogin<LoginResponseModel>> AuthenticateAsync(string email, string password, bool? mobile = false)
@@ -91,7 +94,7 @@ namespace Finamon.Service.Services
                     await SendEmailAsync(
                         user.Email,
                         "Email Verification",
-                        GetVerificationEmailTemplate(verificationCode)
+                        await GetVerificationEmailTemplate(verificationCode)
                     );
 
                     var unverifiedUserDetails = await _userService.GetUserByEmailAsync(email);
@@ -293,7 +296,7 @@ namespace Finamon.Service.Services
                 var userRole = new UserRole
                 {
                     UserId = user.Id,
-                    RoleId = 3, // Customer role ID
+                    RoleId = 3, 
                     Status = true
                 };
 
@@ -309,7 +312,7 @@ namespace Finamon.Service.Services
                 await SendEmailAsync(
                     user.Email,
                     "Email Verification",
-                    GetVerificationEmailTemplate(verificationCode)
+                    await GetVerificationEmailTemplate(verificationCode)
                 );
 
                 // Do not return a token until email is verified
@@ -384,7 +387,7 @@ namespace Finamon.Service.Services
                 await SendEmailAsync(
                     user.Email,
                     "YOUR ENTRY ACCOUNT",
-                    GetAccountEmailTemplate(user.Email, "12345678")
+                    await GetAccountEmailTemplate(user.Email, "12345678")
                 );
 
                 // Lấy thông tin user và tạo token
@@ -434,7 +437,7 @@ namespace Finamon.Service.Services
                 await SendEmailAsync(
                     user.Email,
                     "YOUR ENTRY ACCOUNT",
-                    GetAccountEmailTemplate(user.Email, providePassword)
+                    await GetAccountEmailTemplate(user.Email, providePassword)
                 );
 
                 return new BaseResponse
@@ -476,7 +479,7 @@ namespace Finamon.Service.Services
                 await SendEmailAsync(
                     user.Email,
                     "WEB EXCHANGE: YOUR RESET PASSWORD",
-                    GetPasswordResetEmailTemplate(user.Email, providePassword)
+                    await GetPasswordResetEmailTemplate(user.Email, providePassword)
                 );
 
                 await _unitOfWork.Repository<User>().Update(user, user.Id);
@@ -548,118 +551,19 @@ namespace Finamon.Service.Services
             await smtpClient.SendMailAsync(mailMessage);
         }
 
-        private string GetAccountEmailTemplate(string email, string password)
+        private async Task<string> GetAccountEmailTemplate(string email, string password)
         {
-            return @"
-<html>
-<head>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-    }
-    .container {
-      padding: 20px;
-      background-color: #f4f4f4;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .header {
-      font-size: 20px;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .content {
-      font-size: 16px;
-      color: #333;
-    }
-    .footer {
-      font-size: 12px;
-      color: #888;
-      text-align: center;
-      margin-top: 20px;
-    }
-    .highlight {
-      color: #007BFF;
-      font-weight: bold;
-    }
-  </style>
-</head>
-<body>
-  <div class='container'>
-    <div class='header'>Welcome to our Exchange Web!</div>
-    <div class='content'>
-      <p>Email: <span class='highlight'>" + email + @"</span></p>
-      <p>Password: <span class='highlight'>" + password + @"</span></p>
-      <p>This is a temporary password. Please change your password after logging in.</p>
-    </div>
-    <div class='footer'>
-      &copy; " + DateTime.Now.Year + @" Exchange Web. All rights reserved.
-    </div>
-  </div>
-</body>
-</html>";
+            return await _emailTemplateService.GetAccountEmailTemplateAsync(email, password);
         }
 
-        private string GetPasswordResetEmailTemplate(string? email, string password)
+        private async Task<string> GetPasswordResetEmailTemplate(string email, string password)
         {
-            return @"
-<html>
-<head>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-    }
-    .container {
-      padding: 20px;
-      background-color: #f4f4f4;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .header {
-      font-size: 20px;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .content {
-      font-size: 16px;
-      color: #333;
-    }
-    .footer {
-      font-size: 12px;
-      color: #888;
-      text-align: center;
-      margin-top: 20px;
-    }
-    .highlight {
-      color: #007BFF;
-      font-weight: bold;
-    }
-  </style>
-</head>
-<body>
-  <div class='container'>
-    <div class='header'>Password Reset Request</div>
-    <div class='content'>
-      <p>Hello <span class='highlight'>" + email + @"</span>,</p>
-      <p>Your reset password is: <span class='highlight'>" + password + @"</span></p>
-      <p>This is a temporary password. Please change your password after logging in.</p>
+            return await _emailTemplateService.GetPasswordResetTemplateAsync(email, password);
+        }
 
-    </div>
-
-    <div class='footer'>
-      &copy; " + DateTime.Now.Year + @" Exchange Web. All rights reserved.
-    </div>
-  </div>
-</body>
-</html>";
+        private async Task<string> GetVerificationEmailTemplate(string verificationCode)
+        {
+            return await _emailTemplateService.GetVerificationEmailTemplateAsync(verificationCode);
         }
 
         public async Task<BaseResponse> SendVerificationEmailAsync(string email)
@@ -682,7 +586,7 @@ namespace Finamon.Service.Services
                 await SendEmailAsync(
                     email,
                     "Email Verification",
-                    GetVerificationEmailTemplate(verificationCode)
+                    await GetVerificationEmailTemplate(verificationCode)
                 );
 
                 return new BaseResponse
@@ -798,103 +702,6 @@ namespace Finamon.Service.Services
         {
             var random = new Random();
             return random.Next(100000, 999999).ToString();
-        }
-
-        private string GetVerificationEmailTemplate(string verificationCode)
-        {
-            return @"
-<html>
-<head>
-  <meta charset='UTF-8'>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      background-color: #f0f2f5;
-      padding: 0;
-      margin: 0;
-    }
-    .container {
-      padding: 30px;
-      background-color: #ffffff;
-      border: 1px solid #e0e0e0;
-      border-radius: 10px;
-      max-width: 600px;
-      margin: 40px auto;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    }
-    .header {
-      font-size: 24px;
-      font-weight: bold;
-      text-align: center;
-      color: #333;
-      margin-bottom: 20px;
-    }
-    .content {
-      font-size: 16px;
-      color: #555;
-      line-height: 1.8;
-    }
-    .code {
-      font-size: 26px;
-      font-weight: bold;
-      color: #007BFF;
-      text-align: center;
-      padding: 15px;
-      background-color: #f9f9f9;
-      border: 1px dashed #007BFF;
-      border-radius: 8px;
-      margin: 25px auto;
-      width: 200px;
-    }
-    .footer {
-      font-size: 12px;
-      color: #999;
-      text-align: center;
-      margin-top: 30px;
-    }
-    .social {
-      text-align: center;
-      margin-top: 30px;
-    }
-    .social a {
-      display: inline-block;
-      padding: 12px 25px;
-      background-color: #4267B2;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: bold;
-      transition: background-color 0.3s ease;
-    }
-    .social a:hover {
-      background-color: #365899;
-    }
-  </style>
-</head>
-<body>
-  <div class='container'>
-    <div class='header'>Verify Your Email</div>
-    <div class='content'>
-      <p>Hello,</p>
-      <p>Thank you for registering with <strong>Exchange Web</strong>!</p>
-      <p>Please use the verification code below to complete your registration:</p>
-      <div class='code'>" + verificationCode + @"</div>
-      <p>This code will expire in <strong>15 minutes</strong>.</p>
-      <p>If you did not request this verification, you can safely ignore this email.</p>
-    </div>
-
-    <div class='social'>
-      <p>Like &amp; Share our Facebook app for more updates:</p>
-      <a href='https://www.facebook.com/profile.php?id=61576627709105'>Share on Facebook</a>
-    </div>
-
-    <div class='footer'>
-      &copy; " + DateTime.Now.Year + @" Exchange Web. All rights reserved.
-    </div>
-  </div>
-</body>
-</html>";
         }
 
         public async Task<BaseResponse> SetEmailVerified(string email)

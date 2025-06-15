@@ -82,12 +82,12 @@ namespace Finamon.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<ExpenseResponse>>> GetAllExpenses()
-        {
-            var expenses = await _expenseService.GetAllExpensesAsync();
-            return Ok(expenses);
-        }
+        //[HttpGet]
+        //public async Task<ActionResult<List<ExpenseResponse>>> GetAllExpenses()
+        //{
+        //    var expenses = await _expenseService.GetAllExpensesAsync();
+        //    return Ok(expenses);
+        //}
 
         [HttpGet("user")]
         public async Task<ActionResult<List<ExpenseResponse>>> GetExpensesByUserId()
@@ -97,11 +97,25 @@ namespace Finamon.Controllers
             return Ok(expenses);
         }
 
-        [HttpGet("filter")]
+        [HttpGet]
         public async Task<ActionResult<(List<ExpenseResponse> Expenses, int TotalCount)>> GetExpensesByFilter([FromQuery] ExpenseQueryRequest query)
         {
             var result = await _expenseService.GetExpensesByFilterAsync(query);
             return Ok(result);
+        }
+
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<PaginatedResponse<ExpenseResponse>>> GetExpenseByUserId(int userId, [FromQuery] ExpenseQueryRequest query)
+        {
+            try
+            {
+                var expenses = await _expenseService.GetExpenseByUserIdAsync(userId, query);
+                return Ok(expenses);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }

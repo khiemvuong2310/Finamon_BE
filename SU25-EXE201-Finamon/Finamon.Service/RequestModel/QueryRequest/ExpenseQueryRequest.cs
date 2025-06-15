@@ -1,3 +1,5 @@
+using System;
+
 namespace Finamon.Service.RequestModel.QueryRequest
 {
     public class ExpenseQueryRequest : BaseQuery

@@ -201,5 +201,91 @@ namespace Finamon.Service.Services
 
             return new PaginatedResponse<ExpenseResponse>(expenseResponses, paginatedExpenses.TotalCount, paginatedExpenses.PageIndex, queryRequest.PageSize);
         }
+
+        public async Task<PaginatedResponse<ExpenseResponse>> GetExpenseByUserIdAsync(int userId, ExpenseQueryRequest queryRequest)
+        {
+            // Check if user exists and is not deleted
+            var userExists = await _context.Users.AnyAsync(u => u.Id == userId && !u.IsDelete);
+            if (!userExists)
+                throw new KeyNotFoundException($"User with ID {userId} not found");
+
+            var queryable = _context.Expenses
+                .Include(e => e.User)
+                .Include(e => e.Category)
+                .Where(e => e.UserId == userId)
+                .AsQueryable();
+
+            // Apply filters
+            if (!string.IsNullOrEmpty(queryRequest.Name))
+            {
+                queryable = queryable.Where(e => e.Name.Contains(queryRequest.Name));
+            }
+
+            if (!string.IsNullOrEmpty(queryRequest.Description))
+            {
+                queryable = queryable.Where(e => e.Description.Contains(queryRequest.Description));
+            }
+
+            if (queryRequest.MinAmount.HasValue)
+            {
+                queryable = queryable.Where(e => e.Amount >= queryRequest.MinAmount.Value);
+            }
+
+            if (queryRequest.MaxAmount.HasValue)
+            {
+                queryable = queryable.Where(e => e.Amount <= queryRequest.MaxAmount.Value);
+            }
+
+            if (queryRequest.StartDate.HasValue)
+            {
+                queryable = queryable.Where(e => e.Date >= queryRequest.StartDate.Value);
+            }
+
+            if (queryRequest.EndDate.HasValue)
+            {
+                queryable = queryable.Where(e => e.Date <= queryRequest.EndDate.Value);
+            }
+
+            if (queryRequest.CategoryId.HasValue)
+            {
+                queryable = queryable.Where(e => e.CategoryId == queryRequest.CategoryId.Value);
+            }
+
+            // Apply soft delete filter
+            if (queryRequest.IsDeleted.HasValue)
+            {
+                queryable = queryable.Where(e => e.IsDelete == queryRequest.IsDeleted.Value);
+            }
+            else
+            {
+                queryable = queryable.Where(e => !e.IsDelete);
+            }
+
+            // Apply sorting
+            if (!string.IsNullOrEmpty(queryRequest.SortBy))
+            {
+                switch (queryRequest.SortBy.ToLower())
+                {
+                    case "date":
+                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(e => e.Date) : queryable.OrderBy(e => e.Date);
+                        break;
+                    case "amount":
+                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(e => e.Amount) : queryable.OrderBy(e => e.Amount);
+                        break;
+                    default:
+                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(e => e.Id) : queryable.OrderBy(e => e.Id);
+                        break;
+                }
+            }
+            else
+            {
+                queryable = queryable.OrderByDescending(e => e.Date); // Default sort by date
+            }
+
+            var paginatedExpenses = await PaginatedResponse<Expense>.CreateAsync(queryable, queryRequest.PageNumber, queryRequest.PageSize);
+            var expenseResponses = _mapper.Map<List<ExpenseResponse>>(paginatedExpenses.Items);
+
+            return new PaginatedResponse<ExpenseResponse>(expenseResponses, paginatedExpenses.TotalCount, paginatedExpenses.PageIndex, queryRequest.PageSize);
+        }
     }
 } 

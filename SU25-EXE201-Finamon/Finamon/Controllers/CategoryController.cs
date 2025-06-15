@@ -102,5 +102,19 @@ namespace Finamon.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<PaginatedResponse<CategoryResponse>>> GetCategoryByUserId(int userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var categories = await _categoryService.GetCategoryByUserIdAsync(userId, pageNumber, pageSize);
+                return Ok(categories);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
     }
 } 

@@ -175,5 +175,23 @@ namespace Finamon.Service.Services
             var responses = _mapper.Map<IEnumerable<CategoryResponse>>(categories);
             return responses.ToArray(); // Ensure we return an array for ReactJS
         }
+
+        public async Task<PaginatedResponse<CategoryResponse>> GetCategoryByUserIdAsync(int userId, int pageNumber = 1, int pageSize = 10)
+        {
+            // Check if user exists and is not deleted
+            var userExists = await _context.Users.AnyAsync(u => u.Id == userId && !u.IsDelete);
+            if (!userExists)
+                throw new KeyNotFoundException($"User with ID {userId} not found");
+
+            var queryable = _context.Categories
+                .Include(c => c.Expenses)
+                .Where(c => c.UserId == userId && !c.IsDelete)
+                .OrderBy(c => c.CreatedDate);
+
+            var paginatedCategories = await PaginatedResponse<Category>.CreateAsync(queryable, pageNumber, pageSize);
+            var categoryResponses = _mapper.Map<List<CategoryResponse>>(paginatedCategories.Items);
+            
+            return new PaginatedResponse<CategoryResponse>(categoryResponses, paginatedCategories.TotalCount, paginatedCategories.PageIndex, pageSize);
+        }
     }
 } 

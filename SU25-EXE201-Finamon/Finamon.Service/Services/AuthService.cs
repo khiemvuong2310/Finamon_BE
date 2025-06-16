@@ -394,6 +394,12 @@ namespace Finamon.Service.Services
                 var userWithRole = await _userService.GetUserByEmailAsync(user.Email);
                 var roleNames = string.Join(",", userWithRole.UserRoles.Select(ur => ur.RoleName));
                 string token = GenerateJwtToken(user.Email, roleNames, userId, false);
+                string refreshToken = GenerateRefreshToken();
+
+                // Save refresh token
+                user.Token = refreshToken;
+                await _unitOfWork.Repository<User>().Update(user, user.Id);
+                await _unitOfWork.CommitAsync();
 
                 return new BaseResponse<TokenModel>
                 {
@@ -401,7 +407,8 @@ namespace Finamon.Service.Services
                     Message = "Account created successfully",
                     Data = new TokenModel
                     {
-                        Token = token
+                        Token = token,
+                        RefreshToken = refreshToken
                     }
                 };
             }

@@ -56,6 +56,18 @@ namespace Finamon.Service.Services
         {
             try
             {
+                // Validate input
+                if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+                {
+                    return new BaseResponseForLogin<LoginResponseModel>
+                    {
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = "Email and password are required",
+                        Data = null,
+                        IsBanned = false
+                    };
+                }
+
                 var user = await _unitOfWork.Repository<User>()
                     .AsQueryable()
                     .Where(u => u.Email == email && !u.IsDelete)
@@ -65,8 +77,8 @@ namespace Finamon.Service.Services
                 {
                     return new BaseResponseForLogin<LoginResponseModel>
                     {
-                        Code = StatusCodes.Status404NotFound,
-                        Message = "User not found",
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = "Invalid email or password",
                         Data = null,
                         IsBanned = false
                     };
@@ -77,10 +89,27 @@ namespace Finamon.Service.Services
                 {
                     return new BaseResponseForLogin<LoginResponseModel>
                     {
-                        Code = StatusCodes.Status401Unauthorized,
-                        Message = "Invalid password",
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = "Invalid email or password",
                         Data = null,
                         IsBanned = false
+                    };
+                }
+
+                // Check if account is banned
+                if (user.Status == false)
+                {
+                    var bannedUserDetails = await _userService.GetUserByEmailAsync(email);
+                    return new BaseResponseForLogin<LoginResponseModel>
+                    {
+                        Code = StatusCodes.Status403Forbidden,
+                        Message = "Your account has been banned. Please check your email for the reason",
+                        Data = new LoginResponseModel
+                        {
+                            User = bannedUserDetails,
+                            EmailVerified = true
+                        },
+                        IsBanned = true
                     };
                 }
 
@@ -100,7 +129,7 @@ namespace Finamon.Service.Services
                     var unverifiedUserDetails = await _userService.GetUserByEmailAsync(email);
                     return new BaseResponseForLogin<LoginResponseModel>
                     {
-                        Code = StatusCodes.Status200OK,
+                        Code = StatusCodes.Status403Forbidden,
                         Message = "Please verify your email before logging in. A new verification code has been sent to your email.",
                         Data = new LoginResponseModel
                         {
@@ -123,21 +152,6 @@ namespace Finamon.Service.Services
                 user.Token = refreshToken;
                 await _unitOfWork.Repository<User>().Update(user, user.Id);
                 await _unitOfWork.CommitAsync();
-
-                if (userDetails.Status == false)
-                {
-                    return new BaseResponseForLogin<LoginResponseModel>
-                    {
-                        Code = StatusCodes.Status403Forbidden,
-                        Message = "Your Account has been banned. Check email for reason",
-                        Data = new LoginResponseModel
-                        {
-                            User = userDetails,
-                            EmailVerified = true
-                        },
-                        IsBanned = true,
-                    };
-                }
 
                 return new BaseResponseForLogin<LoginResponseModel>
                 {

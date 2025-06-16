@@ -3,6 +3,7 @@ using Finamon.Service.RequestModel;
 using Finamon.Service.ReponseModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Finamon.Controllers
 {
@@ -159,6 +160,36 @@ namespace Finamon.Controllers
                 Code = 500,
                 Message = "Unexpected error occurred."
             });
+        }
+
+        [HttpPost("change-password")]
+        [Authorize]
+        public async Task<ActionResult<BaseResponse>> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var response = await _authService.ChangePasswordAsync(userId, request);
+                
+                if (response.Code.HasValue)
+                {
+                    return StatusCode(response.Code.Value, response);
+                }
+                
+                return StatusCode(500, new BaseResponse
+                {
+                    Code = 500,
+                    Message = "Unexpected error occurred."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new BaseResponse
+                {
+                    Code = 500,
+                    Message = "An error occurred while changing password: " + ex.Message
+                });
+            }
         }
     }
 } 

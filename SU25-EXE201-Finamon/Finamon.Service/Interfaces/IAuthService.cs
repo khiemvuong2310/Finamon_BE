@@ -16,5 +16,6 @@ namespace Finamon.Service.Interfaces
         Task<BaseResponse> SendVerificationEmailAsync(string email);
         Task<BaseResponse> SetEmailVerified(string email);
         Task<BaseResponse<TokenModel>> VerifyAccountAsync(EmailVerificationModel model);
+        Task<BaseResponse> ChangePasswordAsync(int userId, ChangePasswordRequest request);
     }
 }

@@ -748,5 +748,63 @@ namespace Finamon.Service.Services
                 };
             }
         }
+
+        public async Task<BaseResponse> ChangePasswordAsync(int userId, ChangePasswordRequest request)
+        {
+            try
+            {
+                var user = await _unitOfWork.Repository<User>()
+                    .AsQueryable()
+                    .FirstOrDefaultAsync(u => u.Id == userId && !u.IsDelete);
+
+                if (user == null)
+                {
+                    return new BaseResponse
+                    {
+                        Code = StatusCodes.Status404NotFound,
+                        Message = "User not found"
+                    };
+                }
+
+                // Verify current password
+                var isCurrentPasswordValid = BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.Password);
+                if (!isCurrentPasswordValid)
+                {
+                    return new BaseResponse
+                    {
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = "Current password is incorrect"
+                    };
+                }
+
+                // Hash and save new password
+                user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+                user.UpdatedDate = DateTime.UtcNow.AddHours(7);
+
+                await _unitOfWork.Repository<User>().Update(user, user.Id);
+                await _unitOfWork.CommitAsync();
+
+                // Send email notification
+                await SendEmailAsync(
+                    user.Email,
+                    "Password Changed Successfully",
+                    "Your password has been changed successfully. If you did not make this change, please contact support immediately."
+                );
+
+                return new BaseResponse
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Password changed successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponse
+                {
+                    Code = StatusCodes.Status500InternalServerError,
+                    Message = "An error occurred while changing password: " + ex.Message
+                };
+            }
+        }
     }
 }

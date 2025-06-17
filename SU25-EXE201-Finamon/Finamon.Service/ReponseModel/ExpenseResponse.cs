@@ -12,8 +12,7 @@ namespace Finamon.Service.ReponseModel
         public string UserName { get; set; }
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime? UpdatedDate { get; set; }
+        public string Color { get; set; } 
     }
 
     public class ExpenseDetailResponse : ExpenseResponse
@@ -21,4 +20,4 @@ namespace Finamon.Service.ReponseModel
         public UserResponse User { get; set; }
         public CategoryResponse Category { get; set; }
     }
-} 
+}

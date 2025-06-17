@@ -26,12 +26,24 @@ namespace Finamon.Service.Services
 
         public async Task<PaginatedResponse<MembershipResponse>> GetAllMembershipsAsync(MembershipQueryRequest queryRequest)
         {
-            var queryable = _context.Memberships.AsQueryable();
+            var queryable = _context.Memberships
+                .Include(m => m.UserMemberships.Where(um => !um.IsDelete))
+                .AsQueryable();
+
+            // Handle soft delete
+            if (queryRequest.IsDeleted.HasValue)
+            {
+                queryable = queryable.Where(m => m.IsDelete == queryRequest.IsDeleted.Value);
+            }
+            else
+            {
+                queryable = queryable.Where(m => !m.IsDelete);
+            }
 
             // Filtering
             if (!string.IsNullOrWhiteSpace(queryRequest.Name))
             {
-                queryable = queryable.Where(m => m.Name.Contains(queryRequest.Name));
+                queryable = queryable.Where(m => m.Name.Contains(queryRequest.Name.Trim()));
             }
             if (queryRequest.MinPrice.HasValue)
             {
@@ -64,12 +76,16 @@ namespace Finamon.Service.Services
                     SortByEnum.Amount => queryRequest.SortDescending
                         ? queryable.OrderByDescending(m => m.Price)
                         : queryable.OrderBy(m => m.Price),
-                    _ => queryable.OrderBy(m => m.Id)
+                    _ => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(m => m.Id)
+                        : queryable.OrderBy(m => m.Id)
                 };
             }
             else
             {
-                queryable = queryable.OrderBy(m => m.Id);
+                queryable = queryRequest.SortDescending
+                    ? queryable.OrderByDescending(m => m.Id)
+                    : queryable.OrderBy(m => m.Id);
             }
 
             var paginatedMemberships = await PaginatedResponse<Membership>.CreateAsync(queryable, queryRequest.PageNumber, queryRequest.PageSize);
@@ -79,35 +95,87 @@ namespace Finamon.Service.Services
 
         public async Task<MembershipResponse> GetMembershipByIdAsync(int id)
         {
-            var membership = await _context.Memberships.FindAsync(id);
+            var membership = await _context.Memberships
+                .Include(m => m.UserMemberships.Where(um => !um.IsDelete))
+                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDelete);
+
             if (membership == null)
             {
-                throw new KeyNotFoundException($"Membership with ID {id} not found.");
+                throw new KeyNotFoundException($"Membership with ID {id} not found or has been deleted.");
             }
-            return _mapper.Map<MembershipResponse>(membership);
+
+            var response = _mapper.Map<MembershipResponse>(membership);
+            response.ActiveSubscriptions = membership.UserMemberships?.Count ?? 0;
+            return response;
         }
 
         public async Task<MembershipResponse> CreateMembershipAsync(CreateMembershipRequest request)
         {
+            // Check if membership with same name exists
+            if (await _context.Memberships.AnyAsync(m => m.Name == request.Name.Trim() && !m.IsDelete))
+            {
+                throw new InvalidOperationException($"Membership with name '{request.Name}' already exists.");
+            }
+
             var membership = _mapper.Map<Membership>(request);
-            membership.CreatedDate = DateTime.UtcNow.AddHours(7); // Assuming UTC+7 for your timezone
+            membership.Name = request.Name.Trim();
+            membership.CreatedDate = DateTime.UtcNow.AddHours(7);
+            membership.IsDelete = false;
+            membership.UserMemberships = new List<UserMembership>();
+
             _context.Memberships.Add(membership);
             await _context.SaveChangesAsync();
-            return _mapper.Map<MembershipResponse>(membership);
+
+            return await GetMembershipByIdAsync(membership.Id);
         }
 
         public async Task<MembershipResponse> UpdateMembershipAsync(int id, UpdateMembershipRequest request)
         {
-            var membership = await _context.Memberships.FindAsync(id);
+            var membership = await _context.Memberships
+                .Include(m => m.UserMemberships.Where(um => !um.IsDelete))
+                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDelete);
+
             if (membership == null)
             {
-                throw new KeyNotFoundException($"Membership with ID {id} not found.");
+                throw new KeyNotFoundException($"Membership with ID {id} not found or has been deleted.");
             }
 
-            _mapper.Map(request, membership);
-            membership.UpdatedDate = DateTime.UtcNow.AddHours(7); // Assuming UTC+7
+            // Check if new name already exists (if name is being updated)
+            if (!string.IsNullOrWhiteSpace(request.Name) && request.Name != membership.Name)
+            {
+                var nameExists = await _context.Memberships
+                    .AnyAsync(m => m.Name == request.Name.Trim() && m.Id != id && !m.IsDelete);
+                if (nameExists)
+                {
+                    throw new InvalidOperationException($"Membership with name '{request.Name}' already exists.");
+                }
+                membership.Name = request.Name.Trim();
+            }
+
+            // Update price if provided
+            if (request.Price.HasValue)
+            {
+                if (request.Price.Value <= 0)
+                {
+                    throw new ArgumentException("Price must be greater than 0.");
+                }
+                membership.Price = request.Price.Value;
+            }
+
+            // Update duration if provided
+            if (request.Duration.HasValue)
+            {
+                if (request.Duration.Value <= 0)
+                {
+                    throw new ArgumentException("Duration must be greater than 0.");
+                }
+                membership.Duration = request.Duration.Value;
+            }
+
+            membership.UpdatedDate = DateTime.UtcNow.AddHours(7);
             await _context.SaveChangesAsync();
-            return _mapper.Map<MembershipResponse>(membership);
+
+            return await GetMembershipByIdAsync(membership.Id);
         }
 
         public async Task<bool> DeleteMembershipAsync(int id)
@@ -118,17 +186,16 @@ namespace Finamon.Service.Services
                 throw new KeyNotFoundException($"Membership with ID {id} not found.");
             }
 
-            // Check if there are any UserMemberships associated with this Membership
-            var hasUserMemberships = await _context.UserMemberships.AnyAsync(um => um.MembershipId == id);
-            if (hasUserMemberships)
+            // Check if there are any active UserMemberships associated with this Membership
+            var hasActiveUserMemberships = await _context.UserMemberships
+                .AnyAsync(um => um.MembershipId == id && !um.IsDelete);
+            if (hasActiveUserMemberships)
             {
-                // You might want to prevent deletion or handle this case differently
-                // For now, let's throw an exception or return false
-                throw new InvalidOperationException("Cannot delete membership as it is associated with existing user memberships.");
-                // Alternatively, return false;
+                throw new InvalidOperationException("Cannot delete membership as it has active user subscriptions.");
             }
 
-            _context.Memberships.Remove(membership);
+            membership.IsDelete = true;
+            membership.UpdatedDate = DateTime.UtcNow.AddHours(7);
             await _context.SaveChangesAsync();
             return true;
         }

@@ -26,15 +26,25 @@ namespace Finamon.Service.Services
 
         private async Task<decimal> CalculateCurrentAmount(int userId, DateTime startDate, decimal? limit)
         {
+            if (!limit.HasValue)
+                return 0;
+
             var totalExpenses = await _context.Expenses
                 .Where(e => e.UserId == userId &&
-                           e.Date.Year == startDate.Year &&
-                           e.Date.Month == startDate.Month &&
+                           e.Date >= startDate &&
+                           e.Date <= (startDate.AddMonths(1).AddDays(-1)) &&
                            !e.IsDelete)
                 .SumAsync(e => e.Amount);
 
-            // Return remaining amount (limit - total expenses)
-            return limit.GetValueOrDefault() - totalExpenses;
+            return limit.Value - totalExpenses;
+        }
+
+        private bool IsValidDateRange(DateTime? startDate, DateTime? endDate)
+        {
+            if (!startDate.HasValue || !endDate.HasValue)
+                return true;
+
+            return startDate.Value <= endDate.Value;
         }
 
         public async Task<PaginatedResponse<BudgetResponse>> GetAllBudgetsAsync(BudgetQueryRequest queryRequest)
@@ -169,9 +179,29 @@ namespace Finamon.Service.Services
 
         public async Task<BudgetResponse> CreateBudgetAsync(BudgetRequestModel request)
         {
+            // Validate user exists and is not deleted
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == request.UserId && !u.IsDelete);
             if (user == null)
                 throw new KeyNotFoundException($"User with ID {request.UserId} not found or has been deleted");
+
+            // Validate date range
+            if (!IsValidDateRange(request.StartDate, request.EndDate))
+                throw new ArgumentException("End date must be greater than or equal to start date");
+
+            // Validate limit
+            if (request.Limit <= 0)
+                throw new ArgumentException("Budget limit must be greater than 0");
+
+            // Check for overlapping active budgets for the same user
+            var hasOverlappingBudget = await _context.Budgets
+                .AnyAsync(b => b.UserId == request.UserId &&
+                              b.IsActive &&
+                              !b.IsDelete &&
+                              ((request.StartDate >= b.StartDate && request.StartDate <= b.EndDate) ||
+                               (request.EndDate >= b.StartDate && request.EndDate <= b.EndDate)));
+
+            if (hasOverlappingBudget)
+                throw new InvalidOperationException("An active budget already exists for this time period");
 
             var budget = _mapper.Map<Budget>(request);
             budget.IsActive = true;
@@ -194,9 +224,44 @@ namespace Finamon.Service.Services
             if (budget == null)
                 throw new KeyNotFoundException($"Budget with ID {id} not found or has been deleted");
 
+            // Validate user exists and is not deleted
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == request.UserId && !u.IsDelete);
             if (user == null)
                 throw new KeyNotFoundException($"User with ID {request.UserId} not found or has been deleted");
+
+            // Validate date range
+            if (!IsValidDateRange(request.StartDate, request.EndDate))
+                throw new ArgumentException("End date must be greater than or equal to start date");
+
+            // Validate limit
+            if (request.Limit <= 0)
+                throw new ArgumentException("Budget limit must be greater than 0");
+
+            // Check for overlapping active budgets for the same user (excluding current budget)
+            var hasOverlappingBudget = await _context.Budgets
+                .AnyAsync(b => b.Id != id &&
+                              b.UserId == request.UserId &&
+                              b.IsActive &&
+                              !b.IsDelete &&
+                              ((request.StartDate >= b.StartDate && request.StartDate <= b.EndDate) ||
+                               (request.EndDate >= b.StartDate && request.EndDate <= b.EndDate)));
+
+            if (hasOverlappingBudget)
+                throw new InvalidOperationException("An active budget already exists for this time period");
+
+            // Check if there are any expenses outside the new date range
+            //if (request.StartDate.HasValue || request.EndDate.HasValue)
+            //{
+            //    var hasExpensesOutsideRange = await _context.Expenses
+            //        .Include(e => e.Budget)
+            //        .AnyAsync(e => e.Budget.Id == id &&
+            //                      !e.IsDelete &&
+            //                      ((request.StartDate.HasValue && e.Date < request.StartDate) ||
+            //                       (request.EndDate.HasValue && e.Date > request.EndDate)));
+
+            //    if (hasExpensesOutsideRange)
+            //        throw new InvalidOperationException("Cannot update date range: There are expenses outside the new date range");
+            //}
 
             _mapper.Map(request, budget);
             budget.UpdatedDate = DateTime.UtcNow.AddHours(7);
@@ -208,12 +273,33 @@ namespace Finamon.Service.Services
 
         public async Task DeleteBudgetAsync(int id)
         {
-            var budget = await _context.Budgets.FirstOrDefaultAsync(b => b.Id == id && !b.IsDelete);
+            var budget = await _context.Budgets
+                .Include(b => b.Alerts)
+                .Include(b => b.Expenses)
+                .FirstOrDefaultAsync(b => b.Id == id && !b.IsDelete);
+
             if (budget == null)
                 throw new KeyNotFoundException($"Budget with ID {id} not found or has been deleted");
 
+            // Check if there are any active expenses
+            if (budget.Expenses != null && budget.Expenses.Any(e => !e.IsDelete))
+                throw new InvalidOperationException("Cannot delete budget: There are active expenses associated with it");
+
+            // Soft delete the budget
             budget.IsDelete = true;
+            budget.IsActive = false;
             budget.UpdatedDate = DateTime.UtcNow.AddHours(7);
+
+            // Soft delete associated alerts
+            if (budget.Alerts != null)
+            {
+                foreach (var alert in budget.Alerts.Where(a => !a.IsDelete))
+                {
+                    alert.IsDelete = true;
+                    alert.UpdatedDate = DateTime.UtcNow.AddHours(7);
+                }
+            }
+
             await _context.SaveChangesAsync();
         }
     }

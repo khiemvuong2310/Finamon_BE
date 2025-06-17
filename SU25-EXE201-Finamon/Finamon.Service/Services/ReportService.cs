@@ -121,7 +121,8 @@ namespace Finamon.Service.Services
             if (report == null)
                 throw new KeyNotFoundException($"Report with ID {id} not found");
 
-            _context.Reports.Remove(report);
+            report.IsDelete = true;
+            report.UpdatedDate = DateTime.UtcNow.AddHours(7);
             await _context.SaveChangesAsync();
         }
     }

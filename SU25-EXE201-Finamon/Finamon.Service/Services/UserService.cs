@@ -44,26 +44,84 @@ namespace Finamon.Service.Services
 
         private string HashPassword(string password)
         {
-            using (var sha256 = SHA256.Create())
+            byte[] salt = new byte[16];
+            using (var rng = new RNGCryptoServiceProvider())
             {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return Convert.ToBase64String(hashedBytes);
+                rng.GetBytes(salt);
             }
+
+            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000))
+            {
+                byte[] hash = pbkdf2.GetBytes(20);
+                byte[] hashBytes = new byte[36];
+                Array.Copy(salt, 0, hashBytes, 0, 16);
+                Array.Copy(hash, 0, hashBytes, 16, 20);
+                return Convert.ToBase64String(hashBytes);
+            }
+        }
+
+        private bool VerifyPassword(string storedHash, string password)
+        {
+            byte[] hashBytes = Convert.FromBase64String(storedHash);
+            byte[] salt = new byte[16];
+            Array.Copy(hashBytes, 0, salt, 0, 16);
+
+            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000))
+            {
+                byte[] hash = pbkdf2.GetBytes(20);
+                for (int i = 0; i < 20; i++)
+                {
+                    if (hashBytes[i + 16] != hash[i])
+                        return false;
+                }
+                return true;
+            }
+        }
+
+        private bool ValidatePassword(string password)
+        {
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 6)
+                return false;
+
+            bool hasLetter = password.Any(char.IsLetter);
+            bool hasDigit = password.Any(char.IsDigit);
+            //bool hasSpecial = password.Any(ch => !char.IsLetterOrDigit(ch));
+
+            return hasLetter 
+                && hasDigit 
+                //&& hasSpecial
+                ;
         }
 
         public async Task<UserResponse> CreateUserAsync(UserRequest request)
         {
-            var existingUser = await _context.Set<User>()
-                .FirstOrDefaultAsync(u => u.Email == request.Email || u.UserName == request.UserName);
+            // Validate email and username
+            if (string.IsNullOrWhiteSpace(request.Email))
+                throw new ArgumentException("Email is required");
+            if (string.IsNullOrWhiteSpace(request.UserName))
+                throw new ArgumentException("Username is required");
 
-            if (existingUser != null)
-            {
-                throw new Exception("User with this email or username already exists");
-            }
+            // Validate password
+            if (!ValidatePassword(request.Password))
+                throw new ArgumentException("Password must be at least 6 characters long and contain letters, numbers");
+
+            // Check for existing user
+            var existingUser = await _context.Users
+                .AnyAsync(u => (u.Email == request.Email.Trim() || u.UserName == request.UserName.Trim()) && !u.IsDelete);
+
+            if (existingUser)
+                throw new InvalidOperationException("User with this email or username already exists");
+
+            // Validate role
+            var role = await _context.Roles.FindAsync(request.RoleId);
+            if (role == null)
+                throw new ArgumentException($"Invalid role ID: {request.RoleId}");
 
             var user = _mapper.Map<User>(request);
+            user.Email = request.Email.Trim();
+            user.UserName = request.UserName.Trim();
             
-            // Handle image upload if provided
+            // Handle image upload
             if (request.ImageFile != null)
             {
                 try
@@ -73,29 +131,32 @@ namespace Finamon.Service.Services
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Failed to upload image: {ex.Message}");
+                    throw new InvalidOperationException($"Failed to upload image: {ex.Message}");
                 }
             }
 
+            // Set user properties
             user.Password = HashPassword(request.Password);
-            user.CreatedDate = DateTime.Now;
-            user.UpdatedDate = DateTime.Now;
+            user.CreatedDate = DateTime.UtcNow.AddHours(7);
+            user.UpdatedDate = DateTime.UtcNow.AddHours(7);
             user.Status = true;
-            user.EmailVerified = true;
+            user.EmailVerified = false;
+            user.IsDelete = false;
 
-            await _context.Set<User>().AddAsync(user);
+            // Create user
+            await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
-            // Tạo UserRole mặc định là Customer (RoleId = 3)
+            // Create user role
             var userRole = new UserRole
             {
                 UserId = user.Id,
-                RoleId = 3, // Customer role
+                RoleId = request.RoleId,
                 Status = true,
-                CreatedDate = DateTime.Now
+                CreatedDate = DateTime.UtcNow.AddHours(7)
             };
 
-            await _context.Set<UserRole>().AddAsync(userRole);
+            await _context.UserRoles.AddAsync(userRole);
             await _context.SaveChangesAsync();
 
             return await GetUserByIdAsync(user.Id);
@@ -103,16 +164,35 @@ namespace Finamon.Service.Services
 
         public async Task<UserResponse> UpdateUserAsync(int id, UserUpdateRequest request)
         {
-            var user = await _context.Set<User>()
+            var user = await _context.Users
                 .Include(u => u.UserRoles)
-                .FirstOrDefaultAsync(u => u.Id == id);
+                .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Id == id && !u.IsDelete);
 
             if (user == null)
+                throw new KeyNotFoundException($"User with ID {id} not found or has been deleted");
+
+            // Validate email uniqueness if being updated
+            if (!string.IsNullOrWhiteSpace(request.Email) && request.Email != user.Email)
             {
-                throw new Exception("User not found");
+                var emailExists = await _context.Users
+                    .AnyAsync(u => u.Email == request.Email.Trim() && u.Id != id && !u.IsDelete);
+                if (emailExists)
+                    throw new InvalidOperationException("Email is already in use");
+                user.Email = request.Email.Trim();
             }
 
-            // Handle image upload if provided
+            // Validate username uniqueness if being updated
+            if (!string.IsNullOrWhiteSpace(request.UserName) && request.UserName != user.UserName)
+            {
+                var usernameExists = await _context.Users
+                    .AnyAsync(u => u.UserName == request.UserName.Trim() && u.Id != id && !u.IsDelete);
+                if (usernameExists)
+                    throw new InvalidOperationException("Username is already in use");
+                user.UserName = request.UserName.Trim();
+            }
+
+            // Handle image upload
             if (request.ImageFile != null)
             {
                 try
@@ -125,20 +205,33 @@ namespace Finamon.Service.Services
 
                     // Upload new image
                     var imageUrl = await _firebaseStorageService.UploadImageAsync(request.ImageFile);
-                    request.Image = imageUrl;
+                    user.Image = imageUrl;
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Failed to upload image: {ex.Message}");
+                    throw new InvalidOperationException($"Failed to update image: {ex.Message}");
                 }
             }
 
-            _mapper.Map(request, user);
-            user.UpdatedDate = DateTime.Now;
+            // Update other properties
+            if (!string.IsNullOrWhiteSpace(request.Phone))
+                user.Phone = request.Phone.Trim();
+            if (!string.IsNullOrWhiteSpace(request.Location))
+                user.Location = request.Location.Trim();
+            if (!string.IsNullOrWhiteSpace(request.Country))
+                user.Country = request.Country.Trim();
+            if (request.Status.HasValue)
+                user.Status = request.Status.Value;
 
-            // Cập nhật Role nếu có
+            user.UpdatedDate = DateTime.UtcNow.AddHours(7);
+
+            // Update role if provided
             if (request.RoleId.HasValue)
             {
+                var role = await _context.Roles.FindAsync(request.RoleId.Value);
+                if (role == null)
+                    throw new ArgumentException($"Invalid role ID: {request.RoleId.Value}");
+
                 var existingUserRole = user.UserRoles.FirstOrDefault();
                 if (existingUserRole != null)
                 {
@@ -152,9 +245,9 @@ namespace Finamon.Service.Services
                         UserId = user.Id,
                         RoleId = request.RoleId.Value,
                         Status = true,
-                        CreatedDate = DateTime.Now
+                        CreatedDate = DateTime.UtcNow.AddHours(7)
                     };
-                    await _context.Set<UserRole>().AddAsync(newUserRole);
+                    await _context.UserRoles.AddAsync(newUserRole);
                 }
             }
 
@@ -164,22 +257,81 @@ namespace Finamon.Service.Services
 
         public async Task<bool> DeleteUserAsync(int id)
         {
-            var user = await _context.Set<User>()
+            var user = await _context.Users
                 .Include(u => u.UserRoles)
-                .FirstOrDefaultAsync(u => u.Id == id);
+                .Include(u => u.Expenses.Where(e => !e.IsDelete))
+                .Include(u => u.Categories.Where(c => !c.IsDelete))
+                .Include(u => u.Reports.Where(r => !r.IsDelete))
+                .Include(u => u.ChatSessions.Where(cs => !cs.IsDelete))
+                .Include(u => u.UserMemberships.Where(um => !um.IsDelete))
+                .Include(u => u.Budgets.Where(b => !b.IsDelete))
+                .Include(u => u.Comments.Where(c => !c.IsDelete))
+                .Include(u => u.UserActivities.Where(ua => !ua.IsDelete))
+                .FirstOrDefaultAsync(u => u.Id == id && !u.IsDelete);
 
             if (user == null)
-            {
-                return false;
-            }
+                throw new KeyNotFoundException($"User with ID {id} not found or has been deleted");
 
+            // Check for active memberships
+            if (user.UserMemberships.Any(um => um.EndDate > DateTime.UtcNow.AddHours(7)))
+                throw new InvalidOperationException("Cannot delete user with active memberships");
+
+            // Soft delete user and related entities
             user.IsDelete = true;
-            user.UpdatedDate = DateTime.Now;
+            user.Status = false;
+            user.UpdatedDate = DateTime.UtcNow.AddHours(7);
 
-            // Cập nhật trạng thái của UserRole
+            // Soft delete user roles
             foreach (var userRole in user.UserRoles)
             {
                 userRole.Status = false;
+            }
+
+            // Soft delete related entities
+            foreach (var expense in user.Expenses)
+            {
+                expense.IsDelete = true;
+                expense.UpdateDate = DateTime.UtcNow.AddHours(7);
+            }
+
+            foreach (var category in user.Categories)
+            {
+                category.IsDelete = true;
+                category.UpdatedDate = DateTime.UtcNow.AddHours(7);
+            }
+
+            foreach (var report in user.Reports)
+            {
+                report.IsDelete = true;
+                report.UpdatedDate = DateTime.UtcNow.AddHours(7);
+            }
+
+            foreach (var chatSession in user.ChatSessions)
+            {
+                chatSession.IsDelete = true;
+                chatSession.UpdatedDate = DateTime.UtcNow.AddHours(7);
+            }
+
+            foreach (var userMembership in user.UserMemberships)
+            {
+                userMembership.IsDelete = true;
+            }
+
+            foreach (var budget in user.Budgets)
+            {
+                budget.IsDelete = true;
+                budget.UpdatedDate = DateTime.UtcNow.AddHours(7);
+            }
+
+            foreach (var comment in user.Comments)
+            {
+                comment.IsDelete = true;
+                comment.UpdatedDate = DateTime.UtcNow.AddHours(7);
+            }
+
+            foreach (var activity in user.UserActivities)
+            {
+                activity.IsDelete = true;
             }
 
             await _context.SaveChangesAsync();

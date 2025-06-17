@@ -137,7 +137,8 @@ namespace Finamon.Service.Services
             if (category == null)
                 throw new KeyNotFoundException($"Category with ID {id} not found");
 
-            _context.Categories.Remove(category);
+            category.IsDelete = true; // Soft delete
+            category.UpdatedDate = DateTime.UtcNow.AddHours(7);
             await _context.SaveChangesAsync();
         }
 

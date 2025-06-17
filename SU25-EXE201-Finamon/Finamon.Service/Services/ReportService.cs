@@ -52,20 +52,17 @@ namespace Finamon.Service.Services
             }
 
             // Apply sorting
-            if (!string.IsNullOrWhiteSpace(query.SortBy))
+            if (query.SortBy.HasValue)
             {
-                reports = query.SortBy.ToLower() switch
+                reports = query.SortBy.Value switch
                 {
-                    "title" => query.SortDescending
-                        ? reports.OrderByDescending(r => r.Title)
-                        : reports.OrderBy(r => r.Title),
-                    "createddate" => query.SortDescending
+                    SortByEnum.CreatedDate => query.SortDescending
                         ? reports.OrderByDescending(r => r.CreatedDate)
                         : reports.OrderBy(r => r.CreatedDate),
-                    "updateddate" => query.SortDescending
+                    SortByEnum.UpdatedDate => query.SortDescending
                         ? reports.OrderByDescending(r => r.UpdatedDate)
                         : reports.OrderBy(r => r.UpdatedDate),
-                    _ => reports
+                    _ => reports.OrderByDescending(r => r.CreatedDate)
                 };
             }
 

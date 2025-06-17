@@ -62,19 +62,19 @@ namespace Finamon.Service.Services
             }
 
             // Apply sorting
-            if (!string.IsNullOrWhiteSpace(queryRequest.SortBy))
+            if (queryRequest.SortBy.HasValue)
             {
-                query = queryRequest.SortBy.ToLower() switch
+                query = queryRequest.SortBy.Value switch
                 {
-                    "message" => queryRequest.SortDescending
-                        ? query.OrderByDescending(a => a.Message)
-                        : query.OrderBy(a => a.Message),
-                    "createdat" => queryRequest.SortDescending  // Corrected from "createat"
+                    SortByEnum.CreatedDate => queryRequest.SortDescending
                         ? query.OrderByDescending(a => a.CreatedAt)
                         : query.OrderBy(a => a.CreatedAt),
-                    "budgetid" => queryRequest.SortDescending
-                        ? query.OrderByDescending(a => a.BudgetId)
-                        : query.OrderBy(a => a.BudgetId),
+                    SortByEnum.UpdatedDate => queryRequest.SortDescending
+                        ? query.OrderByDescending(a => a.UpdatedDate)
+                        : query.OrderBy(a => a.UpdatedDate),
+                    SortByEnum.Amount => queryRequest.SortDescending
+                        ? query.OrderByDescending(a => a.Budget.Limit)
+                        : query.OrderBy(a => a.Budget.Limit),
                     _ => query.OrderByDescending(a => a.Id) // Default sort
                 };
             }

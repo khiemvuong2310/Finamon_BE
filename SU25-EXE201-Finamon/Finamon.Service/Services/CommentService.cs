@@ -56,20 +56,18 @@ namespace Finamon.Service.Services
                 queryable = queryable.Where(c => c.CreatedDate <= queryRequest.DateTo.Value);
             }
 
-            if (!string.IsNullOrEmpty(queryRequest.SortBy))
+            if (queryRequest.SortBy.HasValue)
             {
-                switch (queryRequest.SortBy.ToLower())
+                queryable = queryRequest.SortBy.Value switch
                 {
-                    case "createddate":
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(c => c.CreatedDate) : queryable.OrderBy(c => c.CreatedDate);
-                        break;
-                    case "updateddate":
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(c => c.UpdatedDate) : queryable.OrderBy(c => c.UpdatedDate);
-                        break;
-                    default:
-                        queryable = queryable.OrderByDescending(c => c.CreatedDate); // Default sort
-                        break;
-                }
+                    SortByEnum.CreatedDate => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(c => c.CreatedDate)
+                        : queryable.OrderBy(c => c.CreatedDate),
+                    SortByEnum.UpdatedDate => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(c => c.UpdatedDate)
+                        : queryable.OrderBy(c => c.UpdatedDate),
+                    _ => queryable.OrderByDescending(c => c.CreatedDate) // Default sort
+                };
             }
             else
             {

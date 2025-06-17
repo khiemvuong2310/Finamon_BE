@@ -4,6 +4,7 @@ using Finamon_Data.Entities;
 using Finamon.Service.Interfaces;
 using Finamon.Service.ReponseModel;
 using Finamon.Service.RequestModel;
+using Finamon.Service.RequestModel.QueryRequest;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -50,23 +51,21 @@ namespace Finamon.Service.Services
             }
 
             // Sorting (default to Id if no SortBy is provided)
-            if (!string.IsNullOrWhiteSpace(queryRequest.SortBy))
+            if (queryRequest.SortBy.HasValue)
             {
-                switch (queryRequest.SortBy.ToLower())
+                queryable = queryRequest.SortBy.Value switch
                 {
-                    case "name":
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(m => m.Name) : queryable.OrderBy(m => m.Name);
-                        break;
-                    case "price":
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(m => m.Price) : queryable.OrderBy(m => m.Price);
-                        break;
-                    case "duration":
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(m => m.Duration) : queryable.OrderBy(m => m.Duration);
-                        break;
-                    default:
-                        queryable = queryable.OrderBy(m => m.Id);
-                        break;
-                }
+                    SortByEnum.CreatedDate => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(m => m.CreatedDate)
+                        : queryable.OrderBy(m => m.CreatedDate),
+                    SortByEnum.UpdatedDate => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(m => m.UpdatedDate)
+                        : queryable.OrderBy(m => m.UpdatedDate),
+                    SortByEnum.Amount => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(m => m.Price)
+                        : queryable.OrderBy(m => m.Price),
+                    _ => queryable.OrderBy(m => m.Id)
+                };
             }
             else
             {

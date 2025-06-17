@@ -62,22 +62,19 @@ namespace Finamon.Service.Services
             }
 
             // Apply sorting
-            if (!string.IsNullOrWhiteSpace(queryRequest.SortBy))
+            if (queryRequest.SortBy.HasValue)
             {
-                queryable = queryRequest.SortBy.ToLower() switch
+                queryable = queryRequest.SortBy.Value switch
                 {
-                    "name" => queryRequest.SortDescending
-                        ? queryable.OrderByDescending(c => c.Name)
-                        : queryable.OrderBy(c => c.Name),
-                    "color" => queryRequest.SortDescending
-                        ? queryable.OrderByDescending(c => c.Color)
-                        : queryable.OrderBy(c => c.Color),
-                    "createddate" => queryRequest.SortDescending
+                    SortByEnum.CreatedDate => queryRequest.SortDescending
                         ? queryable.OrderByDescending(c => c.CreatedDate)
                         : queryable.OrderBy(c => c.CreatedDate),
-                    "updateddate" => queryRequest.SortDescending
+                    SortByEnum.UpdatedDate => queryRequest.SortDescending
                         ? queryable.OrderByDescending(c => c.UpdatedDate)
                         : queryable.OrderBy(c => c.UpdatedDate),
+                    SortByEnum.Amount => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(c => c.Expenses.Sum(e => e.Amount))
+                        : queryable.OrderBy(c => c.Expenses.Sum(e => e.Amount)),
                     _ => queryable.OrderBy(c => c.Id) // Default sort by Id
                 };
             }

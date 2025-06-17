@@ -176,20 +176,21 @@ namespace Finamon.Service.Services
             }
 
             // Apply sorting
-            if (!string.IsNullOrEmpty(queryRequest.SortBy))
+            if (queryRequest.SortBy.HasValue)
             {
-                switch (queryRequest.SortBy.ToLower())
+                queryable = queryRequest.SortBy.Value switch
                 {
-                    case "date":
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(e => e.Date) : queryable.OrderBy(e => e.Date);
-                        break;
-                    case "amount":
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(e => e.Amount) : queryable.OrderBy(e => e.Amount);
-                        break;
-                    default:
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(e => e.Id) : queryable.OrderBy(e => e.Id);
-                        break;
-                }
+                    SortByEnum.CreatedDate => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(e => e.Date)
+                        : queryable.OrderBy(e => e.Date),
+                    SortByEnum.UpdatedDate => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(e => e.UpdateDate)
+                        : queryable.OrderBy(e => e.UpdateDate),
+                    SortByEnum.Amount => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(e => e.Amount)
+                        : queryable.OrderBy(e => e.Amount),
+                    _ => queryable.OrderByDescending(e => e.Id) // Default sort
+                };
             }
             else
             {
@@ -262,20 +263,21 @@ namespace Finamon.Service.Services
             }
 
             // Apply sorting
-            if (!string.IsNullOrEmpty(queryRequest.SortBy))
+            if (queryRequest.SortBy.HasValue)
             {
-                switch (queryRequest.SortBy.ToLower())
+                queryable = queryRequest.SortBy.Value switch
                 {
-                    case "date":
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(e => e.Date) : queryable.OrderBy(e => e.Date);
-                        break;
-                    case "amount":
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(e => e.Amount) : queryable.OrderBy(e => e.Amount);
-                        break;
-                    default:
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(e => e.Id) : queryable.OrderBy(e => e.Id);
-                        break;
-                }
+                    SortByEnum.CreatedDate => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(e => e.Date)
+                        : queryable.OrderBy(e => e.Date),
+                    SortByEnum.UpdatedDate => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(e => e.UpdateDate)
+                        : queryable.OrderBy(e => e.UpdateDate),
+                    SortByEnum.Amount => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(e => e.Amount)
+                        : queryable.OrderBy(e => e.Amount),
+                    _ => queryable.OrderByDescending(e => e.Id) // Default sort
+                };
             }
             else
             {

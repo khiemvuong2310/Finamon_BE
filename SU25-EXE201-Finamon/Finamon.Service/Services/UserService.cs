@@ -389,23 +389,18 @@ namespace Finamon.Service.Services
             }
 
             // Sắp xếp
-            if (!string.IsNullOrEmpty(queryRequest.SortBy))
+            if (queryRequest.SortBy.HasValue)
             {
-                switch (queryRequest.SortBy.ToLower())
+                queryable = queryRequest.SortBy.Value switch
                 {
-                    case "username":
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(u => u.UserName) : queryable.OrderBy(u => u.UserName);
-                        break;
-                    case "email":
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(u => u.Email) : queryable.OrderBy(u => u.Email);
-                        break;
-                    case "createddate":
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(u => u.CreatedDate) : queryable.OrderBy(u => u.CreatedDate);
-                        break;
-                    default:
-                        queryable = queryRequest.SortDescending ? queryable.OrderByDescending(u => u.CreatedDate) : queryable.OrderBy(u => u.CreatedDate);
-                        break;
-                }
+                    SortByEnum.CreatedDate => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(u => u.CreatedDate)
+                        : queryable.OrderBy(u => u.CreatedDate),
+                    SortByEnum.UpdatedDate => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(u => u.UpdatedDate)
+                        : queryable.OrderBy(u => u.UpdatedDate),
+                    _ => queryable.OrderByDescending(u => u.CreatedDate)
+                };
             }
             else
             {

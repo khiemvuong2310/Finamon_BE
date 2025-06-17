@@ -22,6 +22,16 @@ namespace Finamon.Service.Services
 
         public async Task<ExpenseResponse> CreateExpenseAsync(ExpenseRequest request, int userId)
         {
+            // Validate user exists and is not deleted
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId && !u.IsDelete);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {userId} not found or has been deleted");
+
+            // Validate category exists and is not deleted
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == request.CategoryId && !c.IsDelete);
+            if (category == null)
+                throw new KeyNotFoundException($"Category with ID {request.CategoryId} not found or has been deleted");
+
             var expense = _mapper.Map<Expense>(request);
             expense.UserId = userId;
             expense.IsDelete = false;
@@ -42,8 +52,15 @@ namespace Finamon.Service.Services
                 .FirstOrDefaultAsync(e => e.Id == id && !e.IsDelete);
 
             if (expense == null)
+                throw new KeyNotFoundException($"Expense with ID {id} not found or has been deleted");
+
+            // Validate category if it's being updated
+            if (request.CategoryId.HasValue)
             {
-                throw new Exception("Expense not found");
+                var categoryExists = await _context.Categories
+                    .AnyAsync(c => c.Id == request.CategoryId.Value && !c.IsDelete);
+                if (!categoryExists)
+                    throw new KeyNotFoundException($"Category with ID {request.CategoryId} not found or has been deleted");
             }
 
             _mapper.Map(request, expense);
@@ -58,7 +75,7 @@ namespace Finamon.Service.Services
             var expense = await _context.Expenses.FindAsync(id);
             if (expense == null)
             {
-                return false;
+                throw new KeyNotFoundException($"Expense with ID {id} not found");
             }
 
             expense.IsDelete = true;
@@ -75,9 +92,7 @@ namespace Finamon.Service.Services
                 .FirstOrDefaultAsync(e => e.Id == id && !e.IsDelete);
 
             if (expense == null)
-            {
-                throw new Exception("Expense not found");
-            }
+                throw new KeyNotFoundException($"Expense with ID {id} not found or has been deleted");
 
             return _mapper.Map<ExpenseResponse>(expense);
         }

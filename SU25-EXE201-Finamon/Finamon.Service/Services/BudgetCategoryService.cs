@@ -129,13 +129,26 @@ namespace Finamon.Service.Services
 
         public async Task<BudgetCategoryResponse> CreateBudgetCategoryAsync(BudgetCategoryRequestModel request)
         {
-            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == request.CategoryId && !c.IsDelete);
+            // Validate category exists and is not deleted
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(c => c.Id == request.CategoryId && !c.IsDelete);
             if (category == null)
                 throw new KeyNotFoundException($"Category with ID {request.CategoryId} not found or has been deleted");
+
+            // Validate MaxAmount
+            if (request.MaxAmount <= 0)
+                throw new ArgumentException("MaxAmount must be greater than 0");
+
+            // Check if category already has an active budget
+            var existingBudget = await _context.BudgetCategories
+                .AnyAsync(bc => bc.CategoryId == request.CategoryId && !bc.IsDelete);
+            if (existingBudget)
+                throw new InvalidOperationException($"Category with ID {request.CategoryId} already has an active budget");
 
             var budgetCategory = _mapper.Map<BudgetCategory>(request);
             budgetCategory.CreatedAt = DateTime.UtcNow.AddHours(7);
             budgetCategory.IsDelete = false;
+            budgetCategory.CategoryAlerts = new List<CategoryAlert>();
 
             _context.BudgetCategories.Add(budgetCategory);
             await _context.SaveChangesAsync();
@@ -147,16 +160,38 @@ namespace Finamon.Service.Services
         {
             var budgetCategory = await _context.BudgetCategories
                 .Include(bc => bc.Category)
+                .Include(bc => bc.CategoryAlerts.Where(ca => !ca.IsDelete))
                 .FirstOrDefaultAsync(bc => bc.Id == id && !bc.IsDelete);
 
             if (budgetCategory == null)
                 throw new KeyNotFoundException($"BudgetCategory with ID {id} not found or has been deleted");
 
+            // Validate MaxAmount
+            if (request.MaxAmount <= 0)
+                throw new ArgumentException("MaxAmount must be greater than 0");
+
+            // Check if current expenses exceed new MaxAmount
+            var currentExpenses = await _context.Expenses
+                .Where(e => e.CategoryId == budgetCategory.CategoryId && !e.IsDelete)
+                .SumAsync(e => e.Amount);
+
+            if (currentExpenses > request.MaxAmount)
+                throw new InvalidOperationException($"Cannot update MaxAmount to {request.MaxAmount} as current expenses ({currentExpenses}) exceed this amount");
+
+            // If category is being changed
             if (request.CategoryId != budgetCategory.CategoryId)
             {
-                var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == request.CategoryId && !c.IsDelete);
-                if (category == null)
+                // Validate new category exists and is not deleted
+                var newCategory = await _context.Categories
+                    .FirstOrDefaultAsync(c => c.Id == request.CategoryId && !c.IsDelete);
+                if (newCategory == null)
                     throw new KeyNotFoundException($"Category with ID {request.CategoryId} not found or has been deleted");
+
+                // Check if new category already has an active budget
+                var existingBudget = await _context.BudgetCategories
+                    .AnyAsync(bc => bc.CategoryId == request.CategoryId && bc.Id != id && !bc.IsDelete);
+                if (existingBudget)
+                    throw new InvalidOperationException($"Category with ID {request.CategoryId} already has an active budget");
             }
 
             _mapper.Map(request, budgetCategory);
@@ -169,12 +204,40 @@ namespace Finamon.Service.Services
 
         public async Task DeleteBudgetCategoryAsync(int id)
         {
-            var budgetCategory = await _context.BudgetCategories.FirstOrDefaultAsync(bc => bc.Id == id && !bc.IsDelete);
+            var budgetCategory = await _context.BudgetCategories
+                .Include(bc => bc.CategoryAlerts)
+                .FirstOrDefaultAsync(bc => bc.Id == id && !bc.IsDelete);
+
             if (budgetCategory == null)
                 throw new KeyNotFoundException($"BudgetCategory with ID {id} not found or has been deleted");
 
+            // Check if there are any expenses for this category in the current month
+            var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+            
+            var hasCurrentExpenses = await _context.Expenses
+                .AnyAsync(e => e.CategoryId == budgetCategory.CategoryId && 
+                              !e.IsDelete &&
+                              e.Date >= startOfMonth &&
+                              e.Date <= endOfMonth);
+
+            if (hasCurrentExpenses)
+                throw new InvalidOperationException("Cannot delete budget category as it has expenses in the current month");
+
+            // Soft delete the budget category
             budgetCategory.IsDelete = true;
-            budgetCategory.UpdatedDate = DateTime.UtcNow;
+            budgetCategory.UpdatedDate = DateTime.UtcNow.AddHours(7);
+
+            // Soft delete associated alerts
+            if (budgetCategory.CategoryAlerts != null)
+            {
+                foreach (var alert in budgetCategory.CategoryAlerts.Where(a => !a.IsDelete))
+                {
+                    alert.IsDelete = true;
+                    alert.UpdatedDate = DateTime.UtcNow.AddHours(7);
+                }
+            }
+
             await _context.SaveChangesAsync();
         }
 

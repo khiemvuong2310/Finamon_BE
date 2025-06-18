@@ -13,6 +13,7 @@ namespace Finamon.Service.Mapping
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
                 .ForMember(dest => dest.Color, opt => opt.MapFrom(src => src.Category.Color))
+                .ForMember(dest => dest.CategoryIsDelete, opt => opt.MapFrom(src => src.Category.IsDelete))
                 .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
 

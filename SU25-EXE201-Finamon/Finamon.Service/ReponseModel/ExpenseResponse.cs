@@ -12,7 +12,8 @@ namespace Finamon.Service.ReponseModel
         public string UserName { get; set; }
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
-        public string Color { get; set; } 
+        public string Color { get; set; }
+        public bool CategoryIsDelete { get; set; }
     }
 
     public class ExpenseDetailResponse : ExpenseResponse

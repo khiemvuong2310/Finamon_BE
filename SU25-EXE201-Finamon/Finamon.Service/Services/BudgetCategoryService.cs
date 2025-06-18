@@ -91,12 +91,12 @@ namespace Finamon.Service.Services
                     SortByEnum.Amount => queryRequest.SortDescending
                         ? query.OrderByDescending(bc => bc.MaxAmount)
                         : query.OrderBy(bc => bc.MaxAmount),
-                    _ => query.OrderByDescending(bc => bc.Id) // Default sort
+                    _ => query.OrderByDescending(bc => bc.Id) 
                 };
             }
             else
             {
-                query = query.OrderByDescending(bc => bc.Id); // Default sort
+                query = query.OrderByDescending(bc => bc.Id); 
             }
 
             var paginatedCategories = await PaginatedResponse<BudgetCategory>.CreateAsync(query, queryRequest.PageNumber, queryRequest.PageSize);

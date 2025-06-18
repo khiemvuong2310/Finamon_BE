@@ -212,6 +212,7 @@ namespace Finamon.Service.Services
                 queryable = queryable.OrderByDescending(e => e.Id); // Default sort
             }
 
+            // Execute query and map results
             var paginatedExpenses = await PaginatedResponse<Expense>.CreateAsync(queryable, queryRequest.PageNumber, queryRequest.PageSize);
             var expenseResponses = _mapper.Map<List<ExpenseResponse>>(paginatedExpenses.Items);
 
@@ -299,6 +300,7 @@ namespace Finamon.Service.Services
                 queryable = queryable.OrderByDescending(e => e.Date); // Default sort by date
             }
 
+            // Execute query and map results
             var paginatedExpenses = await PaginatedResponse<Expense>.CreateAsync(queryable, queryRequest.PageNumber, queryRequest.PageSize);
             var expenseResponses = _mapper.Map<List<ExpenseResponse>>(paginatedExpenses.Items);
 

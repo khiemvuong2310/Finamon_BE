@@ -10,6 +10,7 @@ namespace Finamon_Data.Entities
     public class User :BaseEntity
     {
         public string? UserName { get; set; }
+        public int? Age { get; set; } 
         public string Password { get; set; }
         public string Email { get; set; }
         public string? Phone { get; set; }
@@ -18,6 +19,7 @@ namespace Finamon_Data.Entities
         public string? Token { get; set; }
         public string? Image { get; set; }
         public bool? Status { get; set; }
+
         public bool EmailVerified { get; set; } = false;
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
         public DateTime? UpdatedDate { get; set; } = DateTime.Now;

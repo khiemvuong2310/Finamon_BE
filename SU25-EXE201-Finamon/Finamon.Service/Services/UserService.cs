@@ -214,6 +214,8 @@ namespace Finamon.Service.Services
             }
 
             // Update other properties
+            if (request.Age.HasValue)
+                user.Age = request.Age.Value;
             if (!string.IsNullOrWhiteSpace(request.Phone))
                 user.Phone = request.Phone.Trim();
             if (!string.IsNullOrWhiteSpace(request.Location))
@@ -513,6 +515,11 @@ namespace Finamon.Service.Services
             if (!string.IsNullOrEmpty(queryRequest.Country))
             {
                 queryable = queryable.Where(u => u.Country != null && u.Country.Contains(queryRequest.Country));
+            }
+
+            if (queryRequest.Age.HasValue)
+            {
+                queryable = queryable.Where(u => u.Age == queryRequest.Age.Value);
             }
 
             if (queryRequest.Status.HasValue)

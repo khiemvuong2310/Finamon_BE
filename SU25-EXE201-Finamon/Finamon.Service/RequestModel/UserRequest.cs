@@ -7,6 +7,9 @@ namespace Finamon.Service.RequestModel
     {
         public string? UserName { get; set; }
 
+        [Range(0, int.MaxValue, ErrorMessage = "Age cannot be negative.")]
+        public int ? Age { get; set; }
+
         [Required]
         [EmailAddress]
         public string Email { get; set; }
@@ -35,6 +38,8 @@ namespace Finamon.Service.RequestModel
     public class UserUpdateRequest
     {
         public string? UserName { get; set; }
+        [Range(0, int.MaxValue, ErrorMessage = "Age cannot be negative.")]
+        public int? Age { get; set; }
         public string? Email { get; set; }
         public string? Phone { get; set; }
 

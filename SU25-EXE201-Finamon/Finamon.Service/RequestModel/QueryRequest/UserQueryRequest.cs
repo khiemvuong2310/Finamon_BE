@@ -18,6 +18,7 @@ namespace Finamon.Service.RequestModel.QueryRequest
         public int? RoleId { get; set; }
         public bool? EmailVerified { get; set; }
         public string? Sort { get; set; }
+        public int? Age { get; set; }
         //public string? Order { get; set; } // "asc" or "desc"
     }
 }

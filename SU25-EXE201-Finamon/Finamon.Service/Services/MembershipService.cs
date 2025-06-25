@@ -199,5 +199,138 @@ namespace Finamon.Service.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> AssignMembershipToUserAsync(AssignMembershipRequest request)
+        {
+            // Check if user exists
+            var user = await _context.Users.FindAsync(request.UserId);
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"User with ID {request.UserId} not found.");
+            }
+
+            // Check if membership exists and is not deleted
+            var membership = await _context.Memberships.FirstOrDefaultAsync(m => m.Id == request.MembershipId && !m.IsDelete);
+            if (membership == null)
+            {
+                throw new KeyNotFoundException($"Membership with ID {request.MembershipId} not found or has been deleted.");
+            }
+
+            // Check if user already has an active membership
+            var existingMembership = await _context.UserMemberships
+                .FirstOrDefaultAsync(um => um.UserId == request.UserId && !um.IsDelete && (!um.EndDate.HasValue || um.EndDate > DateTime.UtcNow.AddHours(7)));
+            
+            if (existingMembership != null)
+            {
+                throw new InvalidOperationException("User already has an active membership.");
+            }
+            var startDate = DateTime.UtcNow.AddHours(7);
+
+            // Create new user membership
+            var userMembership = new UserMembership
+            {
+                UserId = request.UserId,
+                MembershipId = request.MembershipId,
+                StartDate = startDate,
+                EndDate = startDate.AddMonths(1),
+                //CreatedDate = startDate,
+                IsDelete = false
+            };
+
+            _context.UserMemberships.Add(userMembership);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<PaginatedResponse<UserMembershipResponse>> GetAllUserMembershipsAsync(UserMembershipQueryRequest queryRequest)
+        {
+            var currentDate = DateTime.UtcNow.AddHours(7);
+            
+            var queryable = _context.UserMemberships
+                .Include(um => um.User)
+                .Include(um => um.Membership)
+                .Where(um => !um.IsDelete)
+                .AsQueryable();
+
+            // Filter by membership type (Free or VIP)
+            if (!string.IsNullOrWhiteSpace(queryRequest.MembershipType))
+            {
+                var isFree = queryRequest.MembershipType.Equals("Free", StringComparison.OrdinalIgnoreCase);
+                queryable = queryable.Where(um => 
+                    isFree ? 
+                    um.Membership.MonthlyPrice == 0 && um.Membership.YearlyPrice == 0 :
+                    um.Membership.MonthlyPrice > 0 || um.Membership.YearlyPrice > 0);
+            }
+
+            if (queryRequest.IsActive.HasValue)
+            {
+                if (queryRequest.IsActive.Value)
+                {
+                    queryable = queryable.Where(um => !um.EndDate.HasValue || um.EndDate > currentDate);
+                }
+                else
+                {
+                    queryable = queryable.Where(um => um.EndDate.HasValue && um.EndDate <= currentDate);
+                }
+            }
+
+            // Filter by start date range
+            if (queryRequest.StartDateFrom.HasValue)
+            {
+                queryable = queryable.Where(um => um.StartDate >= queryRequest.StartDateFrom.Value);
+            }
+            if (queryRequest.StartDateTo.HasValue)
+            {
+                queryable = queryable.Where(um => um.StartDate <= queryRequest.StartDateTo.Value);
+            }
+
+            // Apply sorting
+            if (queryRequest.SortBy.HasValue)
+            {
+                queryable = queryRequest.SortBy.Value switch
+                {
+                    SortByEnum.CreatedDate => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(um => um.StartDate)
+                        : queryable.OrderBy(um => um.StartDate),
+                    SortByEnum.Amount => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(um => um.Membership.MonthlyPrice)
+                        : queryable.OrderBy(um => um.Membership.MonthlyPrice),
+                    _ => queryRequest.SortDescending
+                        ? queryable.OrderByDescending(um => um.UserId)
+                        : queryable.OrderBy(um => um.UserId)
+                };
+            }
+            else
+            {
+                queryable = queryRequest.SortDescending
+                    ? queryable.OrderByDescending(um => um.UserId)
+                    : queryable.OrderBy(um => um.UserId);
+            }
+
+            var paginatedResult = await PaginatedResponse<UserMembership>.CreateAsync(
+                queryable, 
+                queryRequest.PageNumber, 
+                queryRequest.PageSize);
+
+            var responses = paginatedResult.Items.Select(um => new UserMembershipResponse
+            {
+                UserId = um.UserId,
+                UserName = um.User.UserName,
+                Email = um.User.Email,
+                MembershipName = um.Membership.Name,
+                MonthlyPrice = um.Membership.MonthlyPrice,
+                YearlyPrice = um.Membership.YearlyPrice,
+                StartDate = um.StartDate,
+                EndDate = um.EndDate,
+                IsActive = !um.EndDate.HasValue || um.EndDate > currentDate
+            }).ToList();
+
+            return new PaginatedResponse<UserMembershipResponse>(
+                responses, 
+                paginatedResult.TotalCount, 
+                paginatedResult.PageIndex, 
+                queryRequest.PageSize);
+        }
     }
 } 

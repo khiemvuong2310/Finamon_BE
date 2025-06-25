@@ -4,7 +4,8 @@ using Finamon.Service.RequestModel;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Collections.Generic; // Required for KeyNotFoundException
-using System; // Required for InvalidOperationException
+using System;
+using Finamon.Service.RequestModel.QueryRequest; // Required for InvalidOperationException
 
 namespace Finamon.Controllers
 {
@@ -90,6 +91,47 @@ namespace Finamon.Controllers
             {
                 // Catching the specific exception for when a membership is in use
                 return Conflict(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("assign")]
+        public async Task<ActionResult> AssignMembershipToUser([FromBody] AssignMembershipRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var result = await _membershipService.AssignMembershipToUserAsync(request);
+                if (result)
+                {
+                    return Ok(new { message = "Membership assigned successfully." });
+                }
+                return BadRequest(new { message = "Failed to assign membership." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("users")]
+        public async Task<ActionResult<PaginatedResponse<UserMembershipResponse>>> GetAllUserMemberships([FromQuery] UserMembershipQueryRequest queryRequest)
+        {
+            try
+            {
+                var userMemberships = await _membershipService.GetAllUserMembershipsAsync(queryRequest);
+                return Ok(userMemberships);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

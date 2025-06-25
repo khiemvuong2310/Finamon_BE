@@ -93,14 +93,16 @@ namespace Finamon_Data
                 
             // Configure Many-to-Many: User <-> Membership via UserMembership
             modelBuilder.Entity<UserMembership>()
-                .HasOne<User>()
+                .HasOne(um => um.User)
                 .WithMany(u => u.UserMemberships)
-                .HasForeignKey(um => um.UserId);
+                .HasForeignKey(um => um.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
                 
             modelBuilder.Entity<UserMembership>()
-                .HasOne<Membership>()
-                .WithMany()
-                .HasForeignKey(um => um.MembershipId);
+                .HasOne(um => um.Membership)
+                .WithMany(m => m.UserMemberships)
+                .HasForeignKey(um => um.MembershipId)
+                .OnDelete(DeleteBehavior.Restrict);
                 
             // Configure One-to-Many: User -> ChatSessions
             modelBuilder.Entity<User>()

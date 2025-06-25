@@ -314,14 +314,44 @@ namespace Finamon.Service.Services
                     Status = true
                 };
 
-
                 await _unitOfWork.Repository<UserRole>().InsertAsync(userRole);
                 await _unitOfWork.SaveChangesAsync();
 
+                // Create default free membership for the user
+                var userMembership = new UserMembership
+                {
+                    UserId = user.Id,
+                    StartDate = DateTime.UtcNow.AddHours(7),
+                    EndDate = DateTime.UtcNow.AddYears(100).AddHours(7), // Set a very long duration for free membership
+                    IsDelete = false
+                };
+
+                // Get or create the free membership plan
+                var freeMembership = await _unitOfWork.Repository<Membership>()
+                    .AsQueryable()
+                    .FirstOrDefaultAsync(m => m.Name == "Free" && !m.IsDelete);
+
+                if (freeMembership == null)
+                {
+                    freeMembership = new Membership
+                    {
+                        Name = "Free",
+                        MonthlyPrice = 0,
+                        YearlyPrice = 0,
+                        CreatedDate = DateTime.UtcNow.AddHours(7),
+                        IsDelete = false
+                    };
+                    await _unitOfWork.Repository<Membership>().InsertAsync(freeMembership);
+                    await _unitOfWork.CommitAsync();
+                }
+
+                userMembership.MembershipId = freeMembership.Id;
+                await _unitOfWork.Repository<UserMembership>().InsertAsync(userMembership);
+                await _unitOfWork.CommitAsync();
 
                 // Generate verification code and send email
                 var verificationCode = GenerateVerificationCode();
-                _verificationCodes[user.Email] = (verificationCode, DateTime.UtcNow.AddMinutes(30)); // Valid for 30 minutes
+                _verificationCodes[user.Email] = (verificationCode, DateTime.UtcNow.AddMinutes(30));
 
                 await SendEmailAsync(
                     user.Email,

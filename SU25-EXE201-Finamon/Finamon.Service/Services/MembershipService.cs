@@ -45,21 +45,21 @@ namespace Finamon.Service.Services
             {
                 queryable = queryable.Where(m => m.Name.Contains(queryRequest.Name.Trim()));
             }
-            if (queryRequest.MinPrice.HasValue)
+            if (queryRequest.MinMonthlyPrice.HasValue)
             {
-                queryable = queryable.Where(m => m.Price >= queryRequest.MinPrice.Value);
+                queryable = queryable.Where(m => m.MonthlyPrice >= queryRequest.MinMonthlyPrice.Value);
             }
-            if (queryRequest.MaxPrice.HasValue)
+            if (queryRequest.MaxMonthlyPrice.HasValue)
             {
-                queryable = queryable.Where(m => m.Price <= queryRequest.MaxPrice.Value);
+                queryable = queryable.Where(m => m.MonthlyPrice <= queryRequest.MaxMonthlyPrice.Value);
             }
-            if (queryRequest.MinDuration.HasValue)
+            if (queryRequest.MinYearlyPrice.HasValue)
             {
-                queryable = queryable.Where(m => m.Duration >= queryRequest.MinDuration.Value);
+                queryable = queryable.Where(m => m.YearlyPrice >= queryRequest.MinYearlyPrice.Value);
             }
-            if (queryRequest.MaxDuration.HasValue)
+            if (queryRequest.MaxYearlyPrice.HasValue)
             {
-                queryable = queryable.Where(m => m.Duration <= queryRequest.MaxDuration.Value);
+                queryable = queryable.Where(m => m.YearlyPrice <= queryRequest.MaxYearlyPrice.Value);
             }
 
             // Sorting (default to Id if no SortBy is provided)
@@ -74,8 +74,8 @@ namespace Finamon.Service.Services
                         ? queryable.OrderByDescending(m => m.UpdatedDate)
                         : queryable.OrderBy(m => m.UpdatedDate),
                     SortByEnum.Amount => queryRequest.SortDescending
-                        ? queryable.OrderByDescending(m => m.Price)
-                        : queryable.OrderBy(m => m.Price),
+                        ? queryable.OrderByDescending(m => m.MonthlyPrice)
+                        : queryable.OrderBy(m => m.MonthlyPrice),
                     _ => queryRequest.SortDescending
                         ? queryable.OrderByDescending(m => m.Id)
                         : queryable.OrderBy(m => m.Id)
@@ -153,23 +153,23 @@ namespace Finamon.Service.Services
             }
 
             // Update price if provided
-            if (request.Price.HasValue)
+            if (request.MonthlyPrice.HasValue)
             {
-                if (request.Price.Value <= 0)
+                if (request.MonthlyPrice.Value <= 0)
                 {
-                    throw new ArgumentException("Price must be greater than 0.");
+                    throw new ArgumentException("Monthly price must be greater than 0.");
                 }
-                membership.Price = request.Price.Value;
+                membership.MonthlyPrice = request.MonthlyPrice.Value;
             }
 
-            // Update duration if provided
-            if (request.Duration.HasValue)
+            // Update yearly price if provided
+            if (request.YearlyPrice.HasValue)
             {
-                if (request.Duration.Value <= 0)
+                if (request.YearlyPrice.Value <= 0)
                 {
-                    throw new ArgumentException("Duration must be greater than 0.");
+                    throw new ArgumentException("Yearly price must be greater than 0.");
                 }
-                membership.Duration = request.Duration.Value;
+                membership.YearlyPrice = request.YearlyPrice.Value;
             }
 
             membership.UpdatedDate = DateTime.UtcNow.AddHours(7);

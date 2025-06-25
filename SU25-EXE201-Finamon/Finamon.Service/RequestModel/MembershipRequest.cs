@@ -11,11 +11,11 @@ namespace Finamon.Service.RequestModel
 
         [Required]
         [Range(0.01, (double)decimal.MaxValue)]
-        public decimal Price { get; set; }
+        public decimal MonthlyPrice { get; set; }
 
         [Required]
-        [Range(1, int.MaxValue)]
-        public int Duration { get; set; } // Duration in days, for example
+        [Range(0.01, (double)decimal.MaxValue)]
+        public decimal YearlyPrice { get; set; }
     }
 
     public class UpdateMembershipRequest
@@ -24,18 +24,18 @@ namespace Finamon.Service.RequestModel
         public string? Name { get; set; }
 
         [Range(0.01, (double)decimal.MaxValue)]
-        public decimal? Price { get; set; }
+        public decimal? MonthlyPrice { get; set; }
 
-        [Range(1, int.MaxValue)]
-        public int? Duration { get; set; } // Duration in days
+        [Range(0.01, (double)decimal.MaxValue)]
+        public decimal? YearlyPrice { get; set; }
     }
 
     public class MembershipQueryRequest : QueryRequest.BaseQuery
     {
         public string? Name { get; set; }
-        public decimal? MinPrice { get; set; }
-        public decimal? MaxPrice { get; set; }
-        public int? MinDuration { get; set; }
-        public int? MaxDuration { get; set; }
+        public decimal? MinMonthlyPrice { get; set; }
+        public decimal? MaxMonthlyPrice { get; set; }
+        public decimal? MinYearlyPrice { get; set; }
+        public decimal? MaxYearlyPrice { get; set; }
     }
 } 

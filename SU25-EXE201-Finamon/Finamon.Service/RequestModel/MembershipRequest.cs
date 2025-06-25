@@ -38,4 +38,11 @@ namespace Finamon.Service.RequestModel
         public decimal? MinYearlyPrice { get; set; }
         public decimal? MaxYearlyPrice { get; set; }
     }
+
+    public class AssignMembershipRequest
+    {
+        public int UserId { get; set; }
+        public int MembershipId { get; set; }
+
+    }
 } 

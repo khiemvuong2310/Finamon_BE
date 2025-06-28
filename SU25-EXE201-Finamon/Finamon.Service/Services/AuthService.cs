@@ -78,7 +78,7 @@ namespace Finamon.Service.Services
                     return new BaseResponseForLogin<LoginResponseModel>
                     {
                         Code = StatusCodes.Status400BadRequest,
-                        Message = "Invalid email or password",
+                        Message = "Email not found",
                         Data = null,
                         IsBanned = false
                     };

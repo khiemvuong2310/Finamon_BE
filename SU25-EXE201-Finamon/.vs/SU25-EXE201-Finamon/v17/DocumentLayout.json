@@ -3,8 +3,32 @@
   "WorkspaceRootPath": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|solutionrelative:finamon\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7020916F-8B9E-471E-AD2C-84D7FA1227D3}|Finamon.Service\\Finamon.Service.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon.service\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7020916F-8B9E-471E-AD2C-84D7FA1227D3}|Finamon.Service\\Finamon.Service.csproj|solutionrelative:finamon.service\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|solutionrelative:finamon\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon\\controllers\\blogcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|solutionrelative:finamon\\controllers\\blogcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|solutionrelative:finamon\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{7020916F-8B9E-471E-AD2C-84D7FA1227D3}|Finamon.Service\\Finamon.Service.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon.service\\services\\membershipservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7020916F-8B9E-471E-AD2C-84D7FA1227D3}|Finamon.Service\\Finamon.Service.csproj|solutionrelative:finamon.service\\services\\membershipservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|solutionrelative:finamon\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{7020916F-8B9E-471E-AD2C-84D7FA1227D3}|Finamon.Service\\Finamon.Service.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon.service\\requestmodel\\queryrequest\\usermembershipqueryrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -79,20 +103,12 @@
       "RelativeMoniker": "D:0:0:{7020916F-8B9E-471E-AD2C-84D7FA1227D3}|Finamon.Service\\Finamon.Service.csproj|solutionrelative:finamon.service\\services\\reportservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|solutionrelative:finamon\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon\\controllers\\reportcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|solutionrelative:finamon\\controllers\\reportcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon\\controllers\\useractivitycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|solutionrelative:finamon\\controllers\\useractivitycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon\\controllers\\blogcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|solutionrelative:finamon\\controllers\\blogcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B4EBB75B-28A9-451B-B9DF-BF0E0156046C}|Finamon\\Finamon.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon\\controllers\\categoryalertcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -105,10 +121,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{7020916F-8B9E-471E-AD2C-84D7FA1227D3}|Finamon.Service\\Finamon.Service.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon.service\\services\\firebasestorageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7020916F-8B9E-471E-AD2C-84D7FA1227D3}|Finamon.Service\\Finamon.Service.csproj|solutionrelative:finamon.service\\services\\firebasestorageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7020916F-8B9E-471E-AD2C-84D7FA1227D3}|Finamon.Service\\Finamon.Service.csproj|d:\\course\\sem 8\\exe201\\be\\finamon_be\\su25-exe201-finamon\\finamon.service\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7020916F-8B9E-471E-AD2C-84D7FA1227D3}|Finamon.Service\\Finamon.Service.csproj|solutionrelative:finamon.service\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -117,8 +129,8 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedHeight": 1229,
-          "SelectedChildIndex": 25,
+          "DockedHeight": 1344,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -142,7 +154,45 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "Finamon\\Controllers\\AuthController.cs",
+              "ToolTip": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "Finamon\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-28T04:36:53.564Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 4,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Dockerfile",
+              "RelativeDocumentMoniker": "Finamon\\Dockerfile",
+              "ToolTip": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Dockerfile",
+              "RelativeToolTip": "Finamon\\Dockerfile",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-06-28T04:12:37.306Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Program.cs",
+              "RelativeDocumentMoniker": "Finamon\\Program.cs",
+              "ToolTip": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Program.cs",
+              "RelativeToolTip": "Finamon\\Program.cs",
+              "ViewState": "AgIAAIAAAAAAAAAAAAAAAI8AAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-28T03:53:30.84Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "UserMembershipResponse.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\ReponseModel\\UserMembershipResponse.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\ReponseModel\\UserMembershipResponse.cs",
@@ -150,12 +200,11 @@
               "RelativeToolTip": "Finamon.Service\\ReponseModel\\UserMembershipResponse.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:41:27.962Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:41:27.962Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 8,
               "Title": "MembershipRequest.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\RequestModel\\MembershipRequest.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\RequestModel\\MembershipRequest.cs",
@@ -163,12 +212,11 @@
               "RelativeToolTip": "Finamon.Service\\RequestModel\\MembershipRequest.cs",
               "ViewState": "AgIAABsAAAAAAAAAAAAwwCEAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:41:17.524Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:41:17.524Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 11,
               "Title": "LoginModel.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\RequestModel\\LoginModel.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\RequestModel\\LoginModel.cs",
@@ -176,12 +224,11 @@
               "RelativeToolTip": "Finamon.Service\\RequestModel\\LoginModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:41:16.996Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:41:16.996Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 12,
               "Title": "ReportQueryRequest.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\RequestModel\\QueryRequest\\ReportQueryRequest.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\RequestModel\\QueryRequest\\ReportQueryRequest.cs",
@@ -189,12 +236,11 @@
               "RelativeToolTip": "Finamon.Service\\RequestModel\\QueryRequest\\ReportQueryRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:41:13.734Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:41:13.734Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 7,
               "Title": "UserMembershipQueryRequest.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\RequestModel\\QueryRequest\\UserMembershipQueryRequest.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\RequestModel\\QueryRequest\\UserMembershipQueryRequest.cs",
@@ -202,12 +248,11 @@
               "RelativeToolTip": "Finamon.Service\\RequestModel\\QueryRequest\\UserMembershipQueryRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAABFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:41:08.918Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:41:08.918Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 14,
               "Title": "Role.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon-Data\\Entities\\Role.cs",
               "RelativeDocumentMoniker": "Finamon-Data\\Entities\\Role.cs",
@@ -215,12 +260,11 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\Role.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:33:53.301Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:33:53.301Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 13,
               "Title": "UserRole.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon-Data\\Entities\\UserRole.cs",
               "RelativeDocumentMoniker": "Finamon-Data\\Entities\\UserRole.cs",
@@ -228,12 +272,11 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\UserRole.cs",
               "ViewState": "AgIAAA0AAAAAAAAAAAA5wAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:33:48.325Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:33:48.325Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 15,
               "Title": "User.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon-Data\\Entities\\User.cs",
               "RelativeDocumentMoniker": "Finamon-Data\\Entities\\User.cs",
@@ -241,12 +284,11 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\User.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:33:46.624Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:33:46.624Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 17,
               "Title": "Category.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon-Data\\Entities\\Category.cs",
               "RelativeDocumentMoniker": "Finamon-Data\\Entities\\Category.cs",
@@ -254,12 +296,11 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\Category.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:33:33.461Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:33:33.461Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 16,
               "Title": "BudgetCategory.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon-Data\\Entities\\BudgetCategory.cs",
               "RelativeDocumentMoniker": "Finamon-Data\\Entities\\BudgetCategory.cs",
@@ -267,12 +308,11 @@
               "RelativeToolTip": "Finamon-Data\\Entities\\BudgetCategory.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:33:32.108Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:33:32.108Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 18,
               "Title": "BudgetCategoryService.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\BudgetCategoryService.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\Services\\BudgetCategoryService.cs",
@@ -280,12 +320,11 @@
               "RelativeToolTip": "Finamon.Service\\Services\\BudgetCategoryService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:33:22.496Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:33:22.496Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 19,
               "Title": "BudgetService.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\BudgetService.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\Services\\BudgetService.cs",
@@ -293,12 +332,11 @@
               "RelativeToolTip": "Finamon.Service\\Services\\BudgetService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:33:21.854Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:33:21.854Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 20,
               "Title": "CategoryService.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\CategoryService.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\Services\\CategoryService.cs",
@@ -306,12 +344,11 @@
               "RelativeToolTip": "Finamon.Service\\Services\\CategoryService.cs",
               "ViewState": "AgIAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:33:17.057Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:33:17.057Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 21,
               "Title": "CommentService.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\CommentService.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\Services\\CommentService.cs",
@@ -319,12 +356,11 @@
               "RelativeToolTip": "Finamon.Service\\Services\\CommentService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:33:16.294Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:33:16.294Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 22,
               "Title": "EmailTemplateService.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\EmailTemplateService.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\Services\\EmailTemplateService.cs",
@@ -332,12 +368,11 @@
               "RelativeToolTip": "Finamon.Service\\Services\\EmailTemplateService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:33:15.644Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:33:15.644Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 23,
               "Title": "UserActivityService.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\UserActivityService.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\Services\\UserActivityService.cs",
@@ -345,12 +380,11 @@
               "RelativeToolTip": "Finamon.Service\\Services\\UserActivityService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:33:13.733Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:33:13.733Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 24,
               "Title": "ReportService.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\ReportService.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\Services\\ReportService.cs",
@@ -358,12 +392,11 @@
               "RelativeToolTip": "Finamon.Service\\Services\\ReportService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:33:12.555Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:33:12.555Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 9,
               "Title": "MembershipsController.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Controllers\\MembershipsController.cs",
               "RelativeDocumentMoniker": "Finamon\\Controllers\\MembershipsController.cs",
@@ -371,25 +404,23 @@
               "RelativeToolTip": "Finamon\\Controllers\\MembershipsController.cs",
               "ViewState": "AgIAAB4AAAAAAAAAAAAYwH8AAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:05:01.811Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:05:01.811Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 3,
               "Title": "BlogController.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Controllers\\BlogController.cs",
               "RelativeDocumentMoniker": "Finamon\\Controllers\\BlogController.cs",
               "ToolTip": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Controllers\\BlogController.cs",
               "RelativeToolTip": "Finamon\\Controllers\\BlogController.cs",
-              "ViewState": "AgIAABsAAAAAAAAAAAAAAEMAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHAAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T04:33:35.498Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T04:33:35.498Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 27,
               "Title": "CategoryAlertController.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Controllers\\CategoryAlertController.cs",
               "RelativeDocumentMoniker": "Finamon\\Controllers\\CategoryAlertController.cs",
@@ -397,25 +428,23 @@
               "RelativeToolTip": "Finamon\\Controllers\\CategoryAlertController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T04:33:34.088Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T04:33:34.088Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 5,
               "Title": "MembershipService.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\MembershipService.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\Services\\MembershipService.cs",
               "ToolTip": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\MembershipService.cs",
               "RelativeToolTip": "Finamon.Service\\Services\\MembershipService.cs",
-              "ViewState": "AgIAAJAAAAAAAAAAAAAmwLYAAABGAAAAAAAAAA==",
+              "ViewState": "AgIAAKcAAAAAAAAAAADwv8cAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T04:22:55.891Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T04:22:55.891Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 28,
               "Title": "KeywordService.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\KeywordService.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\Services\\KeywordService.cs",
@@ -423,12 +452,11 @@
               "RelativeToolTip": "Finamon.Service\\Services\\KeywordService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T04:22:55.311Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T04:22:55.311Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 29,
               "Title": "FirebaseStorageService.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\FirebaseStorageService.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\Services\\FirebaseStorageService.cs",
@@ -436,27 +464,25 @@
               "RelativeToolTip": "Finamon.Service\\Services\\FirebaseStorageService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T04:22:54.444Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T04:22:54.444Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 1,
               "Title": "AuthService.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\AuthService.cs",
               "RelativeDocumentMoniker": "Finamon.Service\\Services\\AuthService.cs",
               "ToolTip": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon.Service\\Services\\AuthService.cs",
               "RelativeToolTip": "Finamon.Service\\Services\\AuthService.cs",
-              "ViewState": "AgIAAF0AAAAAAAAAAAAYwCYAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAgBAAAAAAAAAAAowOEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-24T18:10:59.155Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-24T18:10:59.155Z"
             }
           ]
         },
         {
-          "DockedHeight": 265,
-          "SelectedChildIndex": 4,
+          "DockedHeight": 150,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -467,29 +493,21 @@
               "Name": "ST:17:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
-            },
-            {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 6,
               "Title": "UserController.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Controllers\\UserController.cs",
               "RelativeDocumentMoniker": "Finamon\\Controllers\\UserController.cs",
               "ToolTip": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Controllers\\UserController.cs",
               "RelativeToolTip": "Finamon\\Controllers\\UserController.cs",
-              "ViewState": "AgIAABkAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAADAAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-25T05:31:39.942Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 25,
               "Title": "ReportController.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Controllers\\ReportController.cs",
               "RelativeDocumentMoniker": "Finamon\\Controllers\\ReportController.cs",
@@ -497,12 +515,11 @@
               "RelativeToolTip": "Finamon\\Controllers\\ReportController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:31:39.111Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:31:39.111Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 26,
               "Title": "UserActivityController.cs",
               "DocumentMoniker": "D:\\Course\\Sem 8\\EXE201\\BE\\Finamon_BE\\SU25-EXE201-Finamon\\Finamon\\Controllers\\UserActivityController.cs",
               "RelativeDocumentMoniker": "Finamon\\Controllers\\UserActivityController.cs",
@@ -510,8 +527,11 @@
               "RelativeToolTip": "Finamon\\Controllers\\UserActivityController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-25T05:31:38.047Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-25T05:31:38.047Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
             }
           ]
         },

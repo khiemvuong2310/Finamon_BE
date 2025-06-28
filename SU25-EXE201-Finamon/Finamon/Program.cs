@@ -16,13 +16,15 @@ namespace Finamon
     {
         public static void Main(string[] args)
         {
-            Env.Load(); // Tải biến môi trường từ file .env
+            // 1. Load environment variables
+            Env.Load();
+
             var builder = WebApplication.CreateBuilder(args);
 
-            // Copy email templates to output directory
+            // 2. Copy email templates to output directory
             var templatesSourcePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates");
             var templatesDestPath = Path.Combine(builder.Environment.ContentRootPath, "Templates");
-            
+
             if (!Directory.Exists(templatesDestPath))
             {
                 Directory.CreateDirectory(templatesDestPath);
@@ -32,11 +34,10 @@ namespace Finamon
                 }
             }
 
-            // Add services to the container.
+            // 3. Add services to the container
             builder.Services.InstallService(builder.Configuration);
             builder.Services.ConfigureAuthService(builder.Configuration);
 
-            //This ensures that users can only access their own information through the GetUserByIdAsync endpoint.
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddControllers().AddJsonOptions(options =>
@@ -48,7 +49,8 @@ namespace Finamon
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddProblemDetails();
 
-            builder.Services.AddDbContext<AppDbContext>(options => {
+            builder.Services.AddDbContext<AppDbContext>(options =>
+            {
                 var connectionString = builder.Configuration["DB_CONNECTION_STRING"];
                 var serverVersion = new MySqlServerVersion(new Version(8, 0, 2));
                 options.UseMySql(connectionString, serverVersion);
@@ -58,27 +60,28 @@ namespace Finamon
             {
                 options.AddPolicy("AllowReactApp", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173","https://finamon.pages.dev")
+                    policy.WithOrigins("http://localhost:5173", "https://finamon.pages.dev")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();
                 });
             });
 
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddEndpointsApiExplorer(); // Thay v� AddOpenApi()
+            // Upload config
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 104857600; // 100 MB
+            });
 
-            //Add button Authorize 
+            // Swagger & OpenAPI
+            builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                //c.OperationFilter<SnakecasingParameOperationFilter>();
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Finamon API",
                     Version = "v1"
                 });
-
-                //c.CustomSchemaIds(type => type.FullName); // 🔥 Thêm dòng này
 
                 var securitySchema = new OpenApiSecurityScheme
                 {
@@ -93,53 +96,42 @@ namespace Finamon
                         Id = "Bearer"
                     }
                 };
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
-                });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement { { securitySchema, new string[] { "Bearer" } } });
+                c.AddSecurityDefinition("Bearer", securitySchema);
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                { securitySchema, new[] { "Bearer" } }
+            });
             });
 
-
-            // ============= FIREBASE CONFIG (SỬA LẠI) =============
+            // 4. Firebase configuration
             var firebaseConfig = Environment.GetEnvironmentVariable("FIREBASE_CONFIG");
             if (!string.IsNullOrEmpty(firebaseConfig))
             {
-                FirebaseApp.Create(new AppOptions()
+                FirebaseApp.Create(new AppOptions
                 {
                     Credential = GoogleCredential.FromJson(firebaseConfig),
-                    ProjectId = "pawfund-e7fdd" // Thêm ProjectId
+                    ProjectId = "pawfund-e7fdd"
                 });
             }
             else
             {
-                FirebaseApp.Create(new AppOptions()
+                FirebaseApp.Create(new AppOptions
                 {
                     Credential = GoogleCredential.FromFile("firebase-adminsdk.json"),
-                    ProjectId = "pawfund-e7fdd" // Thêm ProjectId
+                    ProjectId = "pawfund-e7fdd"
                 });
             }
-            // File upload config (đã có)
-            builder.Services.Configure<FormOptions>(options =>
+
+            // 5. Kestrel server config
+            builder.WebHost.ConfigureKestrel(options =>
             {
-                options.MultipartBodyLengthLimit = 104857600; // 100 MB
+                options.ListenAnyIP(5296);
             });
 
-            builder.WebHost.ConfigureKestrel(options => {
-                options.ListenAnyIP(5296); // Binds to all IPs
-            });
+            // 6. Build application
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // 7. Configure middleware
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -148,20 +140,21 @@ namespace Finamon
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Finamon API v1");
                 });
             }
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            else
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
             app.UseExceptionHandler();
 
             app.UseHttpsRedirection();
-
             app.UseCors("AllowReactApp");
-
             app.UseAuthentication();
-
             app.UseAuthorization();
-
             app.MapControllers();
 
+            // 8. Run the application
             app.Run();
         }
     }

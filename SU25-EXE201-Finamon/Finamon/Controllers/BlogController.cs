@@ -51,7 +51,7 @@ namespace Finamon.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<ActionResult<BaseResponse>> DeleteBlog(int id)
         {
             var response = await _blogService.DeleteBlogAsync(id);

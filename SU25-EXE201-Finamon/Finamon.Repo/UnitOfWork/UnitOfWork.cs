@@ -1,4 +1,4 @@
-﻿using Finamon.Repo.Repositories;
+﻿using Finamon.Repo.UnitOfWork.Repositories;
 using Finamon_Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;

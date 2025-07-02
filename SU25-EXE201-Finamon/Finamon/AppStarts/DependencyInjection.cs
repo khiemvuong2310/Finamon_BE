@@ -1,5 +1,5 @@
-﻿using Finamon.Repo.Repositories;
-using Finamon.Repo.UnitOfWork;
+﻿using Finamon.Repo.UnitOfWork;
+using Finamon.Repo.UnitOfWork.Repositories;
 using Finamon.Service.Interfaces;
 using Finamon.Service.Mapping;
 using Finamon.Service.RequestModel;
@@ -48,6 +48,7 @@ namespace Finamon.AppStarts
             services.AddScoped<ICategoryAlertService, CategoryAlertService>();
             services.AddScoped<IEmailTemplateService, EmailTemplateService>();
             services.AddScoped<IUserActivityService, UserActivityService>();
+            services.AddScoped<ISiteAnalyticService, SiteAnalyticService>();
             // Thêm AutoMapper vào dịch vụ
             services.AddAutoMapper(typeof(UserMappingProfile));
             services.AddAutoMapper(typeof(UserRoleMapping));
@@ -59,6 +60,7 @@ namespace Finamon.AppStarts
             services.AddAutoMapper(typeof(CommentMappingProfile));
             services.AddAutoMapper(typeof(MembershipProfile));
             services.AddAutoMapper(typeof(KeywordProfile));
+            services.AddAutoMapper(typeof(SiteAnalyticProfile));
         }
     }
 }

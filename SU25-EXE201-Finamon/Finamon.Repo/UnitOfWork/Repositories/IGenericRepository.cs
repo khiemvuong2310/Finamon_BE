@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Finamon.Repo.Repositories
+namespace Finamon.Repo.UnitOfWork.Repositories
 {
     public interface IGenericRepository<TEntity>
         where TEntity : class

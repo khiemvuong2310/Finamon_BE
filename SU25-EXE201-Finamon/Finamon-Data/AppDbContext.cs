@@ -28,6 +28,7 @@ namespace Finamon_Data
         public DbSet<UserMembership> UserMemberships { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<UserActivity> UserActivities { get; set; }
+        public DbSet<SiteAnalytic> SiteAnalytics { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -129,6 +130,7 @@ namespace Finamon_Data
             modelBuilder.Entity<BudgetAlert>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<CategoryAlert>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<Comment>().HasQueryFilter(m => !m.IsDelete);
+            modelBuilder.Entity<SiteAnalytic>().HasQueryFilter(m => !m.IsDelete);
 
             // Configure One-to-Many: Category -> BudgetCategories
             modelBuilder.Entity<Category>()

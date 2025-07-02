@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Finamon.Repo.Repositories
+namespace Finamon.Repo.UnitOfWork.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {

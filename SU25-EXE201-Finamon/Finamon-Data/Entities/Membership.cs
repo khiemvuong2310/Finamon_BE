@@ -12,6 +12,7 @@ namespace Finamon_Data.Entities
         public decimal MonthlyPrice { get; set; }
         public decimal YearlyPrice { get; set; }
         public ICollection<UserMembership> UserMemberships { get; set; }
+        public virtual ICollection<Receipt> Receipts { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
     }

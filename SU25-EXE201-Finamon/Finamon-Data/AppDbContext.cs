@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Finamon_Data.Entities;
+using Finamon_Data.Enum;
 
 namespace Finamon_Data
 {
@@ -29,6 +30,7 @@ namespace Finamon_Data
         public DbSet<Comment> Comments { get; set; }
         public DbSet<UserActivity> UserActivities { get; set; }
         public DbSet<SiteAnalytic> SiteAnalytics { get; set; }
+        public DbSet<Receipt> Receipts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -131,6 +133,7 @@ namespace Finamon_Data
             modelBuilder.Entity<CategoryAlert>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<Comment>().HasQueryFilter(m => !m.IsDelete);
             modelBuilder.Entity<SiteAnalytic>().HasQueryFilter(m => !m.IsDelete);
+            modelBuilder.Entity<Receipt>().HasQueryFilter(m => !m.IsDelete);
 
             // Configure One-to-Many: Category -> BudgetCategories
             modelBuilder.Entity<Category>()
@@ -162,6 +165,20 @@ namespace Finamon_Data
 
             // Configure soft delete for UserActivity
             modelBuilder.Entity<UserActivity>().HasQueryFilter(m => !m.IsDelete);
+
+            // Configure One-to-Many: User -> Receipts
+            modelBuilder.Entity<Receipt>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Receipts)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure One-to-Many: Membership -> Receipts
+            modelBuilder.Entity<Receipt>()
+                .HasOne(r => r.Membership)
+                .WithMany(m => m.Receipts)
+                .HasForeignKey(r => r.MembershipId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             //SeedData
             modelBuilder.Entity<Role>().HasData(

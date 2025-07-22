@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Finamon_Data.Enum
 {
-    public enum Role
+    public enum Roles
     {
         Admin = 1,
         Staff = 2,

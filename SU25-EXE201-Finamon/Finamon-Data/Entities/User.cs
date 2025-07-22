@@ -34,5 +34,6 @@ namespace Finamon_Data.Entities
         public virtual ICollection<Budget> Budgets { get; set; }
         public virtual ICollection<Comment> Comments { get; set; }
         public virtual ICollection<UserActivity> UserActivities { get; set; }
+        public virtual ICollection<Receipt> Receipts { get; set; }
     }
 }

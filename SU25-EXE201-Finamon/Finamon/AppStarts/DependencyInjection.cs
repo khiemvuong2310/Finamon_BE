@@ -49,6 +49,7 @@ namespace Finamon.AppStarts
             services.AddScoped<IEmailTemplateService, EmailTemplateService>();
             services.AddScoped<IUserActivityService, UserActivityService>();
             services.AddScoped<ISiteAnalyticService, SiteAnalyticService>();
+            services.AddScoped<IReceiptService, ReceiptService>();
             // Thêm AutoMapper vào dịch vụ
             services.AddAutoMapper(typeof(UserMappingProfile));
             services.AddAutoMapper(typeof(UserRoleMapping));
@@ -61,6 +62,7 @@ namespace Finamon.AppStarts
             services.AddAutoMapper(typeof(MembershipProfile));
             services.AddAutoMapper(typeof(KeywordProfile));
             services.AddAutoMapper(typeof(SiteAnalyticProfile));
+            services.AddAutoMapper(typeof(ReceiptMappingProfile));
         }
     }
 }

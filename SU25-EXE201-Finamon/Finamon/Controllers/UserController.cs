@@ -167,5 +167,20 @@ namespace Finamon.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpGet("total-active")]
+        [Authorize(Roles = "Admin,Staff")]
+        public async Task<ActionResult<int>> GetTotalActiveUsers()
+        {
+            try
+            {
+                var total = await _userService.GetTotalActiveUsersAsync();
+                return Ok(total);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 } 

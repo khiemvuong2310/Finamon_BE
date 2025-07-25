@@ -5,6 +5,7 @@ using Finamon.Service.RequestModel;
 using Finamon.Service.RequestModel.QueryRequest;
 using Finamon.Service.ReponseModel;
 using Finamon.Service.Interfaces;
+using System;
 
 namespace Finamon.Controllers
 {
@@ -60,6 +61,20 @@ namespace Finamon.Controllers
             var success = await _receiptService.DeleteAsync(id);
             if (!success) return NotFound();
             return Ok();
+        }
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetByUserId(int userId, [FromQuery] ReceiptQueryRequest query)
+        {
+            try
+            {
+                var result = await _receiptService.GetReceiptByUserIdAsync(userId, query);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 } 

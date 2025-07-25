@@ -13,8 +13,7 @@ namespace Finamon.Service.RequestModel
         [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than 0")]
         public decimal Amount { get; set; }
 
-        //[Required(ErrorMessage = "Date is required")]
-        //public DateTime Date { get; set; }
+        public DateTime? CreateDate { get; set; }
 
         [Required(ErrorMessage = "CategoryId is required")]
         public int CategoryId { get; set; }

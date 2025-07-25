@@ -11,5 +11,6 @@ namespace Finamon.Service.Interfaces
         Task<PaginatedResponse<ReceiptResponseModel>> GetAllAsync(ReceiptQueryRequest query);
         Task<ReceiptResponseModel> GetByIdAsync(int id);
         Task<ReceiptResponseModel> UpdateAsync(int Id ,ReceiptUpdateRequestModel model);
+        Task<PaginatedResponse<ReceiptResponseModel>> GetReceiptByUserIdAsync(int userId, ReceiptQueryRequest query);
     }
 }

@@ -642,5 +642,12 @@ namespace Finamon.Service.Services
                 throw new Exception($"Failed to update user image: {ex.Message}");
             }
         }
+
+        public async Task<int> GetTotalActiveUsersAsync()
+        {
+            return await _context.Users
+                .Where(u => !u.IsDelete && u.Status == true)
+                .CountAsync();
+        }
     }
 } 

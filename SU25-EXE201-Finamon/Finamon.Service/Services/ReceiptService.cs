@@ -65,13 +65,13 @@ namespace Finamon.Service.Services
                             source = query.SortDescending ? source.OrderByDescending(r => r.Amount) : source.OrderBy(r => r.Amount);
                             break;
                         default:
-                            source = source.OrderByDescending(r => r.Id);
+                            source = source.OrderByDescending(r => r.CreatedDate);
                             break;
                     }
                 }
                 else
                 {
-                    source = source.OrderByDescending(r => r.Id);
+                    source = source.OrderByDescending(r => r.CreatedDate);
                 }
 
                 var paginated = await PaginatedResponse<Receipt>.CreateAsync(source, query.PageNumber, query.PageSize);
@@ -164,6 +164,61 @@ namespace Finamon.Service.Services
             catch (Exception ex)
             {
                 throw new Exception($"Error deleting receipt: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<PaginatedResponse<ReceiptResponseModel>> GetReceiptByUserIdAsync(int userId, ReceiptQueryRequest query)
+        {
+            try
+            {
+                var source = _context.Receipts
+                    .Where(r => r.UserId == userId && !r.IsDelete);
+
+                // Filter by MembershipId
+                if (query.MembershipId.HasValue)
+                    source = source.Where(r => r.MembershipId == query.MembershipId.Value);
+
+                // Filter by Status
+                if (query.Status.HasValue)
+                    source = source.Where(r => r.Status == query.Status.Value);
+
+                // Filter by CreatedDate range
+                if (query.CreatedFrom.HasValue)
+                    source = source.Where(r => r.CreatedDate >= query.CreatedFrom.Value);
+                if (query.CreatedTo.HasValue)
+                    source = source.Where(r => r.CreatedDate <= query.CreatedTo.Value);
+
+                // Sắp xếp theo SortBy nếu có
+                if (query.SortBy.HasValue)
+                {
+                    switch (query.SortBy.Value)
+                    {
+                        case SortByEnum.CreatedDate:
+                            source = query.SortDescending ? source.OrderByDescending(r => r.CreatedDate) : source.OrderBy(r => r.CreatedDate);
+                            break;
+                        case SortByEnum.UpdatedDate:
+                            source = query.SortDescending ? source.OrderByDescending(r => r.UpdatedDate) : source.OrderBy(r => r.UpdatedDate);
+                            break;
+                        case SortByEnum.Amount:
+                            source = query.SortDescending ? source.OrderByDescending(r => r.Amount) : source.OrderBy(r => r.Amount);
+                            break;
+                        default:
+                            source = source.OrderByDescending(r => r.CreatedDate);
+                            break;
+                    }
+                }
+                else
+                {
+                    source = source.OrderByDescending(r => r.CreatedDate);
+                }
+
+                var paginated = await PaginatedResponse<Receipt>.CreateAsync(source, query.PageNumber, query.PageSize);
+                var mapped = paginated.Items.Select(r => _mapper.Map<ReceiptResponseModel>(r)).ToList();
+                return new PaginatedResponse<ReceiptResponseModel>(mapped, paginated.TotalCount, paginated.PageIndex, query.PageSize);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error getting receipts for user {userId}: {ex.Message}", ex);
             }
         }
     }

@@ -169,7 +169,7 @@ namespace Finamon.Controllers
         }
 
         [HttpGet("total-active")]
-        [Authorize(Roles = "Admin,Staff")]
+        //[Authorize(Roles = "Admin,Staff")]
         public async Task<ActionResult<int>> GetTotalActiveUsers()
         {
             try

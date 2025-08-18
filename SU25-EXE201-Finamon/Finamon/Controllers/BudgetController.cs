@@ -10,7 +10,7 @@ namespace Finamon.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BudgetController : ControllerBase
+     public class BudgetController : ControllerBase
     {
         private readonly IBudgetService _budgetService;
 

@@ -492,7 +492,6 @@ namespace Finamon.Service.Services
                     .ThenInclude(ur => ur.Role)
                 .AsQueryable();
 
-            // Áp dụng các bộ lọc
             if (!string.IsNullOrEmpty(queryRequest.Username))
             {
                 queryable = queryable.Where(u => u.UserName.Contains(queryRequest.Username));

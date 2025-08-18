@@ -134,5 +134,28 @@ namespace Finamon.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPut("user/{id}")]
+        public async Task<ActionResult<UserMembershipResponse>> UpdateUserMembership(int id, [FromBody] UpdateUserMembershipRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var updatedUserMembership = await _membershipService.UpdateUserMembershipAsync(id, request);
+                return Ok(updatedUserMembership);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
     }
 } 

@@ -202,7 +202,6 @@ namespace Finamon.Service.Services
 
         public async Task<bool> AssignMembershipToUserAsync(AssignMembershipRequest request)
         {
-            // Check if user exists
             var user = await _context.Users.FindAsync(request.UserId);
             if (user == null)
             {
@@ -331,6 +330,64 @@ namespace Finamon.Service.Services
                 paginatedResult.TotalCount, 
                 paginatedResult.PageIndex, 
                 queryRequest.PageSize);
+        }
+
+        public async Task<UserMembershipResponse> UpdateUserMembershipAsync(int id, UpdateUserMembershipRequest request)
+        {
+            var userMembership = await _context.UserMemberships
+                .Include(um => um.User)
+                .Include(um => um.Membership)
+                .FirstOrDefaultAsync(um => um.UserId == id && !um.IsDelete);
+
+            if (userMembership == null)
+            {
+                throw new KeyNotFoundException($"UserMembership with ID {id} not found or has been deleted.");
+            }
+
+            if (request.MembershipId.HasValue && request.MembershipId.Value != userMembership.MembershipId)
+            {
+                var newMembership = await _context.Memberships.FirstOrDefaultAsync(m => m.Id == request.MembershipId.Value && !m.IsDelete);
+                if (newMembership == null)
+                {
+                    throw new KeyNotFoundException($"Membership with ID {request.MembershipId.Value} not found or has been deleted.");
+                }
+                userMembership.MembershipId = request.MembershipId.Value;
+            }
+            if (request.StartDate.HasValue)
+            {
+                userMembership.StartDate = request.StartDate.Value;
+            }
+            if (request.EndDate.HasValue)
+            {
+                if (request.EndDate.Value <= userMembership.StartDate)
+                {
+                    throw new ArgumentException("End date must be after the start date.");
+                }
+                userMembership.EndDate = request.EndDate.Value;
+            }
+            if (request.IsDelete.HasValue)
+            {
+                userMembership.IsDelete = request.IsDelete.Value;
+            }
+            await _context.SaveChangesAsync();
+
+            var updatedUserMembership = await _context.UserMemberships
+                .Include(um => um.User)
+                .Include(um => um.Membership)
+                .FirstOrDefaultAsync(um => um.UserId == id);
+
+            return new UserMembershipResponse
+            {
+                UserId = updatedUserMembership.UserId,
+                UserName = updatedUserMembership.User.UserName,
+                Email = updatedUserMembership.User.Email,
+                MembershipName = updatedUserMembership.Membership.Name,
+                MonthlyPrice = updatedUserMembership.Membership.MonthlyPrice,
+                YearlyPrice = updatedUserMembership.Membership.YearlyPrice,
+                StartDate = updatedUserMembership.StartDate,
+                EndDate = updatedUserMembership.EndDate,
+                IsActive = !updatedUserMembership.EndDate.HasValue || updatedUserMembership.EndDate > DateTime.UtcNow.AddHours(7)
+            };
         }
     }
 } 

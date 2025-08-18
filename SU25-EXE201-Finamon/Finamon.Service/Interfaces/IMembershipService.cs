@@ -14,5 +14,6 @@ namespace Finamon.Service.Interfaces
         Task<bool> DeleteMembershipAsync(int id);
         Task<bool> AssignMembershipToUserAsync(AssignMembershipRequest request);
         Task<PaginatedResponse<UserMembershipResponse>> GetAllUserMembershipsAsync(UserMembershipQueryRequest queryRequest);
+        Task<UserMembershipResponse> UpdateUserMembershipAsync(int id, UpdateUserMembershipRequest request);
     }
 } 

@@ -13,6 +13,8 @@ namespace Finamon.Service.Mapping
             CreateMap<CreateMembershipRequest, Membership>();
             CreateMap<UpdateMembershipRequest, Membership>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<UpdateUserMembershipRequest, UserMembership>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

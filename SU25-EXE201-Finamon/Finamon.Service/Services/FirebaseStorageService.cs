@@ -51,11 +51,9 @@ namespace Finamon.Service.Services
         {
             try
             {
-                // Validate file
                 if (file == null || file.Length == 0)
                     throw new ArgumentException("File is empty or null");
 
-                // Validate file type
                 var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp" };
                 if (!allowedTypes.Contains(file.ContentType.ToLower()))
                     throw new ArgumentException($"File type {file.ContentType} is not allowed");

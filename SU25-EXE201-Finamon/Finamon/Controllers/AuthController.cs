@@ -34,6 +34,13 @@ namespace Finamon.Controllers
             });
         }
 
+        //Test Controller Method
+        [HttpGet("test")]
+        public ActionResult<string> Test()
+        {
+            return "Auth Controller is working!";
+        }
+
         [HttpPost("register")]
         [AllowAnonymous]
         public async Task<ActionResult<BaseResponse<TokenModel>>> Register([FromBody] RegisterRequestModel model)

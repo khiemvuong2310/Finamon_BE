@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Collections.Generic; // Required for KeyNotFoundException
 using System;
-using Finamon.Service.RequestModel.QueryRequest; // Required for InvalidOperationException
+using Finamon.Service.RequestModel.QueryRequest;
+using Microsoft.AspNetCore.Authorization; // Required for InvalidOperationException
 
 namespace Finamon.Controllers
 {
@@ -42,6 +43,7 @@ namespace Finamon.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<ActionResult<MembershipResponse>> CreateMembership([FromBody] CreateMembershipRequest request)
         {
             if (!ModelState.IsValid)
@@ -53,6 +55,7 @@ namespace Finamon.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<ActionResult<MembershipResponse>> UpdateMembership(int id, [FromBody] UpdateMembershipRequest request)
         {
             if (!ModelState.IsValid)
@@ -71,6 +74,7 @@ namespace Finamon.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Staff")]
         public async Task<ActionResult> DeleteMembership(int id)
         {
             try

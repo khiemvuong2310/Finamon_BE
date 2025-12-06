@@ -41,11 +41,11 @@ namespace Finamon.Controllers
             return "Auth Controller is working!";
         }
 
-        //Test host api on Monster.ASP.NET
-        [HttpGet("host-test")]
-        public ActionResult<string> HostTest()
+        //Last test CI/CD method
+        [HttpGet("test-ci-cd")]
+        public ActionResult<string> TestCiCd()
         {
-            return "Host API is working!";
+            return "CI/CD pipeline is working!";
         }
 
         [HttpPost("register")]

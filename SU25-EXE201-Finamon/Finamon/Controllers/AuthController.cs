@@ -41,6 +41,13 @@ namespace Finamon.Controllers
             return "Auth Controller is working!";
         }
 
+        //Test host api on Monster.ASP.NET
+        [HttpGet("host-test")]
+        public ActionResult<string> HostTest()
+        {
+            return "Host API is working!";
+        }
+
         [HttpPost("register")]
         [AllowAnonymous]
         public async Task<ActionResult<BaseResponse<TokenModel>>> Register([FromBody] RegisterRequestModel model)

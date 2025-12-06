@@ -41,6 +41,13 @@ namespace Finamon.Controllers
             return "Auth Controller is working!";
         }
 
+        //Last test CI/CD method
+        [HttpGet("test-ci-cd")]
+        public ActionResult<string> TestCiCd()
+        {
+            return "CI/CD pipeline is working!";
+        }
+
         [HttpPost("register")]
         [AllowAnonymous]
         public async Task<ActionResult<BaseResponse<TokenModel>>> Register([FromBody] RegisterRequestModel model)

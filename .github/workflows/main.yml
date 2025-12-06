@@ -1,0 +1,44 @@
+name: Build, publish and deploy to MonsterASP.NET
+
+on:
+  push:
+    branches: [ main ]   # chỉ deploy khi push vào main
+
+jobs:
+  build_and_deploy:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ./src/YourProject/YourProject.csproj
+
+      - name: Run tests
+        run: dotnet test ./tests/YourProject.Tests/YourProject.Tests.csproj --no-build --verbosity normal
+
+      - name: Build
+        run: dotnet build ./src/YourProject/YourProject.csproj --configuration Release --no-restore
+
+      - name: Publish
+        # Nếu bạn muốn framework-dependent (IIS + hosting runtime trên server), bỏ --runtime
+        run: dotnet publish --configuration Release --output ./publish --runtime win-x86 
+
+      - name: Zip publish folder
+        run: |
+          powershell -Command "if(Test-Path publish.zip){Remove-Item publish.zip -Force}; Compress-Archive -Path 'publish/*' -DestinationPath 'publish.zip' -Force"
+
+      - name: Deploy to MonsterASP.NET via WebDeploy
+        uses: rasmusbuchholdt/simply-web-deploy@2.1.0
+        with:
+          package: './publish.zip'                            # bắt buộc để MSDeploy biết package
+          website-name: ${{ secrets.WEBSITE_NAME }}          # vd: 'Default Web Site/YourApp'
+          server-computer-name: ${{ secrets.SERVER_COMPUTER_NAME }}
+          server-username: ${{ secrets.SERVER_USERNAME }}
+          server-password: ${{ secrets.SERVER_PASSWORD }}
